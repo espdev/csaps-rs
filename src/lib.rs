@@ -2,15 +2,18 @@ use std::fmt::Debug;
 use std::result;
 
 use num_traits::{Float, NumCast};
-use ndarray::{Array1, Array2, ArrayView1, ArrayView2, Axis};
+use ndarray::{Dimension, Array, Array1, Array2, ArrayView, ArrayView1, Axis};
 
 
 #[derive(Debug)]
-pub struct CubicSmoothingSpline<'a, T>
-    where T: Float + Debug
+pub struct CubicSmoothingSpline<'a, T, D>
+    where T: Float + Debug, D: Dimension
 {
     x: ArrayView1<'a, T>,
-    y: ArrayView2<'a, T>,
+    y: ArrayView<'a, T, D>,
+
+    ndim: usize,
+    axis: Option<Axis>,
 
     weights: Option<ArrayView1<'a, T>>,
     smooth: Option<T>,
@@ -26,17 +29,21 @@ pub struct CubicSmoothingSpline<'a, T>
 pub type Result<T> = result::Result<T, String>;
 
 
-impl<'a, T> CubicSmoothingSpline<'a, T>
-    where T: Float + Debug
+impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
+    where T: Float + Debug, D: Dimension
 {
-    pub fn new(x: &'a Array1<T>, y: &'a Array2<T>) -> CubicSmoothingSpline<'a, T> {
+    pub fn new(x: &'a Array1<T>, y: &'a Array<T, D>) -> Self {
         Self::from_view(x.view(), y.view())
     }
 
-    pub fn from_view(x: ArrayView1<'a, T>, y: ArrayView2<'a, T>) -> CubicSmoothingSpline<'a, T> {
+    pub fn from_view(x: ArrayView1<'a, T>, y: ArrayView<'a, T, D>) -> Self {
+        let ndim = y.ndim();
+
         CubicSmoothingSpline {
             x,
             y,
+            ndim,
+            axis: None,
             weights: None,
             smooth: None,
             order: None,
@@ -46,24 +53,30 @@ impl<'a, T> CubicSmoothingSpline<'a, T>
         }
     }
 
-    pub fn with_weights(mut self, weights: &'a Array1<T>) -> CubicSmoothingSpline<'a, T> {
+    pub fn with_axis(mut self, axis: Axis) -> Self {
+        self.invalidate();
+        self.axis = Some(axis);
+        self
+    }
+
+    pub fn with_weights(mut self, weights: &'a Array1<T>) -> Self {
         self = self.with_weights_view(weights.view());
         self
     }
 
-    pub fn with_weights_view(mut self, weights: ArrayView1<'a, T>) -> CubicSmoothingSpline<'a, T> {
+    pub fn with_weights_view(mut self, weights: ArrayView1<'a, T>) -> Self {
         self.invalidate();
         self.weights = Some(weights);
         self
     }
 
-    pub fn with_smooth(mut self, smooth: T) -> CubicSmoothingSpline<'a, T> {
+    pub fn with_smooth(mut self, smooth: T) -> Self {
         self.invalidate();
         self.smooth = Some(smooth);
         self
     }
 
-    pub fn make(mut self) -> Result<CubicSmoothingSpline<'a, T>> {
+    pub fn make(mut self) -> Result<Self> {
         self.make_validate_data()?;
 
         let weights_default = Array1::ones(self.x.raw_dim());
@@ -74,15 +87,19 @@ impl<'a, T> CubicSmoothingSpline<'a, T>
         Ok(self)
     }
 
-    pub fn evaluate(&self, xi: &'a Array1<T>) -> Result<Array2<T>> {
+    pub fn evaluate(&self, xi: &'a Array1<T>) -> Result<Array<T, D>> {
         self.evaluate_view(xi.view())
     }
 
-    pub fn evaluate_view(&self, xi: ArrayView1<'a, T>) -> Result<Array2<T>> {
+    pub fn evaluate_view(&self, xi: ArrayView1<'a, T>) -> Result<Array<T, D>> {
         self.evaluate_validate_data(&xi)?;
 
-        let arr = Array2::zeros(self.y.raw_dim());
+        let arr = Array::zeros(self.y.raw_dim());
         Ok(arr)
+    }
+
+    pub fn ndim(&self) -> usize {
+        self.ndim
     }
 
     pub fn smooth(&self) -> Option<T> {
@@ -109,12 +126,29 @@ impl<'a, T> CubicSmoothingSpline<'a, T>
     }
 
     fn make_validate_data(&self) -> Result<()> {
+        if self.ndim == 0 {
+            return Err(
+                format!("`y` has zero dimensionality")
+            )
+        }
+
+        let default_axis = Axis(self.ndim - 1);
+        let axis = self.axis.unwrap_or(default_axis);
+
+        if axis > default_axis {
+            return Err(
+                format!("`axis` value ({}) is out of bounds `y` dimensionality ({})",
+                        axis.0, self.ndim)
+            )
+        }
+
         let x_size = self.x.len();
-        let y_size = self.y.len_of(Axis(1));
+        let y_size = self.y.len_of(axis);
 
         if x_size != y_size {
             return Err(
-                format!("The shape[1] ({}) of `y` data is not equal to `x` size ({})", y_size, x_size)
+                format!("The shape[{}] ({}) of `y` data is not equal to `x` size ({})",
+                        axis.0, y_size, x_size)
             )
         }
 
