@@ -2,25 +2,24 @@ use std::fmt::Debug;
 use std::result;
 
 use num_traits::{Float, NumCast};
-
-use ndarray::{Array1, Array2, Axis, stack};
+use ndarray::{Array1, Array2, ArrayView1, ArrayView2, Axis};
 
 
 #[derive(Debug)]
 pub struct CubicSmoothingSpline<'a, T>
     where T: Float + Debug
 {
-    x: &'a Array1<T>,
-    y: &'a Array2<T>,
+    x: ArrayView1<'a, T>,
+    y: ArrayView2<'a, T>,
 
-    axis: Axis,
-
-    weights: Option<&'a Array1<T>>,
+    weights: Option<ArrayView1<'a, T>>,
     smooth: Option<T>,
 
     order: Option<u32>,
     pieces: Option<u32>,
     coeffs: Option<Array2<T>>,
+
+    is_valid: bool,
 }
 
 
@@ -30,60 +29,60 @@ pub type Result<T> = result::Result<T, String>;
 impl<'a, T> CubicSmoothingSpline<'a, T>
     where T: Float + Debug
 {
-
     pub fn new(x: &'a Array1<T>, y: &'a Array2<T>) -> CubicSmoothingSpline<'a, T> {
+        Self::from_view(x.view(), y.view())
+    }
+
+    pub fn from_view(x: ArrayView1<'a, T>, y: ArrayView2<'a, T>) -> CubicSmoothingSpline<'a, T> {
         CubicSmoothingSpline {
             x,
             y,
-            axis: Axis(1),
             weights: None,
             smooth: None,
             order: None,
             pieces: None,
             coeffs: None,
+            is_valid: false,
         }
     }
 
     pub fn with_weights(mut self, weights: &'a Array1<T>) -> CubicSmoothingSpline<'a, T> {
-        self.clear();
+        self = self.with_weights_view(weights.view());
+        self
+    }
+
+    pub fn with_weights_view(mut self, weights: ArrayView1<'a, T>) -> CubicSmoothingSpline<'a, T> {
+        self.invalidate();
         self.weights = Some(weights);
         self
     }
 
     pub fn with_smooth(mut self, smooth: T) -> CubicSmoothingSpline<'a, T> {
-        self.clear();
+        self.invalidate();
         self.smooth = Some(smooth);
         self
     }
 
     pub fn make(mut self) -> Result<CubicSmoothingSpline<'a, T>> {
-        self.validate_data()?;
+        self.make_validate_data()?;
 
-        let weights_default = Array1::ones((self.x.len(),));
-        let weights = self.weights.unwrap_or(&weights_default);
+        let weights_default = Array1::ones(self.x.raw_dim());
+        let weights = self.weights
+            .map(|v| v.reborrow()) // without it we will get an error: "[E0597] `weights_default` does not live long enough"
+            .unwrap_or(weights_default.view());
 
         Ok(self)
     }
 
     pub fn evaluate(&self, xi: &'a Array1<T>) -> Result<Array2<T>> {
-        if xi.len() < 2 {
-            return Err(
-                "The size of `xi` must be greater or equal to 2".to_string()
-            )
-        }
+        self.evaluate_view(xi.view())
+    }
 
-        if self.order.is_none() {
-            return Err(
-                "The spline has not been computed, use `make` method before".to_string()
-            )
-        }
+    pub fn evaluate_view(&self, xi: ArrayView1<'a, T>) -> Result<Array2<T>> {
+        self.evaluate_validate_data(&xi)?;
 
         let arr = Array2::zeros(self.y.raw_dim());
         Ok(arr)
-    }
-
-    pub fn weights(&self) -> Option<&'a Array1<T>> {
-        self.weights
     }
 
     pub fn smooth(&self) -> Option<T> {
@@ -105,9 +104,13 @@ impl<'a, T> CubicSmoothingSpline<'a, T>
         }
     }
 
-    fn validate_data(&self) -> Result<()> {
+    pub fn is_valid(&self) -> bool {
+        return self.is_valid
+    }
+
+    fn make_validate_data(&self) -> Result<()> {
         let x_size = self.x.len();
-        let y_size = self.y.len_of(self.axis);
+        let y_size = self.y.len_of(Axis(1));
 
         if x_size != y_size {
             return Err(
@@ -147,9 +150,26 @@ impl<'a, T> CubicSmoothingSpline<'a, T>
         Ok(())
     }
 
-    fn clear(&mut self) {
+    fn evaluate_validate_data(&self, xi: &ArrayView1<'a, T>) -> Result<()> {
+        if xi.len() < 2 {
+            return Err(
+                "The size of `xi` must be greater or equal to 2".to_string()
+            )
+        }
+
+        if !self.is_valid {
+            return Err(
+                "The spline has not been computed, use `make` method before".to_string()
+            )
+        }
+
+        Ok(())
+    }
+
+    fn invalidate(&mut self) {
         self.order = None;
         self.pieces = None;
         self.coeffs = None;
+        self.is_valid = false;
     }
 }

@@ -17,6 +17,19 @@ mod tests {
     }
 
     #[test]
+    fn test_from_view() {
+        let x = array![1., 2., 3., 4.];
+        let y = array![[1., 2., 3., 4.],
+                                                [5., 6., 7., 8.]];
+
+        let spline = CubicSmoothingSpline::from_view(x.view(), y.view());
+
+        assert!(spline.order().is_none());
+        assert!(spline.pieces().is_none());
+        assert!(spline.coeffs().is_none());
+    }
+
+    #[test]
     fn test_options() {
         let x = array![1., 2., 3., 4.];
         let y = array![[1., 2., 3., 4.]];
@@ -27,7 +40,6 @@ mod tests {
             .with_weights(&w)
             .with_smooth(s);
 
-        assert!(spline.weights().is_some());
         assert!(spline.smooth().is_some());
     }
 
@@ -37,7 +49,7 @@ mod tests {
         let x = array![1., 2., 3., 4.];
         let y = array![[1., 2., 3., 4., 5.]];
 
-        let spline = CubicSmoothingSpline::new(&x, &y)
+        CubicSmoothingSpline::new(&x, &y)
             .make()
             .unwrap();
     }
@@ -49,7 +61,7 @@ mod tests {
         let y = array![[1., 2., 3., 4.]];
         let w = array![1., 2., 3., 4., 5.];
 
-        let spline = CubicSmoothingSpline::new(&x, &y)
+        CubicSmoothingSpline::new(&x, &y)
             .with_weights(&w)
             .make()
             .unwrap();
@@ -62,7 +74,7 @@ mod tests {
         let y = array![[1., 2., 3., 4.]];
         let s = -0.5;
 
-        let spline = CubicSmoothingSpline::new(&x, &y)
+        CubicSmoothingSpline::new(&x, &y)
             .with_smooth(s)
             .make()
             .unwrap();
@@ -75,7 +87,7 @@ mod tests {
         let y = array![[1., 2., 3., 4.]];
         let s = 1.5;
 
-        let spline = CubicSmoothingSpline::new(&x, &y)
+        CubicSmoothingSpline::new(&x, &y)
             .with_smooth(s)
             .make()
             .unwrap();
@@ -90,6 +102,7 @@ mod tests {
             .make()
             .unwrap();
 
+        assert!(spline.is_valid());
         assert!(spline.order().is_some());
         assert!(spline.pieces().is_some());
         assert!(spline.coeffs().is_some());
@@ -107,5 +120,19 @@ mod tests {
         let ys = spline.evaluate(&x).unwrap();
 
         assert_eq!(ys, y);
+    }
+
+    #[test]
+    #[should_panic(expected = "The size of `xi` must be greater or equal to 2")]
+    fn test_evaluate_invalid_xi() {
+        let x = array![1., 2., 3., 4.];
+        let y = array![[1., 2., 3., 4.]];
+        let xi = array![1.];
+
+        let spline = CubicSmoothingSpline::new(&x, &y)
+            .make()
+            .unwrap();
+
+        spline.evaluate(&xi).unwrap();
     }
 }
