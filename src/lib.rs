@@ -3,20 +3,24 @@ use std::result;
 
 use num_traits::{Float, NumCast};
 
+use ndarray::{Array1, Array2, Axis, stack};
+
 
 #[derive(Debug)]
 pub struct CubicSmoothingSpline<'a, T>
     where T: Float + Debug
 {
-    x: &'a Vec<T>,
-    y: &'a Vec<T>,
+    x: &'a Array1<T>,
+    y: &'a Array2<T>,
 
-    weights: Option<&'a Vec<T>>,
+    axis: Axis,
+
+    weights: Option<&'a Array1<T>>,
     smooth: Option<T>,
 
     order: Option<u32>,
     pieces: Option<u32>,
-    coeffs: Option<Vec<T>>,
+    coeffs: Option<Array2<T>>,
 }
 
 
@@ -27,10 +31,11 @@ impl<'a, T> CubicSmoothingSpline<'a, T>
     where T: Float + Debug
 {
 
-    pub fn new(x: &'a Vec<T>, y: &'a Vec<T>) -> CubicSmoothingSpline<'a, T> {
+    pub fn new(x: &'a Array1<T>, y: &'a Array2<T>) -> CubicSmoothingSpline<'a, T> {
         CubicSmoothingSpline {
             x,
             y,
+            axis: Axis(1),
             weights: None,
             smooth: None,
             order: None,
@@ -39,7 +44,7 @@ impl<'a, T> CubicSmoothingSpline<'a, T>
         }
     }
 
-    pub fn with_weights(mut self, weights: &'a Vec<T>) -> CubicSmoothingSpline<'a, T> {
+    pub fn with_weights(mut self, weights: &'a Array1<T>) -> CubicSmoothingSpline<'a, T> {
         self.clear();
         self.weights = Some(weights);
         self
@@ -54,13 +59,13 @@ impl<'a, T> CubicSmoothingSpline<'a, T>
     pub fn make(mut self) -> Result<CubicSmoothingSpline<'a, T>> {
         self.validate_data()?;
 
-        let weights_default = vec![NumCast::from(1.0).unwrap(); self.x.len()];
+        let weights_default = Array1::ones((self.x.len(),));
         let weights = self.weights.unwrap_or(&weights_default);
 
         Ok(self)
     }
 
-    pub fn evaluate(&self, xi: &'a Vec<T>) -> Result<Vec<T>> {
+    pub fn evaluate(&self, xi: &'a Array1<T>) -> Result<Array2<T>> {
         if xi.len() < 2 {
             return Err(
                 "The size of `xi` must be greater or equal to 2".to_string()
@@ -73,7 +78,12 @@ impl<'a, T> CubicSmoothingSpline<'a, T>
             )
         }
 
-        Ok(Vec::new())
+        let arr = Array2::zeros(self.y.raw_dim());
+        Ok(arr)
+    }
+
+    pub fn weights(&self) -> Option<&'a Array1<T>> {
+        self.weights
     }
 
     pub fn smooth(&self) -> Option<T> {
@@ -88,7 +98,7 @@ impl<'a, T> CubicSmoothingSpline<'a, T>
         self.pieces
     }
 
-    pub fn coeffs(&self) -> Option<&Vec<T>> {
+    pub fn coeffs(&self) -> Option<&Array2<T>> {
         match &self.coeffs {
             Some(coeffs) => Some(coeffs),
             None => None,
@@ -96,14 +106,16 @@ impl<'a, T> CubicSmoothingSpline<'a, T>
     }
 
     fn validate_data(&self) -> Result<()> {
-        if self.x.len() != self.y.len() {
+        let x_size = self.x.len();
+        let y_size = self.y.len_of(self.axis);
+
+        if x_size != y_size {
             return Err(
-                format!("The sizes of `x` ({}) and `y` ({}) are mismatched",
-                        self.x.len(), self.y.len())
+                format!("The shape[1] ({}) of `y` data is not equal to `x` size ({})", y_size, x_size)
             )
         }
 
-        if self.x.len() < 2 {
+        if x_size < 2 {
             return Err(
                 "The size of data vectors must be greater or equal to 2".to_string()
             )
@@ -111,11 +123,11 @@ impl<'a, T> CubicSmoothingSpline<'a, T>
 
         if self.weights.is_some() {
             let w = self.weights.unwrap();
+            let w_size = w.len();
 
-            if w.len() != self.x.len() {
+            if w_size != x_size {
                 return Err(
-                    format!("The sizes of `weights` ({}) and `x` ({}) are mismatched",
-                            w.len(), self.x.len())
+                    format!("`weights` size ({}) is not equal to `x` size ({})", w_size, x_size)
                 )
             }
         }
@@ -139,110 +151,5 @@ impl<'a, T> CubicSmoothingSpline<'a, T>
         self.order = None;
         self.pieces = None;
         self.coeffs = None;
-    }
-}
-
-
-#[cfg(test)]
-mod tests {
-    use crate::CubicSmoothingSpline;
-
-    #[test]
-    fn test_new() {
-        let x= vec![1., 2., 3., 4.];
-        let y= vec![1., 2., 3., 4.];
-
-        let spline = CubicSmoothingSpline::new(&x, &y);
-
-        assert!(spline.weights.is_none());
-        assert!(spline.smooth.is_none());
-
-        assert!(spline.order.is_none());
-        assert!(spline.pieces.is_none());
-        assert!(spline.coeffs.is_none());
-    }
-
-    #[test]
-    fn test_options() {
-        let x = vec![1., 2., 3., 4.];
-        let y = vec![1., 2., 3., 4.];
-        let w = vec![1., 1., 1., 1.];
-        let s = 0.5;
-
-        let spline = CubicSmoothingSpline::new(&x, &y)
-            .with_weights(&w)
-            .with_smooth(s);
-
-        assert!(spline.weights.is_some());
-        assert!(spline.smooth.is_some());
-    }
-
-    #[test]
-    #[should_panic(expected = "The sizes of `x` (4) and `y` (5) are mismatched")]
-    fn test_data_size_mismatch_error() {
-        let x = vec![1., 2., 3., 4.];
-        let y = vec![1., 2., 3., 4., 5.];
-
-        let spline = CubicSmoothingSpline::new(&x, &y);
-        spline.make().unwrap();
-    }
-
-    #[test]
-    #[should_panic(expected = "The sizes of `weights` (5) and `x` (4) are mismatched")]
-    fn test_weights_size_mismatch_error() {
-        let x = vec![1., 2., 3., 4.];
-        let y = vec![1., 2., 3., 4.];
-        let w = vec![1., 2., 3., 4., 5.];
-
-        let spline = CubicSmoothingSpline::new(&x, &y);
-        spline.with_weights(&w).make().unwrap();
-    }
-
-    #[test]
-    #[should_panic(expected = "`smooth` value must be in range 0..1, given -0.5")]
-    fn test_smooth_less_than_error() {
-        let x = vec![1., 2., 3., 4.];
-        let y = vec![1., 2., 3., 4.];
-        let s = -0.5;
-
-        let spline = CubicSmoothingSpline::new(&x, &y);
-        spline.with_smooth(s).make().unwrap();
-    }
-
-    #[test]
-    #[should_panic(expected = "`smooth` value must be in range 0..1, given 1.5")]
-    fn test_smooth_greater_than_error() {
-        let x = vec![1., 2., 3., 4.];
-        let y = vec![1., 2., 3., 4.];
-        let s = 1.5;
-
-        let spline = CubicSmoothingSpline::new(&x, &y);
-        spline.with_smooth(s).make().unwrap();
-    }
-
-    #[test]
-    fn test_make() {
-        let x = vec![1., 2., 3., 4.];
-        let y = vec![1., 2., 3., 4.];
-
-        let spline = CubicSmoothingSpline::new(&x, &y)
-            .make().unwrap();
-
-        assert!(spline.order().is_some());
-        assert!(spline.pieces().is_some());
-        assert!(spline.coeffs().is_some());
-    }
-
-    #[test]
-    fn test_evaluate() {
-        let x = vec![1., 2., 3., 4.];
-        let y = vec![1., 2., 3., 4.];
-
-        let spline = CubicSmoothingSpline::new(&x, &y)
-            .make().unwrap();
-
-        let ys = spline.evaluate(&x).unwrap();
-
-        assert_eq!(ys, y);
     }
 }

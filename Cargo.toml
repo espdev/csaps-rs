@@ -8,3 +8,5 @@ edition = "2018"
 
 [dependencies]
 num-traits = "0.2"
+ndarray = "0.13"
+sprs = "0.7.1"
