@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod tests {
+mod sspumv_tests {
     use ndarray::{array, Array0, Axis};
     use csaps::CubicSmoothingSpline;
 
