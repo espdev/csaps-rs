@@ -1,9 +1,8 @@
+use num_traits::{Float, NumCast};
 
 use crate::{
     CubicSmoothingSpline,
     Result,
-    Float,
-    NumCast,
     Debug,
     ArrayView1,
     Axis,

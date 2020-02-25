@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 use std::result;
 
-use num_traits::{Float, NumCast};
+use num_traits::Float;
 use ndarray::{Dimension, Array, Array1, Array2, ArrayView, ArrayView1, Axis};
 
 mod sspumv_validate;
