@@ -6,8 +6,10 @@ use ndarray::{
     ArrayView1,
 };
 
-use crate::CubicSmoothingSpline;
-use crate::arrayfuncs;
+use crate::{
+    CubicSmoothingSpline,
+    arrayfuncs
+};
 
 
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>

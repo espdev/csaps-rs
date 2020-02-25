@@ -1,13 +1,16 @@
 use std::fmt::Debug;
-use num_traits::{NumCast};
+use num_traits::NumCast;
+
+use ndarray::{
+    NdFloat,
+    Dimension,
+    Axis,
+    ArrayView1,
+};
 
 use crate::{
     CubicSmoothingSpline,
-    NdFloat,
     Result,
-    ArrayView1,
-    Axis,
-    Dimension,
 };
 
 
