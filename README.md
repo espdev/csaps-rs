@@ -1,8 +1,8 @@
+:warning: :construction: EXPERIMENTAL, WORK-IN-PROGRESS :construction:  :warning:
+
 # csaps-rs
 
 Cubic spline approximation (smoothing) in Rust
-
-:warning: :construction: **EXPERIMENTAL, WORK-IN-PROGRES** :construction:  :warning:
 
 ## Usage
 
