@@ -13,13 +13,6 @@ use crate::{
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     where T: Float + Debug, D: Dimension
 {
-    pub(crate) fn invalidate(&mut self) {
-        self.order = None;
-        self.pieces = None;
-        self.coeffs = None;
-        self.is_valid = false;
-    }
-
     pub(crate) fn make_spline(&mut self) {
         let weights_default = Array1::ones(self.x.raw_dim());
         let weights = self.weights

@@ -121,4 +121,11 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     pub fn is_valid(&self) -> bool {
         return self.is_valid
     }
+
+    fn invalidate(&mut self) {
+        self.order = None;
+        self.pieces = None;
+        self.coeffs = None;
+        self.is_valid = false;
+    }
 }
