@@ -1,7 +1,6 @@
 
 use crate::{
     CubicSmoothingSpline,
-    Result,
     Float,
     Debug,
     Dimension,
