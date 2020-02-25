@@ -22,18 +22,6 @@ mod sspumv_tests {
     }
 
     #[test]
-    fn test_from_view() {
-        let x = array![1., 2., 3., 4.];
-        let y = array![[1., 2., 3., 4.], [5., 6., 7., 8.]];
-
-        let spline = CubicSmoothingSpline::from_view(x.view(), y.view());
-
-        assert!(spline.order().is_none());
-        assert!(spline.pieces().is_none());
-        assert!(spline.coeffs().is_none());
-    }
-
-    #[test]
     #[should_panic(expected = "`y` has zero dimensionality")]
     fn test_zero_ndim_y_error() {
         let x = array![1., 2., 3., 4.];

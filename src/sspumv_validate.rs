@@ -1,9 +1,10 @@
-use num_traits::{Float, NumCast};
+use std::fmt::Debug;
+use num_traits::{NumCast};
 
 use crate::{
     CubicSmoothingSpline,
+    NdFloat,
     Result,
-    Debug,
     ArrayView1,
     Axis,
     Dimension,
@@ -11,7 +12,7 @@ use crate::{
 
 
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
-    where T: Float + Debug, D: Dimension
+    where T: NdFloat + Debug, D: Dimension
 {
     pub(crate) fn make_validate_data(&self) -> Result<()> {
         if self.ndim == 0 {

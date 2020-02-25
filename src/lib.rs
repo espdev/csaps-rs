@@ -1,16 +1,25 @@
-use std::fmt::Debug;
 use std::result;
 
-use num_traits::Float;
-use ndarray::{Dimension, Array, Array1, Array2, ArrayView, ArrayView1, Axis};
+use ndarray::{
+    NdFloat,
+    Dimension,
+    Axis,
+    AsArray,
+    Array,
+    Array2,
+    ArrayView,
+    ArrayView1,
+    ArrayView2,
+};
 
 mod sspumv_validate;
 mod sspumv_impl;
+mod arrayfuncs;
 
 
 #[derive(Debug)]
 pub struct CubicSmoothingSpline<'a, T, D>
-    where T: Float + Debug, D: Dimension
+    where T: NdFloat, D: Dimension
 {
     x: ArrayView1<'a, T>,
     y: ArrayView<'a, T, D>,
@@ -33,13 +42,14 @@ pub type Result<T> = result::Result<T, String>;
 
 
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
-    where T: Float + Debug, D: Dimension
+    where T: NdFloat, D: Dimension
 {
-    pub fn new(x: &'a Array1<T>, y: &'a Array<T, D>) -> Self {
-        Self::from_view(x.view(), y.view())
-    }
-
-    pub fn from_view(x: ArrayView1<'a, T>, y: ArrayView<'a, T, D>) -> Self {
+    pub fn new<X, Y>(x: X, y: Y) -> Self
+        where X: AsArray<'a, T>,
+              Y: AsArray<'a, T, D>
+    {
+        let x = x.into();
+        let y = y.into();
         let ndim = y.ndim();
 
         CubicSmoothingSpline {
@@ -62,14 +72,11 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         self
     }
 
-    pub fn with_weights(mut self, weights: &'a Array1<T>) -> Self {
-        self = self.with_weights_view(weights.view());
-        self
-    }
-
-    pub fn with_weights_view(mut self, weights: ArrayView1<'a, T>) -> Self {
+    pub fn with_weights<W>(mut self, weights: W) -> Self
+        where W: AsArray<'a, T>
+    {
         self.invalidate();
-        self.weights = Some(weights);
+        self.weights = Some(weights.into());
         self
     }
 
@@ -85,11 +92,11 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         Ok(self)
     }
 
-    pub fn evaluate(&self, xi: &'a Array1<T>) -> Result<Array<T, D>> {
-        self.evaluate_view(xi.view())
-    }
+    pub fn evaluate<XI>(&self, xi: XI) -> Result<Array<T, D>>
+        where XI: AsArray<'a, T>
+    {
+        let xi = xi.into();
 
-    pub fn evaluate_view(&self, xi: ArrayView1<'a, T>) -> Result<Array<T, D>> {
         self.evaluate_validate_data(&xi)?;
         let ys = self.evaluate_spline(xi);
         Ok(ys)
@@ -111,9 +118,9 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         self.pieces
     }
 
-    pub fn coeffs(&self) -> Option<&Array2<T>> {
+    pub fn coeffs(&self) -> Option<ArrayView2<'_, T>> {
         match &self.coeffs {
-            Some(coeffs) => Some(coeffs),
+            Some(coeffs) => Some(coeffs.view()),
             None => None,
         }
     }
