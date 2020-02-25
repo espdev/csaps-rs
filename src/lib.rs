@@ -42,9 +42,9 @@ pub type Result<T> = result::Result<T, String>;
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     where T: NdFloat, D: Dimension
 {
-    pub fn new<X, Y>(x: X, y: Y) -> Self
-        where X: AsArray<'a, T>,
-              Y: AsArray<'a, T, D>
+    pub fn new<V, Nd>(x: V, y: Nd) -> Self
+        where V: AsArray<'a, T>,
+              Nd: AsArray<'a, T, D>
     {
         let x = x.into();
         let y = y.into();
@@ -70,8 +70,8 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         self
     }
 
-    pub fn with_weights<W>(mut self, weights: W) -> Self
-        where W: AsArray<'a, T>
+    pub fn with_weights<V>(mut self, weights: V) -> Self
+        where V: AsArray<'a, T>
     {
         self.invalidate();
         self.weights = Some(weights.into());
@@ -90,8 +90,8 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         Ok(self)
     }
 
-    pub fn evaluate<XI>(&self, xi: XI) -> Result<Array<T, D>>
-        where XI: AsArray<'a, T>
+    pub fn evaluate<V>(&self, xi: V) -> Result<Array<T, D>>
+        where V: AsArray<'a, T>
     {
         let xi = xi.into();
 
