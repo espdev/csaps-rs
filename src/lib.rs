@@ -17,9 +17,7 @@ mod sspumv_impl;
 mod arrayfuncs;
 
 
-#[derive(Debug)]
 pub struct CubicSmoothingSpline<'a, T, D>
-    where T: NdFloat, D: Dimension
 {
     x: ArrayView1<'a, T>,
     y: ArrayView<'a, T, D>,
