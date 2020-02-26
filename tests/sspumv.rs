@@ -21,6 +21,36 @@ fn test_new() {
 }
 
 #[test]
+fn test_make_1d_2pt() {
+    let x = array![1., 2.];
+    let y = array![1., 2.];
+
+    let spline = CubicSmoothingSpline::new(&x, &y)
+        .make()
+        .unwrap();
+
+    assert!(spline.is_valid());
+    assert_eq!(spline.order().unwrap(), 2);
+    assert_eq!(spline.pieces().unwrap(), 1);
+    assert_eq!(spline.coeffs().unwrap(), array![[1., 1.]]);
+}
+
+#[test]
+fn test_make_2d_2pt() {
+    let x = array![1., 2.];
+    let y = array![[1., 2.], [3., 5.]];
+
+    let spline = CubicSmoothingSpline::new(&x, &y)
+        .make()
+        .unwrap();
+
+    assert!(spline.is_valid());
+    assert_eq!(spline.order().unwrap(), 2);
+    assert_eq!(spline.pieces().unwrap(), 1);
+    assert_eq!(spline.coeffs().unwrap(), array![[1., 1.], [2., 3.]]);
+}
+
+#[test]
 fn test_make() {
     let x = array![1., 2., 3., 4.];
     let y = array![1., 2., 3., 4.];
