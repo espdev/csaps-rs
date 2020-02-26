@@ -1,4 +1,4 @@
-use ndarray::{array, Array0, Axis};
+use ndarray::{array};
 use csaps::CubicSmoothingSpline;
 
 
