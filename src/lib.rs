@@ -12,9 +12,9 @@ use ndarray::{
     ArrayView2,
 };
 
-mod sspumv_validate;
-mod sspumv_impl;
+mod validatedata;
 mod arrayfuncs;
+mod sspumv;
 
 
 pub struct CubicSmoothingSpline<'a, T, D>
@@ -87,7 +87,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
 
     pub fn make(mut self) -> Result<Self> {
         self.make_validate_data()?;
-        self.make_spline();
+        self.make_spline()?;
         Ok(self)
     }
 
