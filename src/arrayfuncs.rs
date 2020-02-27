@@ -1,3 +1,5 @@
+use std::error::Error;
+
 use num_traits::NumOps;
 
 use ndarray::{
@@ -10,9 +12,7 @@ use ndarray::{
     Slice,
 };
 
-
 use crate::Result;
-use std::error::Error;
 
 
 pub fn diff<'a, T: 'a, D, V>(data: V, axis: Option<Axis>) -> Array<T, D>
