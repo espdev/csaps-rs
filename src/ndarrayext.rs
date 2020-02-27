@@ -50,14 +50,14 @@ pub fn to_2d<'a, T: 'a, D, I>(data: I, axis: Axis) -> Result<ArrayView2<'a, T>>
 
     // Firstly, we should permute ND array axes by given axis for getting
     // right NxM 2d array where N is the ndim and M is the data size
-    let mut axes: Vec<usize> = (0..ndim).collect();
-    axes.remove(axis.0);
-    axes.push(axis.0);
+    let mut axes_t: Vec<usize> = (0..ndim).collect();
+    axes_t.remove(axis.0);
+    axes_t.push(axis.0);
 
-    let mut axes_d = D::zeros(ndim);
+    let mut axes = D::zeros(ndim);
 
-    for (i, &ax) in axes.iter().enumerate() {
-        axes_d[i] = ax
+    for (i, &ax) in axes_t.iter().enumerate() {
+        axes[i] = ax
     }
 
     let shape = data_view.shape().to_vec();
@@ -65,7 +65,7 @@ pub fn to_2d<'a, T: 'a, D, I>(data: I, axis: Axis) -> Result<ArrayView2<'a, T>>
     let axis_size = shape[axis.0];
     let new_shape = [numel / axis_size, axis_size];
 
-    match data_view.permuted_axes(axes_d).into_shape(new_shape) {
+    match data_view.permuted_axes(axes).into_shape(new_shape) {
         Ok(view_2d) => Ok(view_2d),
         Err(error) => Err(
             format!("Cannot reshape {}-d array with shape {:?} by axis {} \
