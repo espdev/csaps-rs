@@ -54,10 +54,7 @@ pub fn to_2d<'a, T: 'a, D, I>(data: I, axis: Axis) -> Result<ArrayView2<'a, T>>
     axes.remove(axis.0);
     axes.push(axis.0);
 
-    // FIXME: it looks ugly, but...
-    // I still do not know yet another way to get/create D-typed axes array
-    // for passing to `permuted_axes` method to permute axes of D-dimensional array
-    let mut axes_d = data_view.raw_dim();
+    let mut axes_d = D::zeros(ndim);
 
     for (i, &ax) in axes.iter().enumerate() {
         axes_d[i] = ax
