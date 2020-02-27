@@ -53,11 +53,11 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
 
         // General smoothing spline computing for NxM data (2 and more data points)
 
-        panic!("not implemented");
+        unimplemented!();
         Ok(())
     }
 
     pub(crate) fn evaluate_spline(&self, xi: ArrayView1<'a, T>) -> Array<T, D> {
-        panic!("not implemented");
+        unimplemented!();
     }
 }
