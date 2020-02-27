@@ -81,7 +81,7 @@ pub fn to_2d<'a, T: 'a, D, I>(data: I, axis: Axis) -> Result<ArrayView2<'a, T>>
 #[cfg(test)]
 mod tests {
     use ndarray::{array, Axis};
-    use crate::arrayfuncs::*;
+    use crate::ndarrayext::*;
 
     #[test]
     fn test_diff_1d() {

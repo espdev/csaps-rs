@@ -1,5 +1,3 @@
-use num_traits::{zero, one};
-
 use ndarray::{
     NdFloat,
     Dimension,
@@ -11,7 +9,7 @@ use ndarray::{
 use crate::{
     CubicSmoothingSpline,
     Result,
-    arrayfuncs,
+    ndarrayext,
 };
 
 
@@ -65,7 +63,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         if self.smooth.is_some() {
             let s = self.smooth.unwrap();
 
-            if s < zero() || s > one() {
+            if s < T::zero() || s > T::one() {
                 return Err(
                     format!("`smooth` value must be in range 0..1, given {:?}", s)
                 )
@@ -96,9 +94,9 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
 pub(crate) fn validate_sites_increase<T>(dx: &Array1<T>) -> Result<()>
     where T: NdFloat
 {
-    let is_increase = dx.mapv(|v| v > zero());
+    let is_increase = dx.mapv(|v| v > T::zero());
 
-    if !arrayfuncs::all(&is_increase) {
+    if !ndarrayext::all(&is_increase) {
         return Err(
             "Data site values must satisfy the condition: x1 < x2 < ... < xN".to_string()
         )

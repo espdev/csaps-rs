@@ -13,7 +13,8 @@ use ndarray::{
 };
 
 mod validatedata;
-mod arrayfuncs;
+mod ndarrayext;
+mod sprsext;
 mod sspumv;
 
 
