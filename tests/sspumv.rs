@@ -22,7 +22,7 @@ fn test_new() {
 
 fn test_driver_make_nd_npt<T, D>(x: Array1<T>, y: Array<T, D>,
                                  order: u32, pieces: u32, coeffs: Array2<T>)
-    where T: NdFloat, D: Dimension
+    where T: NdFloat + Default, D: Dimension
 {
     let spline = CubicSmoothingSpline::new(&x, &y)
         .make()
@@ -35,13 +35,13 @@ fn test_driver_make_nd_npt<T, D>(x: Array1<T>, y: Array<T, D>,
 }
 
 fn test_driver_make_nd_2pt<T, D>(x: Array1<T>, y: Array<T, D>, coeffs: Array2<T>)
-    where T: NdFloat, D: Dimension
+    where T: NdFloat + Default, D: Dimension
 {
     test_driver_make_nd_npt(x, y, 2, 1, coeffs);
 }
 
 fn test_driver_make_nd_4pt<T, D>(x: Array1<T>, y: Array<T, D>, coeffs: Array2<T>)
-    where T: NdFloat, D: Dimension
+    where T: NdFloat + Default, D: Dimension
 {
     test_driver_make_nd_npt(x, y, 4, 3, coeffs);
 }

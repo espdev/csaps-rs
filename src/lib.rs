@@ -19,7 +19,7 @@ mod sspumv;
 
 
 pub struct CubicSmoothingSpline<'a, T, D>
-    where T: NdFloat, D: Dimension
+    where T: NdFloat + Default, D: Dimension
 {
     x: ArrayView1<'a, T>,
     y: ArrayView<'a, T, D>,
@@ -42,7 +42,7 @@ pub type Result<T> = result::Result<T, String>;
 
 
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
-    where T: NdFloat, D: Dimension
+    where T: NdFloat + Default, D: Dimension
 {
     pub fn new<V, Nd>(x: V, y: Nd) -> Self
         where V: AsArray<'a, T>,
