@@ -1,7 +1,6 @@
 use ndarray::{
     NdFloat,
-    AsArray,
-    Ix2,
+    Array2,
     s,
 };
 
@@ -13,11 +12,9 @@ use sprs;
 /// The created matrix represents diagonal-like sparse matrix (DIA), but in CSR data storage
 /// because sprs crate does not provide DIA matrices currently.
 ///
-pub fn diags<'a, T: 'a, A>(diags: A, offsets: &[isize], shape: sprs::Shape) -> sprs::CsMat<T>
-    where T: NdFloat,
-          A: AsArray<'a, T, Ix2>
+pub fn diags<T>(diags: Array2<T>, offsets: &[isize], shape: sprs::Shape) -> sprs::CsMat<T>
+    where T: NdFloat
 {
-    let diags_view = diags.into();
     let (rows, cols) = shape;
 
     let numel_and_indices = |offset: isize| {
@@ -45,10 +42,10 @@ pub fn diags<'a, T: 'a, A>(diags: A, offsets: &[isize], shape: sprs::Shape) -> s
         // When rows < cols, the function does the opposite, taking elements of the
         // super-diagonal from the upper part of the corresponding diag array, and
         // elements of the sub-diagonal from the lower part of the corresponding diag array.
-        let row_view = diags_view.row(k);
+        let diag_row = diags.row(k);
 
-        let row_head = || row_view.slice(s![..n]);
-        let row_tail = || row_view.slice(s![-(n as isize)..]);
+        let row_head = || diag_row.slice(s![..n]);
+        let row_tail = || diag_row.slice(s![-(n as isize)..]);
 
         let diag = match (offset < 0, rows >= cols) {
             (true, true) => row_head(),
@@ -86,10 +83,9 @@ mod tests {
             [7., 8., 9.],
         ];
 
-        let offsets: [isize; 3] = [-1, 0, 1];
-        let shape: Shape = (3, 3);
+        let shape = (3, 3);
 
-        let mat = sprsext::diags(&diags, &offsets, shape);
+        let mat = sprsext::diags(diags, &[-1, 0, 1], shape);
 
         let mat_expected = sprs::TriMat::<f64>::from_triplets(
             shape,
@@ -115,10 +111,9 @@ mod tests {
             [7., 8., 9.],
         ];
 
-        let offsets: [isize; 3] = [-1, 0, 1];
-        let shape: Shape = (3, 5);
+        let shape = (3, 5);
 
-        let mat = sprsext::diags(&diags, &offsets, shape);
+        let mat = sprsext::diags(diags, &[-1, 0, 1], shape);
 
         let mat_expected = sprs::TriMat::<f64>::from_triplets(
             shape,
@@ -146,10 +141,9 @@ mod tests {
             [7., 8., 9.],
         ];
 
-        let offsets: [isize; 3] = [-1, 0, 1];
         let shape: Shape = (5, 3);
 
-        let mat = sprsext::diags(&diags, &offsets, shape);
+        let mat = sprsext::diags(diags, &[-1, 0, 1], shape);
 
         let mat_expected = sprs::TriMat::<f64>::from_triplets(
             shape,
@@ -177,10 +171,9 @@ mod tests {
             [7., 8., 9.],
         ];
 
-        let offsets: [isize; 3] = [-2, -1, 0];
         let shape: Shape = (5, 3);
 
-        let mat = sprsext::diags(&diags, &offsets, shape);
+        let mat = sprsext::diags(diags, &[-2, -1, 0], shape);
 
         let mat_expected = sprs::TriMat::<f64>::from_triplets(
             shape,
@@ -200,14 +193,9 @@ mod tests {
              0     0     3
         */
 
-        let diags = array![
-            [1., 2., 3.],
-        ];
-
-        let offsets: [isize; 1] = [0];
         let shape: Shape = (3, 3);
 
-        let mat = sprsext::diags(&diags, &offsets, shape);
+        let mat = sprsext::diags(array![[1., 2., 3.]], &[0], shape);
 
         let mat_expected = sprs::TriMat::<f64>::from_triplets(
             shape,
