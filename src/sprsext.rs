@@ -47,11 +47,18 @@ pub fn diags<T>(diags: Array2<T>, offsets: &[isize], shape: sprs::Shape) -> sprs
         let row_head = || diag_row.slice(s![..n]);
         let row_tail = || diag_row.slice(s![-(n as isize)..]);
 
-        let diag = match (offset < 0, rows >= cols) {
-            (true, true) => row_head(),
-            (true, false) => row_tail(),
-            (false, true) => row_tail(),
-            (false, false) => row_head(),
+        let diag = if offset < 0 {
+            if rows >= cols {
+                row_head()
+            } else {
+                row_tail()
+            }
+        } else {
+            if rows >= cols {
+                row_tail()
+            } else {
+                row_head()
+            }
         };
 
         for l in 0..n {
