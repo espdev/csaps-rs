@@ -9,9 +9,6 @@ use ndarray::{
     stack,
 };
 
-use sprs;
-use sprs::{prod, CsMat, TriMat};
-
 use crate::{
     CubicSmoothingSpline,
     Result,
