@@ -80,6 +80,9 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
             let diags_sqrw = (one(pcount) / weights.mapv(|v| v.sqrt())).insert_axis(Axis(0));
             let sqrw = sprsext::diags(diags_sqrw, &[0], (pcount, pcount));
             let qtw = &qt * &sqrw;
+            let qtw_t = qtw.transpose_view();
+
+            &qtw * &qtw_t
         };
 
         let w = {
