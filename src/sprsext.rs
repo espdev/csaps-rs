@@ -1,10 +1,7 @@
-use ndarray::{
-    NdFloat,
-    Array2,
-    s,
-};
+use ndarray::{NdFloat, Array2, s, Array1};
 
 use sprs;
+use sprs::{CsMat, Shape};
 
 
 /// Creates CSR matrix from given diagonals
@@ -70,10 +67,66 @@ pub fn diags<T>(diags: Array2<T>, offsets: &[isize], shape: sprs::Shape) -> sprs
 }
 
 
+/// Returns values on k-diagonal for given sparse matrix
+///
+pub fn diagonal<T>(m: &CsMat<T>, k: isize) -> Array1<T>
+    where T: NdFloat
+{
+    let (rows, cols) = m.shape();
+
+    if m.is_csr() {
+        diagonal_csr(k, (rows, cols), m.indptr(), m.indices(), m.data())
+    } else {
+        diagonal_csr(-k, (cols, rows), m.indptr(), m.indices(), m.data())
+    }
+}
+
+
+fn diagonal_csr<T>(k: isize,
+                shape: Shape,
+                indptr: &[usize],
+                indices: &[usize],
+                data: &[T]) -> Array1<T>
+    where T: NdFloat
+{
+    let (rows, cols) = shape;
+
+    if k <= -(rows as isize) || k >= cols as isize {
+        panic!(format!("k ({}) exceeds matrix dimensions {:?}", k, shape));
+    }
+
+    let first_row = if k >= 0 { 0 } else { (-k) as usize };
+    let first_col = if k >= 0 { k as usize } else { 0 };
+
+    let diag_size = (rows - first_row).min(cols - first_col) as usize;
+    let mut diag = Array1::<T>::zeros((diag_size, ));
+
+    for i in 0..diag_size {
+        let row = first_row + i;
+        let col = first_col + i;
+        let row_begin = indptr[row];
+        let row_end = indptr[row + 1];
+
+        let mut diag_value = T::zero();
+
+        for j in row_begin..row_end {
+            if indices[j] == col {
+                diag_value = diag_value + data[j];
+            }
+        }
+
+        diag[i] = diag_value;
+    }
+
+    diag
+}
+
+
 #[cfg(test)]
 mod tests {
     use ndarray::array;
     use sprs::Shape;
+
     use crate::sprsext;
 
     #[test]
@@ -212,5 +265,65 @@ mod tests {
         ).to_csr();
 
         assert_eq!(mat, mat_expected);
+    }
+
+    #[test]
+    fn test_diagonal_1() {
+        let k = 0;
+        let m_csr = sprsext::diags(array![[1., 2., 3.]], &[k], (3, 3));
+        let m_csc = m_csr.to_csc();
+
+        assert_eq!(sprsext::diagonal(&m_csr, k), array![1., 2., 3.]);
+        assert_eq!(sprsext::diagonal(&m_csc, k), array![1., 2., 3.]);
+    }
+
+    #[test]
+    fn test_diagonal_2() {
+        let k = -1;
+        let m_csr = sprsext::diags(array![[1., 2.]], &[k], (3, 3));
+        let m_csc = m_csr.to_csc();
+
+        assert_eq!(sprsext::diagonal(&m_csr, k), array![1., 2.]);
+        assert_eq!(sprsext::diagonal(&m_csc, k), array![1., 2.]);
+    }
+
+    #[test]
+    fn test_diagonal_3() {
+        let k = 1;
+        let m_csr = sprsext::diags(array![[1., 2.]], &[k], (3, 3));
+        let m_csc = m_csr.to_csc();
+
+        assert_eq!(sprsext::diagonal(&m_csr, k), array![1., 2.]);
+        assert_eq!(sprsext::diagonal(&m_csc, k), array![1., 2.]);
+    }
+
+    #[test]
+    fn test_diagonal_4() {
+        let k = -2;
+        let m_csr = sprsext::diags(array![[1., 2., 3.]], &[k], (5, 3));
+        let m_csc = m_csr.to_csc();
+
+        assert_eq!(sprsext::diagonal(&m_csr, k), array![1., 2., 3.]);
+        assert_eq!(sprsext::diagonal(&m_csc, k), array![1., 2., 3.]);
+    }
+
+    #[test]
+    fn test_diagonal_5() {
+        let k = 1;
+        let m_csr = sprsext::diags(array![[1., 2., 3.]], &[k], (3, 5));
+        let m_csc = m_csr.to_csc();
+
+        assert_eq!(sprsext::diagonal(&m_csr, k), array![1., 2., 3.]);
+        assert_eq!(sprsext::diagonal(&m_csc, k), array![1., 2., 3.]);
+    }
+
+    #[test]
+    fn test_diagonal_6() {
+        let k = -1;
+        let m_csr = sprsext::diags(array![[1., 2.]], &[k], (3, 5));
+        let m_csc = m_csr.to_csc();
+
+        assert_eq!(sprsext::diagonal(&m_csr, k), array![1., 2.]);
+        assert_eq!(sprsext::diagonal(&m_csc, k), array![1., 2.]);
     }
 }
