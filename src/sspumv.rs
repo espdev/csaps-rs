@@ -40,6 +40,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
 
         // The corner case for Nx2 data (2 data points)
         if pcount == 2 {
+            drop(dx);
             let yi = y.slice(s![.., 0]).insert_axis(Axis(1));
 
             self.coeffs = Some(stack![Axis(1), dydx, yi]);
