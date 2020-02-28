@@ -111,7 +111,7 @@ fn diagonal_csr<T>(k: isize,
 
         for j in row_begin..row_end {
             if indices[j] == col {
-                diag_value = diag_value + data[j];
+                diag_value += data[j];
             }
         }
 
