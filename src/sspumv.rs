@@ -55,19 +55,10 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         }
 
         // General smoothing spline computing for NxM data (2 and more data points)
-        let one = |n| Array1::<T>::ones((n, ));
-
-        let r = {
-            let dx_head = dx.slice(s![1..]).insert_axis(Axis(0)).into_owned();
-            let dx_tail = dx.slice(s![..-1]).insert_axis(Axis(0)).into_owned();
-            let dx_body = (&dx_head + &dx_tail) * T::from(2.0).unwrap();
-            let diags_r = stack![Axis(0), dx_head, dx_body, dx_tail];
-
-            sprsext::diags(diags_r, &[-1, 0, 1], (pcount - 2, pcount - 2))
-        };
+        let ones = |n| Array1::<T>::ones((n, ));
 
         let qt = {
-            let odx = one(pcount - 1) / &dx;
+            let odx = ones(pcount - 1) / &dx;
             let odx_head = odx.slice(s![..-1]).insert_axis(Axis(0)).into_owned();
             let odx_tail = odx.slice(s![1..]).insert_axis(Axis(0)).into_owned();
             let odx_body = -(&odx_tail + &odx_head);
@@ -77,17 +68,22 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         };
 
         let qtwq = {
-            let diags_sqrw = (one(pcount) / weights.mapv(|v| v.sqrt())).insert_axis(Axis(0));
+            let diags_sqrw = (ones(pcount) / weights.mapv(|v| v.sqrt())).insert_axis(Axis(0));
             let sqrw = sprsext::diags(diags_sqrw, &[0], (pcount, pcount));
             let qtw = &qt * &sqrw;
             let qtw_t = qtw.transpose_view();
+            drop(qt);
 
             &qtw * &qtw_t
         };
 
-        let w = {
-            let diags_w = (one(pcount) / &weights).insert_axis(Axis(0));
-            sprsext::diags(diags_w, &[0], (pcount, pcount))
+        let r = {
+            let dx_head = dx.slice(s![1..]).insert_axis(Axis(0)).into_owned();
+            let dx_tail = dx.slice(s![..-1]).insert_axis(Axis(0)).into_owned();
+            let dx_body = (&dx_head + &dx_tail) * T::from(2.0).unwrap();
+            let diags_r = stack![Axis(0), dx_head, dx_body, dx_tail];
+
+            sprsext::diags(diags_r, &[-1, 0, 1], (pcount - 2, pcount - 2))
         };
 
         let one = T::one();
@@ -104,11 +100,22 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         let a = {
             let a1 = muls(&qtwq, six * (one - p));
             let a2 = muls(&r, p);
+            drop(qtwq);
+            drop(r);
+
             &a1 + &a2
         };
 
         let b = ndarrayext::diff(&dydx, Some(Axis(1))).t().to_owned();
         drop(dydx);
+
+
+        // Compute and stack spline coefficients
+
+        let w = {
+            let diags_w = (ones(pcount) / &weights).insert_axis(Axis(0));
+            sprsext::diags(diags_w, &[0], (pcount, pcount))
+        };
 
         unimplemented!();
 
