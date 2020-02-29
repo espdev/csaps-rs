@@ -101,18 +101,23 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         let p = self.smooth.unwrap_or_else(auto_smooth);
 
         // # Solve linear system Ax = b for the 2nd derivatives
-        let a = {
-            let a1 = muls(&qtwq, six * (one - p));
-            let a2 = muls(&r, p);
-            drop(qtwq);
-            drop(r);
-
-            &a1 + &a2
-        };
-
         let u = {
+            let a = {
+                let a1 = muls(&qtwq, six * (one - p));
+                let a2 = muls(&r, p);
+                drop(qtwq);
+                drop(r);
+
+                &a1 + &a2
+            };
+
             let dydx_d = ndarrayext::diff(&dydx, Some(Axis(1))).t().to_owned();
             drop(dydx);
+
+            // FIXME: currently, it does not work for Y ndim > 1
+            if self.ndim > 1 {
+                unimplemented!();
+            }
 
             let mut b = Vec::from_iter(dydx_d.iter().cloned());
 
@@ -122,7 +127,6 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
                 )
             };
 
-            drop(a);
             Array1::<T>::from(b)
         };
 
