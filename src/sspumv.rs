@@ -9,6 +9,8 @@ use ndarray::{
     stack,
 };
 
+use sprs::binop::scalar_mul_mat as muls;
+
 use crate::{
     CubicSmoothingSpline,
     Result,
@@ -99,11 +101,14 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         let p = self.smooth.unwrap_or_else(auto_smooth);
 
         // # Solve linear system Ax = b for the 2nd derivatives
-        // let a = qtwq * six * (one - p) + r * p;
+        let a = {
+            let a1 = muls(&qtwq, six * (one - p));
+            let a2 = muls(&r, p);
+            &a1 + &a2
+        };
+
         let b = ndarrayext::diff(&dydx, Some(Axis(1))).t().to_owned();
         drop(dydx);
-
-        println!("{}", b);
 
         unimplemented!();
 
