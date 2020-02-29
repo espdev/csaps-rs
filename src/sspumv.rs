@@ -88,7 +88,27 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
             sprsext::diags(diags_w, &[0], (pcount, pcount))
         };
 
+        let one = T::one();
+        let six = T::from(6.0).unwrap();
+
+        let auto_smooth = || {
+            let trace = |m| { sprsext::diagonal(m, 0).sum() };
+            one / (one + trace(&r) / (six * trace(&qtwq)))
+        };
+
+        let p = self.smooth.unwrap_or_else(auto_smooth);
+
+        // # Solve linear system Ax = b for the 2nd derivatives
+        // let a = qtwq * six * (one - p) + r * p;
+        let b = ndarrayext::diff(&dydx, Some(Axis(1))).t().to_owned();
+        drop(dydx);
+
+        println!("{}", b);
+
         unimplemented!();
+
+        self.smooth = Some(p);
+
         Ok(())
     }
 
