@@ -1,13 +1,4 @@
-use ndarray::{
-    NdFloat,
-    Dimension,
-    Array,
-    Array1,
-    ArrayView1,
-    Axis,
-    s,
-    stack,
-};
+use ndarray::{NdFloat, Dimension, Array, Array1, ArrayView1, Axis, s, stack, Array2};
 
 use sprs::binop::scalar_mul_mat as muls;
 
@@ -61,6 +52,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
             let odx = ones(pcount - 1) / &dx;
             let odx_head = odx.slice(s![..-1]).insert_axis(Axis(0)).into_owned();
             let odx_tail = odx.slice(s![1..]).insert_axis(Axis(0)).into_owned();
+            drop(odx);
             let odx_body = -(&odx_tail + &odx_head);
             let diags_qt = stack![Axis(0), odx_head, odx_body, odx_tail];
 
@@ -71,8 +63,9 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
             let diags_sqrw = (ones(pcount) / weights.mapv(T::sqrt)).insert_axis(Axis(0));
             let sqrw = sprsext::diags(diags_sqrw, &[0], (pcount, pcount));
             let qtw = &qt * &sqrw;
-            let qtw_t = qtw.transpose_view();
+            drop(sqrw);
             drop(qt);
+            let qtw_t = qtw.transpose_view();
 
             &qtw * &qtw_t
         };
@@ -95,11 +88,12 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         };
 
         let p = self.smooth.unwrap_or_else(auto_smooth);
+        let p1 = six * (one - p);
 
         // # Solve linear system Ax = b for the 2nd derivatives
         let u = {
             let a = {
-                let a1 = muls(&qtwq, six * (one - p));
+                let a1 = muls(&qtwq, p1);
                 let a2 = muls(&r, p);
                 drop(qtwq);
                 drop(r);
@@ -115,10 +109,33 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
 
         // Compute and stack spline coefficients
 
-        let w = {
-            let diags_w = (ones(pcount) / &weights).insert_axis(Axis(0));
-            sprsext::diags(diags_w, &[0], (pcount, pcount))
+        let vpad = |a: &Array2<T>| -> Array2<T> {
+            let p = Array2::<T>::zeros((1, self.ndim));
+            stack(Axis(0), &[p.view(), a.view(), p.view()]).unwrap()
         };
+
+        let dx = dx.insert_axis(Axis(1));
+
+        let (d1, d2) = {
+            let u_pad = vpad(&u);
+            let d1 = ndarrayext::diff(&u_pad, Some(Axis(0))) / &dx;
+            let d1_pad = vpad(&d1);
+            let d2 = ndarrayext::diff(&d1_pad, Some(Axis(0)));
+
+            (d1, d2)
+        };
+
+        let wd2 = {
+            let diags_w = (ones(pcount) / &weights).insert_axis(Axis(0));
+            let w = sprsext::diags(diags_w, &[0], (pcount, pcount));
+
+            let wd2 = &muls(&w, p1) * &d2;
+            drop(d1);
+            drop(d2);
+            wd2
+        };
+
+        let yi = &y.t() - &wd2;
 
         unimplemented!();
 
