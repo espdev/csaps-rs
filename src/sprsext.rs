@@ -1,7 +1,13 @@
-use ndarray::{NdFloat, Array2, s, Array1};
+use std::error::Error;
+use std::iter::FromIterator;
+
+use ndarray::{NdFloat, Array1, Array2, Axis, s};
 
 use sprs;
 use sprs::{CsMat, Shape};
+use sprs::linalg::trisolve::lsolve_csr_dense_rhs;
+
+use crate::Result;
 
 
 /// Creates CSR matrix from given diagonals
@@ -69,6 +75,7 @@ pub fn diags<T>(diags: Array2<T>, offsets: &[isize], shape: sprs::Shape) -> sprs
 
 /// Returns values on k-diagonal for given sparse matrix
 ///
+///
 pub fn diagonal<T>(m: &CsMat<T>, k: isize) -> Array1<T>
     where T: NdFloat
 {
@@ -119,6 +126,36 @@ fn diagonal_csr<T>(k: isize,
     }
 
     diag
+}
+
+
+/// Solves linear system Ax = b for triangular CSR matrix A and dense vector(s) b
+///
+/// A: ref to CSR symmetric sparse matrix
+/// b: MxN stack of b-vectors where M is equal to A rows/cols and N is the data dimensional
+///
+pub fn solve<T>(a: &CsMat<T>, b: &Array2<T>) -> Result<Array2<T>>
+    where T: NdFloat
+{
+    let mut x = Array2::<T>::zeros(b.raw_dim());
+
+    let b_col_iter = b.axis_iter(Axis(1));
+    let x_col_iter = x.axis_iter_mut(Axis(1));
+
+    for (i, (b_col, mut x_col)) in b_col_iter.zip(x_col_iter).enumerate() {
+        let mut b_vec = Vec::from_iter(b_col.iter().cloned());
+
+        if let Err(error) = lsolve_csr_dense_rhs(a.view(), &mut b_vec) {
+            return Err(format!(
+                "Cannot solve linear system for b[:, {}]. Error: {}", i, error.description())
+            )
+        };
+
+        let b_arr = Array1::from(b_vec);
+        x_col.zip_mut_with(&b_arr, |x, y| *x = *y);
+    }
+
+    Ok(x)
 }
 
 

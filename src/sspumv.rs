@@ -1,5 +1,3 @@
-use std::iter::FromIterator;
-
 use ndarray::{
     NdFloat,
     Dimension,
@@ -12,7 +10,6 @@ use ndarray::{
 };
 
 use sprs::binop::scalar_mul_mat as muls;
-use sprs::linalg::trisolve::lsolve_csr_dense_rhs as solve;
 
 use crate::{
     CubicSmoothingSpline,
@@ -21,7 +18,6 @@ use crate::{
     ndarrayext,
     sprsext,
 };
-use std::error::Error;
 
 
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
@@ -111,23 +107,10 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
                 &a1 + &a2
             };
 
-            let dydx_d = ndarrayext::diff(&dydx, Some(Axis(1))).t().to_owned();
+            let b = ndarrayext::diff(&dydx, Some(Axis(1))).t().to_owned();
             drop(dydx);
 
-            // FIXME: currently, it does not work for Y ndim > 1
-            if self.ndim > 1 {
-                unimplemented!();
-            }
-
-            let mut b = Vec::from_iter(dydx_d.iter().cloned());
-
-            if let Err(error) = solve(a.view(), &mut b) {
-                return Err(format!(
-                    "Cannot solve linear system for the 2nd derivatives. Error: {}", error.description())
-                )
-            };
-
-            Array1::<T>::from(b)
+            sprsext::solve(&a, &b)?
         };
 
         // Compute and stack spline coefficients
