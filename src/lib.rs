@@ -24,14 +24,14 @@ pub struct CubicSmoothingSpline<'a, T, D>
     x: ArrayView1<'a, T>,
     y: ArrayView<'a, T, D>,
 
-    ndim: usize,
     axis: Option<Axis>,
 
     weights: Option<ArrayView1<'a, T>>,
     smooth: Option<T>,
 
-    order: Option<u32>,
-    pieces: Option<u32>,
+    ndim: Option<usize>,
+    order: Option<usize>,
+    pieces: Option<usize>,
     coeffs: Option<Array2<T>>,
 
     is_valid: bool,
@@ -48,17 +48,13 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         where V: AsArray<'a, T>,
               Nd: AsArray<'a, T, D>
     {
-        let x = x.into();
-        let y = y.into();
-        let ndim = y.ndim();
-
         CubicSmoothingSpline {
-            x,
-            y,
-            ndim,
+            x: x.into(),
+            y: y.into(),
             axis: None,
             weights: None,
             smooth: None,
+            ndim: None,
             order: None,
             pieces: None,
             coeffs: None,
@@ -102,7 +98,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         Ok(ys)
     }
 
-    pub fn ndim(&self) -> usize {
+    pub fn ndim(&self) -> Option<usize> {
         self.ndim
     }
 
@@ -110,11 +106,11 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         self.smooth
     }
 
-    pub fn order(&self) -> Option<u32> {
+    pub fn order(&self) -> Option<usize> {
         self.order
     }
 
-    pub fn pieces(&self) -> Option<u32> {
+    pub fn pieces(&self) -> Option<usize> {
         self.pieces
     }
 

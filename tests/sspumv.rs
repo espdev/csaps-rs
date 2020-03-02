@@ -2,26 +2,8 @@ use ndarray::{array, Array, Array2, Dimension, Array1, NdFloat};
 use csaps::CubicSmoothingSpline;
 
 
-#[test]
-fn test_new() {
-    let x = array![1., 2., 3., 4.];
-
-    let y1 = array![1., 2., 3., 4.];
-    let y2 = array![[1., 2., 3., 4.], [5., 6., 7., 8.]];
-    let y3 = array![[[1., 2., 3.], [5., 6., 7.]], [[1., 2., 3.], [5., 6., 7.]]];
-
-    let spline1 = CubicSmoothingSpline::new(&x, &y1);
-    assert_eq!(spline1.ndim(), y1.ndim());
-
-    let spline2 = CubicSmoothingSpline::new(&x, &y2);
-    assert_eq!(spline2.ndim(), y2.ndim());
-
-    let spline3 = CubicSmoothingSpline::new(&x, &y3);
-    assert_eq!(spline3.ndim(), y3.ndim());
-}
-
 fn test_driver_make_nd_npt<T, D>(x: Array1<T>, y: Array<T, D>,
-                                 order: u32, pieces: u32, coeffs: Array2<T>)
+                                 order: usize, pieces: usize, coeffs: Array2<T>)
     where T: NdFloat + Default, D: Dimension
 {
     let spline = CubicSmoothingSpline::new(&x, &y)

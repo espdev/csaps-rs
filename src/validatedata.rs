@@ -17,19 +17,19 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     where T: NdFloat + Default, D: Dimension
 {
     pub(crate) fn make_validate_data(&self) -> Result<()> {
-        if self.ndim == 0 {
+        if self.y.ndim() == 0 {
             return Err(
                 format!("`y` has zero dimensionality")
             )
         }
 
-        let default_axis = Axis(self.ndim - 1);
+        let default_axis = Axis(self.y.ndim() - 1);
         let axis = self.axis.unwrap_or(default_axis);
 
         if axis > default_axis {
             return Err(
                 format!("`axis` value ({}) is out of bounds `y` dimensionality ({})",
-                        axis.0, self.ndim)
+                        axis.0, self.y.ndim())
             )
         }
 

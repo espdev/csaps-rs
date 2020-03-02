@@ -29,6 +29,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         let y = ndarrayext::to_2d(self.y.view(), axis)?;
         let dydx = ndarrayext::diff(y.view(), Some(Axis(1))) / &dx;
 
+        let ndim = y.shape()[0];
         let pcount = self.x.len();
 
         // The corner case for Nx2 data (2 data points)
@@ -36,8 +37,9 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
             drop(dx);
             let yi = y.slice(s![.., 0]).insert_axis(Axis(1));
 
-            self.coeffs = Some(stack![Axis(1), dydx, yi]);
             self.smooth = Some(T::one());
+            self.coeffs = Some(stack![Axis(1), dydx, yi]);
+            self.ndim = Some(ndim);
             self.order = Some(2);
             self.pieces = Some(1);
             self.is_valid = true;
@@ -110,7 +112,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         // Compute and stack spline coefficients
 
         let vpad = |a: &Array2<T>| -> Array2<T> {
-            let p = Array2::<T>::zeros((1, self.ndim));
+            let p = Array2::<T>::zeros((1, a.shape()[1]));
             stack(Axis(0), &[p.view(), a.view(), p.view()]).unwrap()
         };
 
@@ -137,9 +139,38 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
 
         let yi = &y.t() - &wd2;
 
-        unimplemented!();
+        let c3 = vpad(&(u * p));
+        let c3_head = c3.slice(s![..-1, ..]);
+        let c3_tail = c3.slice(s![1.., ..]);
+
+        let c2 = {
+            let dyi = ndarrayext::diff(&yi, Some(Axis(0)));
+            let two = T::from(2.0).unwrap();
+            let c32sum = &c3_head * two + c3_tail;
+
+            &dyi / &dx - &(&c32sum * &dx)
+        };
+
+        let order = 4;
+
+        let (coeffs, pieces) = {
+            let c3ddx = ndarrayext::diff(&c3, Some(Axis(0))) / &dx;
+            let three = T::from(2.0).unwrap();
+            let c3head3 = &c3_head * three;
+            let yi_head = yi.slice(s![..-1, ..]);
+
+            let coeffs = stack![Axis(0), c3ddx, c3head3, c2, yi_head].t().to_owned();
+            let pieces = coeffs.shape()[1] / order;
+
+            (coeffs, pieces)
+        };
 
         self.smooth = Some(p);
+        self.coeffs = Some(coeffs);
+        self.ndim = Some(ndim);
+        self.order = Some(order);
+        self.pieces = Some(pieces);
+        self.is_valid = true;
 
         Ok(())
     }
