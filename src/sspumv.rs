@@ -151,19 +151,17 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
             &dyi / &dx - &(&c32sum * &dx)
         };
 
-        let order = 4;
-
-        let (coeffs, pieces) = {
+        let coeffs = {
             let c3ddx = ndarrayext::diff(&c3, Some(Axis(0))) / &dx;
             let three = T::from(2.0).unwrap();
             let c3head3 = &c3_head * three;
             let yi_head = yi.slice(s![..-1, ..]);
 
-            let coeffs = stack![Axis(0), c3ddx, c3head3, c2, yi_head].t().to_owned();
-            let pieces = coeffs.shape()[1] / order;
-
-            (coeffs, pieces)
+            stack![Axis(0), c3ddx, c3head3, c2, yi_head].t().to_owned()
         };
+
+        let order = 4;
+        let pieces = coeffs.shape()[1] / order;
 
         self.smooth = Some(p);
         self.coeffs = Some(coeffs);
