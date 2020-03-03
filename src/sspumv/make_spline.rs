@@ -1,12 +1,13 @@
 use ndarray::{NdFloat, Dimension, Array1, Axis, s, stack, Array2};
 use sprs::binop::scalar_mul_mat as sprs_mul_s;
+use almost::AlmostEqual;
 
 use crate::{Result, ndarrayext, sprsext};
 use super::{NdSpline, CubicSmoothingSpline, validate_data};
 
 
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
-    where T: NdFloat + Default, D: Dimension
+    where T: NdFloat + Default + AlmostEqual, D: Dimension
 {
     pub(crate) fn make_spline(&mut self) -> Result<()> {
         let weights_default = Array1::ones(self.x.raw_dim());

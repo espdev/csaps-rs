@@ -28,19 +28,6 @@ pub fn diff<'a, T: 'a, D, V>(data: V, axis: Option<Axis>) -> Array<T, D>
 }
 
 
-pub fn all<'a, D, V>(data: V) -> bool
-    where D: Dimension, V: AsArray<'a, bool, D>
-{
-    for &v in data.into().iter() {
-        if !v {
-            return false
-        }
-    }
-
-    true
-}
-
-
 pub fn to_2d<'a, T: 'a, D, I>(data: I, axis: Axis) -> Result<ArrayView2<'a, T>>
     where D: Dimension,
           I: AsArray<'a, T, D>,
@@ -120,24 +107,6 @@ mod tests {
 
         assert_eq!(diff(&a, Some(Axis(2))),
                    array![[[1., 1.], [1., 1.]], [[1., 1.], [1., 1.]]]);
-    }
-
-    #[test]
-    fn test_all_1d() {
-        let a = array![true, true, true];
-        assert!(all(&a));
-
-        let a = array![true, false, true];
-        assert!(!all(&a));
-    }
-
-    #[test]
-    fn test_all_2d() {
-        let a = array![[true, true, true], [true, true, true]];
-        assert!(all(&a));
-
-        let a = array![[true, true, true], [true, false, true]];
-        assert!(!all(&a));
     }
 
     #[test]

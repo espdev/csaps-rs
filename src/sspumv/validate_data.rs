@@ -6,10 +6,12 @@ use ndarray::{
     Array1,
 };
 
+use almost;
+use almost::AlmostEqual;
+
 use crate::{
     CubicSmoothingSpline,
     Result,
-    ndarrayext,
 };
 
 
@@ -90,11 +92,9 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
 
 
 pub(crate) fn validate_sites_increase<T>(dx: &Array1<T>) -> Result<()>
-    where T: NdFloat
+    where T: NdFloat + AlmostEqual
 {
-    let is_increase = dx.mapv(|v| v > T::zero());
-
-    if !ndarrayext::all(&is_increase) {
+    if dx.iter().any(|&v| v < T::zero() || almost::zero(v)) {
         return Err(
             "Data site values must satisfy the condition: x1 < x2 < ... < xN".to_string()
         )

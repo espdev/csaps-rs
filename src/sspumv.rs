@@ -14,6 +14,7 @@ use ndarray::{
     ArrayView2,
 };
 
+use almost::AlmostEqual;
 
 use crate::Result;
 
@@ -60,7 +61,7 @@ pub struct CubicSmoothingSpline<'a, T, D>
 
 
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
-    where T: NdFloat + Default, D: Dimension
+    where T: NdFloat + Default + AlmostEqual, D: Dimension
 {
     pub fn new<X, Y>(x: X, y: Y) -> Self
         where X: AsArray<'a, T>,

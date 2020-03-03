@@ -1,10 +1,11 @@
 use ndarray::{array, Array, Array2, Dimension, Array1, NdFloat};
+use almost::AlmostEqual;
 use csaps::CubicSmoothingSpline;
 
 
 fn test_driver_make_nd_npt<T, D>(x: Array1<T>, y: Array<T, D>,
                                  order: usize, pieces: usize, coeffs: Array2<T>)
-    where T: NdFloat + Default, D: Dimension
+    where T: NdFloat + Default + AlmostEqual, D: Dimension
 {
     let s = CubicSmoothingSpline::new(&x, &y)
         .make()
@@ -18,13 +19,13 @@ fn test_driver_make_nd_npt<T, D>(x: Array1<T>, y: Array<T, D>,
 }
 
 fn test_driver_make_nd_2pt<T, D>(x: Array1<T>, y: Array<T, D>, coeffs: Array2<T>)
-    where T: NdFloat + Default, D: Dimension
+    where T: NdFloat + Default + AlmostEqual, D: Dimension
 {
     test_driver_make_nd_npt(x, y, 2, 1, coeffs);
 }
 
 fn test_driver_make_nd_4pt<T, D>(x: Array1<T>, y: Array<T, D>, coeffs: Array2<T>)
-    where T: NdFloat + Default, D: Dimension
+    where T: NdFloat + Default + AlmostEqual, D: Dimension
 {
     test_driver_make_nd_npt(x, y, 4, 3, coeffs);
 }

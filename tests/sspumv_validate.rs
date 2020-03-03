@@ -3,6 +3,28 @@ use csaps::CubicSmoothingSpline;
 
 
 #[test]
+#[should_panic(expected = "Data site values must satisfy the condition: x1 < x2 < ... < xN")]
+fn test_sites_invalid_order_1() {
+    let x = array![1., 2., 2., 4.];
+    let y = array![1., 2., 3., 4.];
+
+    CubicSmoothingSpline::new(&x, &y)
+        .make()
+        .unwrap();
+}
+
+#[test]
+#[should_panic(expected = "Data site values must satisfy the condition: x1 < x2 < ... < xN")]
+fn test_sites_invalid_order_2() {
+    let x = array![1., 2., 3., 1.];
+    let y = array![1., 2., 3., 4.];
+
+    CubicSmoothingSpline::new(&x, &y)
+        .make()
+        .unwrap();
+}
+
+#[test]
 #[should_panic(expected = "`y` has zero dimensionality")]
 fn test_zero_ndim_y_error() {
     let x = array![1., 2., 3., 4.];
