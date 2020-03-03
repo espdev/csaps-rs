@@ -51,9 +51,8 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
             )
         }
 
-        if self.weights.is_some() {
-            let w = self.weights.unwrap();
-            let w_size = w.len();
+        if let Some(weights) = self.weights {
+            let w_size = weights.len();
 
             if w_size != x_size {
                 return Err(
