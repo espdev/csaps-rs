@@ -60,12 +60,10 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
             }
         }
 
-        if self.smooth.is_some() {
-            let s = self.smooth.unwrap();
-
-            if s < T::zero() || s > T::one() {
+        if let Some(smooth) = self.smooth {
+            if smooth < T::zero() || smooth > T::one() {
                 return Err(
-                    format!("`smooth` value must be in range 0..1, given {:?}", s)
+                    format!("`smooth` value must be in range 0..1, given {:?}", smooth)
                 )
             }
         }
