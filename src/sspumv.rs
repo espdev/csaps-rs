@@ -62,9 +62,9 @@ pub struct CubicSmoothingSpline<'a, T, D>
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     where T: NdFloat + Default, D: Dimension
 {
-    pub fn new<V, Nd>(x: V, y: Nd) -> Self
-        where V: AsArray<'a, T>,
-              Nd: AsArray<'a, T, D>
+    pub fn new<X, Y>(x: X, y: Y) -> Self
+        where X: AsArray<'a, T>,
+              Y: AsArray<'a, T, D>
     {
         CubicSmoothingSpline {
             x: x.into(),
@@ -82,8 +82,8 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         self
     }
 
-    pub fn with_weights<V>(mut self, weights: V) -> Self
-        where V: AsArray<'a, T>
+    pub fn with_weights<W>(mut self, weights: W) -> Self
+        where W: AsArray<'a, T>
     {
         self.invalidate();
         self.weights = Some(weights.into());
@@ -102,8 +102,8 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         Ok(self)
     }
 
-    pub fn evaluate<V>(&self, xi: V) -> Result<Array<T, D>>
-        where V: AsArray<'a, T>
+    pub fn evaluate<X>(&self, xi: X) -> Result<Array<T, D>>
+        where X: AsArray<'a, T>
     {
         let xi = xi.into();
 
