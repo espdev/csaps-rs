@@ -87,17 +87,3 @@ fn test_make_3d_4pt() {
             [0., 0., 0., 0., 0., 0., 1., 1., 1., 3., 4., 5.]]
     );
 }
-
-#[test]
-fn test_evaluate() {
-    let x = array![1., 2., 3., 4.];
-    let y = array![1., 2., 3., 4.];
-
-    let spline = CubicSmoothingSpline::new(&x, &y)
-        .make()
-        .unwrap();
-
-    let ys = spline.evaluate(&x).unwrap();
-
-    assert_eq!(ys, y);
-}
