@@ -150,7 +150,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
 
         let coeffs = {
             let c3ddx = ndarrayext::diff(&c3, Some(Axis(0))) / &dx;
-            let three = T::from(2.0).unwrap();
+            let three = T::from(3.0).unwrap();
             let c3head3 = &c3_head * three;
             let yi_head = yi.slice(s![..-1, ..]);
 
