@@ -18,8 +18,34 @@ use ndarray::{
 use crate::Result;
 
 
+/// N-dimensional spline representation
+#[derive(Debug)]
+pub struct NdSpline<T>
+    where T: NdFloat
+{
+    ndim: usize,
+    order: usize,
+    pieces: usize,
+    coeffs: Array2<T>,
+}
+
+
+impl<T> NdSpline<T>
+    where T: NdFloat
+{
+    pub fn ndim(&self) -> usize { self.ndim }
+
+    pub fn order(&self) -> usize { self.order }
+
+    pub fn pieces(&self) -> usize { self.pieces }
+
+    pub fn coeffs(&self) -> ArrayView2<'_, T> { self.coeffs.view() }
+}
+
+
+/// N-dimensional (univariate/multivariate) smoothing spline calculator/evaluator
 pub struct CubicSmoothingSpline<'a, T, D>
-    where T: NdFloat + Default, D: Dimension
+    where T: NdFloat, D: Dimension
 {
     x: ArrayView1<'a, T>,
     y: ArrayView<'a, T, D>,
@@ -29,12 +55,7 @@ pub struct CubicSmoothingSpline<'a, T, D>
     weights: Option<ArrayView1<'a, T>>,
     smooth: Option<T>,
 
-    ndim: Option<usize>,
-    order: Option<usize>,
-    pieces: Option<usize>,
-    coeffs: Option<Array2<T>>,
-
-    is_valid: bool,
+    spline: Option<NdSpline<T>>
 }
 
 
@@ -51,11 +72,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
             axis: None,
             weights: None,
             smooth: None,
-            ndim: None,
-            order: None,
-            pieces: None,
-            coeffs: None,
-            is_valid: false,
+            spline: None,
         }
     }
 
@@ -95,37 +112,18 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         Ok(ys)
     }
 
-    pub fn ndim(&self) -> Option<usize> {
-        self.ndim
-    }
-
     pub fn smooth(&self) -> Option<T> {
         self.smooth
     }
 
-    pub fn order(&self) -> Option<usize> {
-        self.order
-    }
-
-    pub fn pieces(&self) -> Option<usize> {
-        self.pieces
-    }
-
-    pub fn coeffs(&self) -> Option<ArrayView2<'_, T>> {
-        match &self.coeffs {
-            Some(coeffs) => Some(coeffs.view()),
+    pub fn spline(&self) -> Option<&NdSpline<T>> {
+        match &self.spline {
+            Some(spline) => Some(spline),
             None => None,
         }
     }
 
-    pub fn is_valid(&self) -> bool {
-        return self.is_valid
-    }
-
     fn invalidate(&mut self) {
-        self.order = None;
-        self.pieces = None;
-        self.coeffs = None;
-        self.is_valid = false;
+        self.spline = None;
     }
 }

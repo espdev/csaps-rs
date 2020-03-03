@@ -1,14 +1,8 @@
 use ndarray::{NdFloat, Dimension, Array1, Axis, s, stack, Array2};
 use sprs::binop::scalar_mul_mat as sprs_mul_s;
 
-use crate::{
-    CubicSmoothingSpline,
-    Result,
-    ndarrayext,
-    sprsext,
-};
-
-use super::validate_data;
+use crate::{Result, ndarrayext, sprsext};
+use super::{NdSpline, CubicSmoothingSpline, validate_data};
 
 
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
@@ -38,11 +32,13 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
             let yi = y.slice(s![.., 0]).insert_axis(Axis(1));
 
             self.smooth = Some(T::one());
-            self.coeffs = Some(stack![Axis(1), dydx, yi]);
-            self.ndim = Some(ndim);
-            self.order = Some(2);
-            self.pieces = Some(1);
-            self.is_valid = true;
+
+            self.spline = Some(NdSpline {
+                ndim,
+                order: 2,
+                pieces: 1,
+                coeffs: stack![Axis(1), dydx, yi],
+            });
 
             return Ok(())
         }
@@ -164,11 +160,13 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         let pieces = coeffs.shape()[1] / order;
 
         self.smooth = Some(p);
-        self.coeffs = Some(coeffs);
-        self.ndim = Some(ndim);
-        self.order = Some(order);
-        self.pieces = Some(pieces);
-        self.is_valid = true;
+
+        self.spline = Some(NdSpline {
+            ndim,
+            order,
+            pieces,
+            coeffs,
+        });
 
         Ok(())
     }

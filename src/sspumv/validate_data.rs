@@ -80,7 +80,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
             )
         }
 
-        if !self.is_valid {
+        if self.spline.is_none() {
             return Err(
                 "The spline has not been computed, use `make` method before".to_string()
             )

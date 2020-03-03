@@ -6,4 +6,4 @@ use std::result;
 
 pub type Result<T> = result::Result<T, String>;
 
-pub use sspumv::CubicSmoothingSpline;
+pub use sspumv::{NdSpline, CubicSmoothingSpline};

@@ -6,14 +6,15 @@ fn test_driver_make_nd_npt<T, D>(x: Array1<T>, y: Array<T, D>,
                                  order: usize, pieces: usize, coeffs: Array2<T>)
     where T: NdFloat + Default, D: Dimension
 {
-    let spline = CubicSmoothingSpline::new(&x, &y)
+    let s = CubicSmoothingSpline::new(&x, &y)
         .make()
         .unwrap();
 
-    assert!(spline.is_valid());
-    assert_eq!(spline.order().unwrap(), order);
-    assert_eq!(spline.pieces().unwrap(), pieces);
-    assert_eq!(spline.coeffs().unwrap(), coeffs);
+    let spline = s.spline().unwrap();
+
+    assert_eq!(spline.order(), order);
+    assert_eq!(spline.pieces(), pieces);
+    assert_eq!(spline.coeffs(), coeffs);
 }
 
 fn test_driver_make_nd_2pt<T, D>(x: Array1<T>, y: Array<T, D>, coeffs: Array2<T>)
