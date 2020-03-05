@@ -1,5 +1,3 @@
-use std::error::Error;
-
 use num_traits::NumOps;
 
 use ndarray::{
@@ -12,7 +10,7 @@ use ndarray::{
     Slice,
 };
 
-use crate::Result;
+use crate::{CsapsError::ReshapeError, Result};
 
 
 pub fn diff<'a, T: 'a, D, V>(data: V, axis: Option<Axis>) -> Array<T, D>
@@ -55,9 +53,11 @@ pub fn to_2d<'a, T: 'a, D, I>(data: I, axis: Axis) -> Result<ArrayView2<'a, T>>
     match data_view.permuted_axes(axes).into_shape(new_shape) {
         Ok(view_2d) => Ok(view_2d),
         Err(error) => Err(
-            format!("Cannot reshape {}-d array with shape {:?} by axis {} \
+            ReshapeError(
+                format!("Cannot reshape {}-d array with shape {:?} by axis {} \
                     to 2-d array with shape {:?}. Error: {}",
-                    ndim, shape, axis.0, new_shape, error.description()))
+                    ndim, shape, axis.0, new_shape, error)
+            ))
     }
 }
 

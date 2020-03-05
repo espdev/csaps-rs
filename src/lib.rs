@@ -1,9 +1,11 @@
+use std::result;
+
+mod errors;
 mod ndarrayext;
 mod sprsext;
 mod sspumv;
 
-use std::result;
-
-pub type Result<T> = result::Result<T, String>;
+pub type Result<T> = result::Result<T, errors::CsapsError>;
 
 pub use sspumv::{NdSpline, CubicSmoothingSpline};
+pub use errors::CsapsError;

@@ -1,13 +1,11 @@
-use std::error::Error;
 use std::iter::FromIterator;
 
 use ndarray::{NdFloat, Array1, Array2, Axis, s};
 
-use sprs;
-use sprs::{CsMat, Shape};
+use sprs::{TriMat, CsMat, Shape};
 use sprs::linalg::trisolve::lsolve_csr_dense_rhs;
 
-use crate::Result;
+use crate::{CsapsError::SolveError, Result};
 
 
 /// Creates CSR matrix from given diagonals
@@ -15,7 +13,7 @@ use crate::Result;
 /// The created matrix represents diagonal-like sparse matrix (DIA), but in CSR data storage
 /// because sprs crate does not provide DIA matrices currently.
 ///
-pub fn diags<T>(diags: Array2<T>, offsets: &[isize], shape: sprs::Shape) -> sprs::CsMat<T>
+pub fn diags<T>(diags: Array2<T>, offsets: &[isize], shape: Shape) -> CsMat<T>
     where T: NdFloat
 {
     let (rows, cols) = shape;
@@ -33,7 +31,7 @@ pub fn diags<T>(diags: Array2<T>, offsets: &[isize], shape: sprs::Shape) -> sprs
         ((rows - i).min(cols - j), i, j)
     };
 
-    let mut mat = sprs::TriMat::<T>::new(shape);
+    let mut mat = TriMat::<T>::new(shape);
 
     for (k, &offset) in offsets.iter().enumerate() {
         let (n, i, j) = numel_and_indices(offset);
@@ -146,9 +144,9 @@ pub fn solve<T>(a: &CsMat<T>, b: &Array2<T>) -> Result<Array2<T>>
         let mut b_vec = Vec::from_iter(b_col.iter().cloned());
 
         if let Err(error) = lsolve_csr_dense_rhs(a.view(), &mut b_vec) {
-            return Err(format!(
-                "Cannot solve linear system for b[:, {}]. Error: {}", i, error.description())
-            )
+            return Err(SolveError(
+                format!("Cannot solve linear system for b[:, {}]. Error: {}", i, error)
+            ))
         };
 
         let b_arr = Array1::from(b_vec);
