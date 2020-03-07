@@ -44,7 +44,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
             return Ok(())
         }
 
-        // General smoothing spline computing for NxM data (2 and more data points)
+        // General smoothing spline computing for NxM data (3 and more data points)
         let ones = |n| Array1::<T>::ones((n, ));
 
         let qt = {
