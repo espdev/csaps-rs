@@ -70,10 +70,10 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         };
 
         let r = {
-            let dx_head = dx.slice(s![1..]).insert_axis(Axis(0)).into_owned();
-            let dx_tail = dx.slice(s![..-1]).insert_axis(Axis(0)).into_owned();
-            let dx_body = (&dx_head + &dx_tail) * T::from(2.0).unwrap();
-            let diags_r = stack![Axis(0), dx_head, dx_body, dx_tail];
+            let dx_head = dx.slice(s![..-1]).insert_axis(Axis(0)).into_owned();
+            let dx_tail = dx.slice(s![1..]).insert_axis(Axis(0)).into_owned();
+            let dx_body = (&dx_tail + &dx_head) * T::from(2.0).unwrap();
+            let diags_r = stack![Axis(0), dx_tail, dx_body, dx_head];
 
             sprsext::diags(diags_r, &[-1, 0, 1], (pcount - 2, pcount - 2))
         };
