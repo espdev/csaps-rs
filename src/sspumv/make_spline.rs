@@ -37,7 +37,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
             drop(dx);
             let yi = y.slice(s![.., 0]).insert_axis(Axis(1));
 
-            self.smooth = Some(T::one());
+            self.smooth = Some(one);
 
             self.spline = Some(NdSpline {
                 ndim,
