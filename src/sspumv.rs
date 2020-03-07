@@ -21,17 +21,18 @@ use crate::Result;
 
 /// N-dimensional spline representation
 #[derive(Debug)]
-pub struct NdSpline<T>
+pub struct NdSpline<'a, T>
     where T: NdFloat
 {
     ndim: usize,
     order: usize,
     pieces: usize,
+    breaks: ArrayView1<'a, T>,
     coeffs: Array2<T>,
 }
 
 
-impl<T> NdSpline<T>
+impl<'a, T> NdSpline<'a, T>
     where T: NdFloat
 {
     pub fn ndim(&self) -> usize { self.ndim }
@@ -39,6 +40,8 @@ impl<T> NdSpline<T>
     pub fn order(&self) -> usize { self.order }
 
     pub fn pieces(&self) -> usize { self.pieces }
+
+    pub fn breaks(&self) -> ArrayView1<'_, T> { self.breaks.view() }
 
     pub fn coeffs(&self) -> ArrayView2<'_, T> { self.coeffs.view() }
 }
@@ -56,7 +59,7 @@ pub struct CubicSmoothingSpline<'a, T, D>
     weights: Option<ArrayView1<'a, T>>,
     smooth: Option<T>,
 
-    spline: Option<NdSpline<T>>
+    spline: Option<NdSpline<'a, T>>
 }
 
 
@@ -117,7 +120,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         self.smooth
     }
 
-    pub fn spline(&self) -> Option<&NdSpline<T>> {
+    pub fn spline(&self) -> Option<&NdSpline<'a, T>> {
         match &self.spline {
             Some(spline) => Some(spline),
             None => None,

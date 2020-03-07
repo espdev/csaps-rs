@@ -15,12 +15,14 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         let three = T::from(3.0).unwrap();
         let six = T::from(6.0).unwrap();
 
-        let weights_default = Array1::ones(self.x.raw_dim());
+        let breaks = self.x;
+
+        let weights_default = Array1::ones(breaks.raw_dim());
         let weights = self.weights
             .map(|v| v.reborrow()) // without it we will get an error: "[E0597] `weights_default` does not live long enough"
             .unwrap_or(weights_default.view());
 
-        let dx = ndarrayext::diff(self.x.view(), None);
+        let dx = ndarrayext::diff(breaks.view(), None);
 
         validate_data::validate_sites_increase(&dx)?;
 
@@ -30,7 +32,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         let dydx = ndarrayext::diff(y.view(), Some(Axis(1))) / &dx;
 
         let ndim = y.shape()[0];
-        let pcount = self.x.len();
+        let pcount = breaks.len();
 
         // The corner case for Nx2 data (2 data points)
         if pcount == 2 {
@@ -43,6 +45,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
                 ndim,
                 order: 2,
                 pieces: 1,
+                breaks,
                 coeffs: stack![Axis(1), dydx, yi],
             });
 
@@ -164,6 +167,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
             ndim,
             order,
             pieces,
+            breaks,
             coeffs,
         });
 
