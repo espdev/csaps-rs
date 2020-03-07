@@ -10,6 +10,11 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     where T: NdFloat + Default + AlmostEqual, D: Dimension
 {
     pub(crate) fn make_spline(&mut self) -> Result<()> {
+        let one = T::one();
+        let two = T::from(2.0).unwrap();
+        let three = T::from(3.0).unwrap();
+        let six = T::from(6.0).unwrap();
+
         let weights_default = Array1::ones(self.x.raw_dim());
         let weights = self.weights
             .map(|v| v.reborrow()) // without it we will get an error: "[E0597] `weights_default` does not live long enough"
@@ -72,14 +77,11 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         let r = {
             let dx_head = dx.slice(s![..-1]).insert_axis(Axis(0)).into_owned();
             let dx_tail = dx.slice(s![1..]).insert_axis(Axis(0)).into_owned();
-            let dx_body = (&dx_tail + &dx_head) * T::from(2.0).unwrap();
+            let dx_body = (&dx_tail + &dx_head) * two;
             let diags_r = stack![Axis(0), dx_tail, dx_body, dx_head];
 
             sprsext::diags(diags_r, &[-1, 0, 1], (pcount - 2, pcount - 2))
         };
-
-        let one = T::one();
-        let six = T::from(6.0).unwrap();
 
         let auto_smooth = || {
             let trace = |m| { sprsext::diagonal(m, 0).sum() };
@@ -141,15 +143,12 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
 
         let p3 = {
             let dyi = ndarrayext::diff(&yi, Some(Axis(0)));
-            let two = T::from(2.0).unwrap();
-
             &dyi / &dx - ((&c3_head * two + c3_tail) * &dx)
         };
 
         let coeffs = {
             let p1 = ndarrayext::diff(&c3, Some(Axis(0))) / &dx;
             drop(dx);
-            let three = T::from(3.0).unwrap();
             let p2 = &c3_head * three;
             let p4 = yi.slice(s![..-1, ..]);
 
