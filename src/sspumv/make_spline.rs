@@ -124,37 +124,36 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
             (d1, d2)
         };
 
-        let wd2 = {
+        let yi = {
             let diags_w = (ones(pcount) / &weights).insert_axis(Axis(0));
             let w = sprsext::diags(diags_w, &[0], (pcount, pcount));
-
             let wd2 = &sprs_mul_s(&w, p1) * &d2;
+
             drop(d1);
             drop(d2);
-            wd2
-        };
 
-        let yi = &y.t() - &wd2;
+            &y.t() - &wd2
+        };
 
         let c3 = vpad(&(u * p));
         let c3_head = c3.slice(s![..-1, ..]);
         let c3_tail = c3.slice(s![1.., ..]);
 
-        let c2 = {
+        let p3 = {
             let dyi = ndarrayext::diff(&yi, Some(Axis(0)));
             let two = T::from(2.0).unwrap();
-            let c32sum = &c3_head * two + c3_tail;
 
-            &dyi / &dx - &(&c32sum * &dx)
+            &dyi / &dx - ((&c3_head * two + c3_tail) * &dx)
         };
 
         let coeffs = {
-            let c3ddx = ndarrayext::diff(&c3, Some(Axis(0))) / &dx;
+            let p1 = ndarrayext::diff(&c3, Some(Axis(0))) / &dx;
+            drop(dx);
             let three = T::from(3.0).unwrap();
-            let c3head3 = &c3_head * three;
-            let yi_head = yi.slice(s![..-1, ..]);
+            let p2 = &c3_head * three;
+            let p4 = yi.slice(s![..-1, ..]);
 
-            stack![Axis(0), c3ddx, c3head3, c2, yi_head].t().to_owned()
+            stack![Axis(0), p1, p2, p3, p4].t().to_owned()
         };
 
         let order = 4;
