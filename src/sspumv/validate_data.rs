@@ -19,7 +19,7 @@ use crate::{
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     where T: NdFloat + Default, D: Dimension
 {
-    pub(crate) fn make_validate_data(&self) -> Result<()> {
+    pub(super) fn make_validate_data(&self) -> Result<()> {
         if self.y.ndim() == 0 {
             return Err(
                 InvalidInputData("`y` has zero dimensionality".to_string())
@@ -83,7 +83,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         Ok(())
     }
 
-    pub(crate) fn evaluate_validate_data(&self, xi: ArrayView1<'a, T>) -> Result<()> {
+    pub(super) fn evaluate_validate_data(&self, xi: ArrayView1<'a, T>) -> Result<()> {
         if xi.len() < 2 {
             return Err(
                 InvalidInputData("The size of `xi` must be greater or equal to 2".to_string())
@@ -103,7 +103,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
 }
 
 
-pub(crate) fn validate_sites_increase<T>(dx: &Array1<T>) -> Result<()>
+pub(super) fn validate_sites_increase<T>(dx: &Array1<T>) -> Result<()>
     where T: NdFloat + AlmostEqual
 {
     if dx.iter().any(|&v| v < T::zero() || almost::zero(v)) {

@@ -9,7 +9,7 @@ use super::{NdSpline, CubicSmoothingSpline, validate_data};
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     where T: NdFloat + Default + AlmostEqual, D: Dimension
 {
-    pub(crate) fn make_spline(&mut self) -> Result<()> {
+    pub(super) fn make_spline(&mut self) -> Result<()> {
         let one = T::one();
         let two = T::from(2.0).unwrap();
         let three = T::from(3.0).unwrap();
