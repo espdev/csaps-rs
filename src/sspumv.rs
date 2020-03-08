@@ -21,8 +21,7 @@ use crate::Result;
 
 /// N-dimensional spline representation
 #[derive(Debug)]
-pub struct NdSpline<'a, T>
-    where T: NdFloat
+pub struct NdSpline<'a, T: NdFloat>
 {
     ndim: usize,
     order: usize,
@@ -32,8 +31,7 @@ pub struct NdSpline<'a, T>
 }
 
 
-impl<'a, T> NdSpline<'a, T>
-    where T: NdFloat
+impl<'a, T: NdFloat> NdSpline<'a, T>
 {
     pub fn ndim(&self) -> usize { self.ndim }
 

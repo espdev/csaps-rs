@@ -4,8 +4,7 @@ use crate::{Result, ndarrayext};
 use super::{CubicSmoothingSpline, NdSpline};
 
 
-impl<'a, T> NdSpline<'a, T>
-    where T: NdFloat
+impl<'a, T: NdFloat> NdSpline<'a, T>
 {
     pub(crate) fn evaluate_spline(&self, xi: ArrayView1<'a, T>) -> Array2<T> {
         unimplemented!();
