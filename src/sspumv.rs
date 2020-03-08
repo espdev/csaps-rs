@@ -1,7 +1,3 @@
-mod make_spline;
-mod evaluate_spline;
-mod validate_data;
-
 use ndarray::{
     NdFloat,
     Dimension,
@@ -18,8 +14,12 @@ use almost::AlmostEqual;
 
 use crate::Result;
 
+mod validate_data;
+mod make_spline;
+mod evaluate_spline;
 
-/// N-dimensional spline representation
+
+/// N-dimensional spline PP-form representation
 #[derive(Debug)]
 pub struct NdSpline<'a, T: NdFloat>
 {
@@ -33,6 +33,20 @@ pub struct NdSpline<'a, T: NdFloat>
 
 impl<'a, T: NdFloat> NdSpline<'a, T>
 {
+    pub fn new(order: usize, breaks: ArrayView1<'a, T>, coeffs: Array2<T>) -> NdSpline<'a, T> {
+        let c_shape = coeffs.shape();
+        let ndim = c_shape[0];
+        let pieces = c_shape[1] / order;
+
+        NdSpline {
+            ndim,
+            order,
+            pieces,
+            breaks,
+            coeffs,
+        }
+    }
+
     pub fn ndim(&self) -> usize { self.ndim }
 
     pub fn order(&self) -> usize { self.order }

@@ -23,7 +23,6 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
             .unwrap_or(weights_default.view());
 
         let dx = ndarrayext::diff(breaks.view(), None);
-
         validate_data::validate_sites_increase(&dx)?;
 
         let axis = self.axis.unwrap_or(Axis(self.y.ndim() - 1));
@@ -32,7 +31,6 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         let y = ndarrayext::to_2d(self.y.view(), axis)?;
         let dydx = ndarrayext::diff(y.view(), Some(Axis(1))) / &dx;
 
-        let ndim = y.shape()[0];
         let pcount = breaks.len();
 
         // The corner case for Nx2 data (2 data points)
@@ -40,15 +38,11 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
             drop(dx);
             let yi = y.slice(s![.., 0]).insert_axis(Axis(1));
 
-            self.smooth = Some(one);
+            let order = 2;
+            let coeffs = stack![Axis(1), dydx, yi];
 
-            self.spline = Some(NdSpline {
-                ndim,
-                order: 2,
-                pieces: 1,
-                breaks,
-                coeffs: stack![Axis(1), dydx, yi],
-            });
+            self.smooth = Some(one);
+            self.spline = Some(NdSpline::new(order, breaks, coeffs));
 
             return Ok(())
         }
@@ -160,17 +154,9 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         };
 
         let order = 4;
-        let pieces = coeffs.shape()[1] / order;
 
         self.smooth = Some(p);
-
-        self.spline = Some(NdSpline {
-            ndim,
-            order,
-            pieces,
-            breaks,
-            coeffs,
-        });
+        self.spline = Some(NdSpline::new(order, breaks, coeffs));
 
         Ok(())
     }
