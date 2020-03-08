@@ -5,10 +5,12 @@ use ndarray::{
     Dimension,
     AsArray,
     Array,
+    Array1,
     ArrayView,
     ArrayView2,
     Axis,
     Slice,
+    Ix1,
     Ix2,
     IntoDimension
 };
@@ -106,8 +108,16 @@ pub fn from_2d<'a, T: 'a, D, S, I>(data: I, shape: S, axis: Axis) -> Result<Arra
                 format!("Cannot reshape 2-d array with shape {:?} \
                     to {}-d array with shape {:?} by axis {}. Error: {}",
                         data_view.shape(), ndim, shape_t, axis.0, error)
-            ))
+            )
+        )
     }
+}
+
+
+pub fn digitize<'a, T: 'a, I>(arr: I, bins: I) -> Array1<T>
+    where I: AsArray<'a, T, Ix1>,
+{
+    unimplemented!();
 }
 
 
