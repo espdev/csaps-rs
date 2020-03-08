@@ -44,6 +44,12 @@ impl<'a, T> NdSpline<'a, T>
     pub fn breaks(&self) -> ArrayView1<'_, T> { self.breaks.view() }
 
     pub fn coeffs(&self) -> ArrayView2<'_, T> { self.coeffs.view() }
+
+    pub fn evaluate<X>(&self, xi: X) -> Array2<T>
+        where X: AsArray<'a, T>
+    {
+        self.evaluate_spline(xi.into())
+    }
 }
 
 
@@ -111,9 +117,8 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     {
         let xi = xi.into();
 
-        self.evaluate_validate_data(&xi)?;
-        let ys = self.evaluate_spline(xi);
-        Ok(ys)
+        self.evaluate_validate_data(xi)?;
+        self.evaluate_spline(xi)
     }
 
     pub fn smooth(&self) -> Option<T> {
@@ -121,10 +126,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     }
 
     pub fn spline(&self) -> Option<&NdSpline<'a, T>> {
-        match &self.spline {
-            Some(spline) => Some(spline),
-            None => None,
-        }
+        self.spline.as_ref()
     }
 
     fn invalidate(&mut self) {

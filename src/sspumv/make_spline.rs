@@ -27,6 +27,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         validate_data::validate_sites_increase(&dx)?;
 
         let axis = self.axis.unwrap_or(Axis(self.y.ndim() - 1));
+        self.axis = Some(axis);
 
         let y = ndarrayext::to_2d(self.y.view(), axis)?;
         let dydx = ndarrayext::diff(y.view(), Some(Axis(1))) / &dx;

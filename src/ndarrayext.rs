@@ -5,9 +5,11 @@ use ndarray::{
     Dimension,
     AsArray,
     Array,
+    ArrayView,
     ArrayView2,
     Axis,
     Slice,
+    Ix2,
 };
 
 use crate::{CsapsError::ReshapeError, Result};
@@ -59,6 +61,14 @@ pub fn to_2d<'a, T: 'a, D, I>(data: I, axis: Axis) -> Result<ArrayView2<'a, T>>
                     ndim, shape, axis.0, new_shape, error)
             ))
     }
+}
+
+
+pub fn from_2d<'a, T: 'a, D, I>(data: I, shape: &[usize], axis: Axis) -> Result<ArrayView<'a, T, D>>
+    where D: Dimension,
+          I: AsArray<'a, T, Ix2>,
+{
+    unimplemented!()
 }
 
 
