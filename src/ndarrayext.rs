@@ -12,8 +12,14 @@ use ndarray::{
     Slice,
     Ix1,
     Ix2,
-    IntoDimension
+    IntoDimension,
+    NdFloat,
+    s
 };
+
+use almost;
+use almost::AlmostEqual;
+
 
 use crate::{CsapsError::ReshapeError, Result};
 
@@ -114,16 +120,44 @@ pub fn from_2d<'a, T: 'a, D, S, I>(data: I, shape: S, axis: Axis) -> Result<Arra
 }
 
 
-pub fn digitize<'a, T: 'a, I>(arr: I, bins: I) -> Array1<T>
-    where I: AsArray<'a, T, Ix1>,
+/// Returns the indices of the bins to which each value in input array belongs
+///
+/// This code works if `arr` and `bins` are increasing
+pub fn digitize<'a, T: 'a, I>(arr: I, bins: I) -> Array1<usize>
+    where T: NdFloat + AlmostEqual,
+          I: AsArray<'a, T, Ix1>,
 {
-    unimplemented!();
+    let arr_view = arr.into();
+    let bins_view = bins.into();
+
+    let mut indices = Array1::zeros((arr_view.len(),));
+    let mut kstart: usize = 0;
+
+    for (i, &a) in arr_view.iter().enumerate() {
+        let mut k = kstart;
+
+        for bins_win in bins_view.slice(s![kstart..]).windows(2) {
+            let bl = bins_win[0];
+            let br = bins_win[1];
+
+            if (a > bl || almost::equal(a, bl)) && a < br {
+                indices[i] = k;
+                kstart = k;
+                break;
+            }
+
+            k += 1;
+        }
+    }
+
+    indices
 }
 
 
 #[cfg(test)]
 mod tests {
-    use ndarray::{array, Axis, Ix1, Ix2, Ix3};
+    use std::f64;
+    use ndarray::{array, Array1, Axis, Ix1, Ix2, Ix3};
     use crate::ndarrayext::*;
 
     #[test]
@@ -263,5 +297,45 @@ mod tests {
             .unwrap();
 
         assert_eq!(a, e);
+    }
+
+    #[test]
+    fn test_digitize_1() {
+        let xi = Array1::<f64>::linspace(1., 5., 9);
+        let edges = array![f64::NEG_INFINITY, 2., 3., 4., f64::INFINITY];
+
+        let indices = digitize(&xi, &edges);
+
+        assert_eq!(indices, array![0, 0, 1, 1, 2, 2, 3, 3, 3])
+    }
+
+    #[test]
+    fn test_digitize_2() {
+        let xi = Array1::<f64>::linspace(0., 7., 15);
+        let edges = array![f64::NEG_INFINITY, 2., 3., 4., 5., f64::INFINITY];
+
+        let indices = digitize(&xi, &edges);
+
+        assert_eq!(indices, array![0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 4, 4, 4])
+    }
+
+    #[test]
+    fn test_digitize_3() {
+        let xi = Array1::<f64>::linspace(1.5, 4.5, 7);
+        let edges = array![f64::NEG_INFINITY, 2., 3., 4., 5., f64::INFINITY];
+
+        let indices = digitize(&xi, &edges);
+
+        assert_eq!(indices, array![0, 1, 1, 2, 2, 3, 3])
+    }
+
+    #[test]
+    fn test_digitize_4() {
+        let xi = Array1::<f64>::linspace(1.5, 4.5, 13);
+        let edges = array![f64::NEG_INFINITY, 2., 3., 4., 5., f64::INFINITY];
+
+        let indices = digitize(&xi, &edges);
+
+        assert_eq!(indices, array![0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3])
     }
 }
