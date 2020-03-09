@@ -338,4 +338,14 @@ mod tests {
 
         assert_eq!(indices, array![0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3])
     }
+
+    #[test]
+    fn test_digitize_5() {
+        let xi = Array1::<f64>::linspace(2.5, 4.5, 17);
+        let edges = array![f64::NEG_INFINITY, 2., 3., 4., 5., f64::INFINITY];
+
+        let indices = digitize(&xi, &edges);
+
+        assert_eq!(indices, array![1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3])
+    }
 }
