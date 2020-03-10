@@ -3,9 +3,7 @@ use std::iter::FromIterator;
 use ndarray::{NdFloat, Array1, Array2, Axis, s};
 
 use sprs::{TriMat, CsMat, Shape};
-use sprs::linalg::trisolve::lsolve_csr_dense_rhs;
-
-use crate::{CsapsError::SolveError, Result};
+use sprs_ldl::LdlNumeric;
 
 
 /// Creates CSR matrix from given diagonals
@@ -132,7 +130,7 @@ fn diagonal_csr<T>(k: isize,
 /// A: ref to CSR symmetric sparse matrix
 /// b: MxN stack of b-vectors where M is equal to A rows/cols and N is the data dimensional
 ///
-pub fn solve<T>(a: &CsMat<T>, b: &Array2<T>) -> Result<Array2<T>>
+pub fn solve<T>(a: &CsMat<T>, b: &Array2<T>) -> Array2<T>
     where T: NdFloat
 {
     let mut x = Array2::<T>::zeros(b.raw_dim());
@@ -140,20 +138,19 @@ pub fn solve<T>(a: &CsMat<T>, b: &Array2<T>) -> Result<Array2<T>>
     let b_col_iter = b.axis_iter(Axis(1));
     let x_col_iter = x.axis_iter_mut(Axis(1));
 
-    for (i, (b_col, mut x_col)) in b_col_iter.zip(x_col_iter).enumerate() {
-        let mut b_vec = Vec::from_iter(b_col.iter().cloned());
+    for (b_col, mut x_col) in b_col_iter.zip(x_col_iter) {
+        let xi = {
+            let ldl = LdlNumeric::new(a.view()).unwrap();
+            let b_vec = Vec::from_iter(b_col.iter().cloned());
+            let x_vec = ldl.solve(&b_vec);
 
-        if let Err(error) = lsolve_csr_dense_rhs(a.view(), &mut b_vec) {
-            return Err(SolveError(
-                format!("Cannot solve linear system for b[:, {}]. Error: {}", i, error)
-            ))
+            Array1::from(x_vec)
         };
 
-        let b_arr = Array1::from(b_vec);
-        x_col.zip_mut_with(&b_arr, |x, y| *x = *y);
+        x_col.zip_mut_with(&xi, |v1, v2| *v1 = *v2);
     }
 
-    Ok(x)
+    x
 }
 
 

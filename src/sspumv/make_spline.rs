@@ -103,7 +103,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
             let b = ndarrayext::diff(&dydx, Some(Axis(1))).t().to_owned();
             drop(dydx);
 
-            sprsext::solve(&a, &b)?
+            sprsext::solve(&a, &b)
         };
 
         // Compute and stack spline coefficients
