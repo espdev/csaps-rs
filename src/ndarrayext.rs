@@ -123,9 +123,10 @@ pub fn from_2d<'a, T: 'a, D, S, I>(data: I, shape: S, axis: Axis) -> Result<Arra
 /// Returns the indices of the bins to which each value in input array belongs
 ///
 /// This code works if `arr` and `bins` are increasing
-pub fn digitize<'a, T: 'a, I>(arr: I, bins: I) -> Array1<usize>
+pub fn digitize<'a, T: 'a, A, B>(arr: A, bins: B) -> Array1<usize>
     where T: NdFloat + AlmostEqual,
-          I: AsArray<'a, T, Ix1>,
+          A: AsArray<'a, T, Ix1>,
+          B: AsArray<'a, T, Ix1>,
 {
     let arr_view = arr.into();
     let bins_view = bins.into();

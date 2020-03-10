@@ -31,7 +31,8 @@ pub struct NdSpline<'a, T: NdFloat>
 }
 
 
-impl<'a, T: NdFloat> NdSpline<'a, T>
+impl<'a, T> NdSpline<'a, T>
+    where T: NdFloat + AlmostEqual
 {
     pub fn new(order: usize, breaks: ArrayView1<'a, T>, coeffs: Array2<T>) -> NdSpline<'a, T> {
         let c_shape = coeffs.shape();
