@@ -134,12 +134,12 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         self.evaluate_spline(xi)
     }
 
-    pub fn smooth(&self) -> Option<T> {
-        self.smooth
+    pub fn smooth(&self) -> T {
+        self.smooth.expect("The smoothing parameter yet has not been set or computed.")
     }
 
-    pub fn spline(&self) -> Option<&NdSpline<'a, T>> {
-        self.spline.as_ref()
+    pub fn spline(&self) -> &NdSpline<'a, T> {
+        self.spline.as_ref().expect("The spline yet has not been computed.")
     }
 
     fn invalidate(&mut self) {

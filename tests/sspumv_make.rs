@@ -11,7 +11,7 @@ fn test_driver_make_nd_npt<T, D>(x: Array1<T>, y: Array<T, D>,
         .make()
         .unwrap();
 
-    let spline = s.spline().unwrap();
+    let spline = s.spline();
 
     assert_eq!(spline.order(), order);
     assert_eq!(spline.pieces(), pieces);
