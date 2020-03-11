@@ -2,9 +2,17 @@
 name = "csaps"
 version = "0.1.0"
 authors = ["Eugene Prilepin <esp.home@gmail.com>"]
+
+description = "Cubic spline approximation (smoothing)"
+keywords = ["spline", "interpolation", "approximation", "csaps", "smoothing"]
+categories = ["science"]
+
+homepage = "https://github.com/espdev/csaps-rs"
+repository = "https://github.com/espdev/csaps-rs"
+readme = "README.md"
+
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 num-traits = "0.2"
