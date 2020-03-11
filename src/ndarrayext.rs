@@ -20,6 +20,7 @@ use ndarray::{
 use almost;
 use almost::AlmostEqual;
 
+use itertools::Itertools;
 
 use crate::{CsapsError::ReshapeError, Result};
 
@@ -122,7 +123,7 @@ pub fn from_2d<'a, T: 'a, D, S, I>(data: I, shape: S, axis: Axis) -> Result<Arra
 
 /// Returns the indices of the bins to which each value in input array belongs
 ///
-/// This code works if `arr` and `bins` are increasing
+/// This code works if `bins` is increasing
 pub fn digitize<'a, T: 'a, A, B>(arr: A, bins: B) -> Array1<usize>
     where T: NdFloat + AlmostEqual,
           A: AsArray<'a, T, Ix1>,
@@ -134,7 +135,9 @@ pub fn digitize<'a, T: 'a, A, B>(arr: A, bins: B) -> Array1<usize>
     let mut indices = Array1::zeros((arr_view.len(),));
     let mut kstart: usize = 0;
 
-    for (i, &a) in arr_view.iter().enumerate() {
+    for (i, &a) in arr_view.iter().enumerate()
+        .sorted_by(|e1, e2| e1.1.partial_cmp(e2.1).unwrap()) {
+
         let mut k = kstart;
 
         for bins_win in bins_view.slice(s![kstart..]).windows(2) {
@@ -358,5 +361,15 @@ mod tests {
         let indices = digitize(&xi, &edges);
 
         assert_eq!(indices, array![1, 2, 2, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4])
+    }
+
+    #[test]
+    fn test_digitize_not_increased() {
+        let xi = array![1., 2., 1., 3., 3., 2., 1., 4., 5., 5., 4., 4., 3., 3., 2., 1.];
+        let edges = array![f64::NEG_INFINITY, 2., 3., 4., 5., f64::INFINITY];
+
+        let indices = digitize(&xi, &edges);
+
+        assert_eq!(indices, array![0, 1, 0, 2, 2, 1, 0, 3, 4, 4, 3, 3, 2, 2, 1, 0])
     }
 }

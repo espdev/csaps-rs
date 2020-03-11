@@ -12,6 +12,7 @@ ndarray = "0.13"
 sprs = "0.7.1"
 sprs-ldl = "0.5.0"
 almost = "0.2.0"
+itertools = "0.9.0"
 
 [dev-dependencies]
 approx = "0.3.2"
