@@ -24,7 +24,7 @@ fn main() {
         .unwrap();
     
     let xi = Array1::linspace(1., 4., 10);
-    let yi = spline.evaluate(xi).unwrap();
+    let yi = spline.evaluate(&xi).unwrap();
     
     println!("{}", xi);
     println!("{}", yi);
