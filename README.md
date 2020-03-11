@@ -15,7 +15,7 @@ fn main() {
     let x = array![1., 2., 3., 4.];
     let y = array![[1., 2., 3., 4.], 
                    [5., 6., 7., 8.]];
-    let w = array![1., 0.7., 0.5, 1.];
+    let w = array![1., 0.7, 0.5, 1.];
     
     let spline = CubicSmoothingSpline::new(&x, &y)
         .with_weights(&w)

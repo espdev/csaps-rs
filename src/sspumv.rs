@@ -108,14 +108,20 @@ impl<'a, T> NdSpline<'a, T>
 /// words as chained API:
 ///
 /// ```
+/// use ndarray::array;
 /// use csaps::CubicSmoothingSpline;
+///
+/// let x = array![1.0, 2.0, 3.0, 4.0];
+/// let y = array![0.5, 1.2, 3.4, 2.5];
+/// let w = array![1.0, 0.7, 0.5, 1.0];
+/// let smooth = 0.85;
 ///
 /// let s = CubicSmoothingSpline::new(&x, &y)
 ///     .with_weights(&w)
 ///     .with_smooth(smooth)
 ///     .make().unwrap();
 ///
-/// let yi = s.evaluate(&xi).unwrap();
+/// let yi = s.evaluate(&x).unwrap();
 /// ```
 ///
 pub struct CubicSmoothingSpline<'a, T, D>

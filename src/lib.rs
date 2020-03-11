@@ -25,8 +25,8 @@
 //! let xi = Array1::linspace(1., 4., 10);
 //!
 //! let yi = CubicSmoothingSpline::new(&x, &y)
-//!     .make()?
-//!     .evaluate(&xi)?;
+//!     .make().unwrap()
+//!     .evaluate(&xi).unwrap();
 //!
 //! println!("xi: {}", xi);
 //! println!("yi: {}", yi);
@@ -42,14 +42,14 @@
 //! let y = array![[0.5, 1.2, 3.4, 2.5],
 //!                [1.5, 6.7, 7.1, 5.4],
 //!                [2.3, 3.4, 5.6, 4.2]];
-//! let w = array![1., 0.7., 0.5, 1.];
+//! let w = array![1., 0.7, 0.5, 1.];
 //! let xi = Array1::linspace(1., 4., 10);
 //!
 //! let yi = CubicSmoothingSpline::new(&x, &y)
 //!     .with_weights(&w)
 //!     .with_smooth(0.8)
-//!     .make()?
-//!     .evaluate(&xi)?;
+//!     .make().unwrap()
+//!     .evaluate(&xi).unwrap();
 //!
 //! println!("xi: {}", xi);
 //! println!("yi: {}", yi);
