@@ -17,6 +17,7 @@ fn test_evaluate_1d() {
     assert_eq!(ys, array![1., 1.5, 2., 2.5, 3., 3.5, 4.]);
 }
 
+
 #[test]
 fn test_evaluate_2d_1() {
     let x = array![1., 2., 3., 4.];
