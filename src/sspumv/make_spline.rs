@@ -3,7 +3,7 @@ use sprs::binop::scalar_mul_mat as sprs_mul_s;
 use almost::AlmostEqual;
 
 use crate::{Result, ndarrayext, sprsext};
-use super::{NdSpline, CubicSmoothingSpline, validate_data};
+use super::{NdSpline, CubicSmoothingSpline};
 
 
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
@@ -23,7 +23,6 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
             .unwrap_or(weights_default.view());
 
         let dx = ndarrayext::diff(breaks.view(), None);
-        validate_data::validate_sites_increase(&dx)?;
 
         let axis = self.axis.unwrap_or(Axis(self.y.ndim() - 1));
         self.axis = Some(axis);

@@ -3,7 +3,6 @@ use ndarray::{
     Dimension,
     Axis,
     ArrayView1,
-    Array1,
 };
 
 use almost;
@@ -17,7 +16,7 @@ use crate::{
 
 
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
-    where T: NdFloat + Default, D: Dimension
+    where T: NdFloat + Default + AlmostEqual, D: Dimension
 {
     pub(super) fn make_validate_data(&self) -> Result<()> {
         if self.y.ndim() == 0 {
@@ -57,6 +56,8 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
                 )
             )
         }
+
+        validate_sites_increase(self.x)?;
 
         if let Some(weights) = self.weights {
             let w_size = weights.len();
@@ -103,15 +104,19 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
 }
 
 
-pub(super) fn validate_sites_increase<T>(dx: &Array1<T>) -> Result<()>
+pub(super) fn validate_sites_increase<T>(x: ArrayView1<T>) -> Result<()>
     where T: NdFloat + AlmostEqual
 {
-    if dx.iter().any(|&v| v < T::zero() || almost::zero(v)) {
-        return Err(
-            InvalidInputData(
-                "Data site values must satisfy the condition: x1 < x2 < ... < xN".to_string()
+    for w in x.windows(2) {
+        let e1 = w[0];
+        let e2 = w[1];
+        if e2 < e1 || e2.almost_equals(e1) {
+            return Err(
+                InvalidInputData(
+                    "Data site values must satisfy the condition: x1 < x2 < ... < xN".to_string()
+                )
             )
-        )
+        }
     }
 
     Ok(())

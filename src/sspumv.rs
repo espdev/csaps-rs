@@ -129,9 +129,10 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         where X: AsArray<'a, T>
     {
         let xi = xi.into();
-
         self.evaluate_validate_data(xi)?;
-        self.evaluate_spline(xi)
+
+        let yi = self.evaluate_spline(xi)?;
+        Ok(yi)
     }
 
     pub fn smooth(&self) -> T {
