@@ -154,8 +154,8 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     ///
     /// Arguments:
     ///
-    /// - `x` -- the array of X-data sites. Must strictly increasing: x1 < x2 < x3 < ... < xN
-    /// - `y` -- The Y-data values n-d array. `ndim` can be from 1 to N. The splines will be computed for
+    /// - `x` -- the X-data sites 1-d array-like. Must strictly increasing: x1 < x2 < x3 < ... < xN
+    /// - `y` -- The Y-data values n-d array-like. `ndim` can be from 1 to N. The splines will be computed for
     ///   all data by given axis. By default the axis parameter is equal to the last axis of Y data.
     ///   For example, for 1-d axis is equal to 0, for 2-d axis is equal to 1, for 3-d axis is
     ///   equal to 2 and etc.
