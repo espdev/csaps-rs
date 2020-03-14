@@ -55,6 +55,13 @@
 //! println!("yi: {}", yi);
 //! ```
 //!
+//! # Input and Output Data Types
+//!
+//! The input data sites and data values should be array-like containers with floating point items.
+//! It can be `&ndarray::Array` or `ndarray::ArrayView`, or `&Vec<_>`, or &[_].
+//!
+//! The output evaluated data is always `ndarray::Array`.
+//!
 
 use std::result;
 
@@ -63,6 +70,7 @@ mod ndarrayext;
 mod sprsext;
 mod sspumv;
 
+/// Provides result type for `make` and `evaluate` methods
 pub type Result<T> = result::Result<T, errors::CsapsError>;
 
 pub use errors::CsapsError;
