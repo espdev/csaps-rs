@@ -58,7 +58,7 @@
 //! # Input and Output Data Types
 //!
 //! The input data sites and data values should be array-like containers with floating point items.
-//! It can be `&ndarray::Array` or `ndarray::ArrayView`, or `&Vec<_>`, or &[_].
+//! It can be `&ndarray::Array` or `ndarray::ArrayView`, or `&Vec<_>`, or `&[_]`.
 //!
 //! The output evaluated data is always `ndarray::Array`.
 //!
