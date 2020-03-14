@@ -1,0 +1,7 @@
+dist: bionic
+language: rust
+
+rust:
+  - stable
+
+cache: cargo
