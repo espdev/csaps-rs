@@ -1,8 +1,8 @@
-<h1 align="center">
+<p align="center">
   <a href="https://github.com/espdev/csaps-rs"><img src="https://user-images.githubusercontent.com/1299189/76691347-0a5ac780-665b-11ea-99fa-bf4a0aea04dc.png" alt="csaps" width="400" /></a><br>
-</h1>
+</p>
 
-:warning: :construction: experimental, work-in-progress :construction: :warning:
+:warning: :construction: **experimental**, **work-in-progress** :construction: :warning:
 
 Cubic spline approximation (smoothing) algorithm written in Rust.
 
