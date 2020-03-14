@@ -1,9 +1,12 @@
 use std::fmt;
 
-
+//! Enum provides error types
 #[derive(PartialEq, Debug)]
 pub enum CsapsError {
+    //! Any errors when the given input data is invalid
     InvalidInputData(String),
+
+    //! Error occurs when reshape to/from 2-d representation for Y-data has failed
     ReshapeError(String),
 }
 
