@@ -48,6 +48,7 @@ impl<'a, T> NdSpline<'a, T>
             stack(Axis(1), &indexed_coeffs).unwrap()
         };
 
+        // Vectorized computing the spline pieces (polynoms) on the given data sites
         let mut values = get_indexed_coeffs(&indices);
 
         for _ in 1..self.order {
