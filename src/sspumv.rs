@@ -162,7 +162,7 @@ pub struct CubicSmoothingSpline<'a, T, D>
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     where T: NdFloat + Default + AlmostEqual, D: Dimension
 {
-    /// Creates `CubicSmoothingSpline` struct from the given X and Y data
+    /// Creates `CubicSmoothingSpline` struct from the given `X` data sites and `Y` data values
     ///
     /// Arguments:
     ///
@@ -192,6 +192,29 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     /// In other words, the axis parameter specifies Y-data axis for computing spline.
     ///
     /// `y.shape()[axis]` must be equal to `x.len()`
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use ndarray::{array, Axis};
+    /// use csaps::CubicSmoothingSpline;
+    ///
+    /// let x = array![1., 2., 3., 4.];
+    /// let y = array![[1., 5., 9.],
+    ///                [2., 6., 10.],
+    ///                [3., 7., 11.],
+    ///                [4., 8., 12.]];
+    ///
+    /// let ys = CubicSmoothingSpline::new(&x, &y)
+    ///     .with_axis(Axis(0))  // y.shape()[0] == x.len()
+    ///     .make().unwrap()
+    ///     .evaluate(&x).unwrap();
+    ///
+    /// assert_eq!(ys, y);
+    /// ```
+    ///
+    /// In the example `y` data view will be reshaped from shape `[4, 3]` to shape `[3, 4]` before
+    /// computing spline and reshaped back while evaluating the spline for correct shape of `ys` output.
     ///
     pub fn with_axis(mut self, axis: Axis) -> Self {
         self.invalidate();
@@ -225,7 +248,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         self
     }
 
-    /// Makes (computes) spline for given data and parameters
+    /// Makes (computes) the spline for given data and parameters
     ///
     /// # Errors
     ///
