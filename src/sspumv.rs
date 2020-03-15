@@ -1,3 +1,7 @@
+mod validate_data;
+mod make_spline;
+mod evaluate_spline;
+
 use ndarray::{
     NdFloat,
     Dimension,
@@ -13,10 +17,6 @@ use ndarray::{
 use almost::AlmostEqual;
 
 use crate::Result;
-
-mod validate_data;
-mod make_spline;
-mod evaluate_spline;
 
 
 /// N-dimensional (univariate/multivariate) spline PP-form representation
