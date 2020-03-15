@@ -21,8 +21,13 @@ mod evaluate_spline;
 
 /// N-dimensional (univariate/multivariate) spline PP-form representation
 ///
-/// `NdSpline` represents n-d splines as the set of attributes and
-/// array of picewise-polinomial coefficients.
+/// `NdSpline` represents n-dimensional splines as the set of its attributes and
+/// `NxM` array of picewise-polinomial coefficients for every dimension
+/// (`N` - the number of dimensions).
+///
+/// Also `evaluate` method is implemented for `NdSpline` for evaluating the values
+/// for given data sites.
+///
 #[derive(Debug)]
 pub struct NdSpline<'a, T: NdFloat>
 {
@@ -38,7 +43,7 @@ pub struct NdSpline<'a, T: NdFloat>
     /// The breaks (data sites) which have been used for computing spline
     breaks: ArrayView1<'a, T>,
 
-    /// The NxM array of spline coefficients where N is `ndim` and M is row of pieces of coefficients
+    /// `NxM` array of spline coefficients where `N` is `ndim` and `M` is row of pieces of coefficients
     coeffs: Array2<T>,
 }
 
@@ -56,7 +61,7 @@ impl<'a, T> NdSpline<'a, T>
     ///
     /// Note:
     ///
-    /// - `NdSpline` struct should not be created directly in most cases.
+    /// - `NdSpline` struct should not be created directly by a user in most cases.
     ///
     pub fn new(order: usize, breaks: ArrayView1<'a, T>, coeffs: Array2<T>) -> NdSpline<'a, T> {
         let c_shape = coeffs.shape();
