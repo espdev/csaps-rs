@@ -32,7 +32,7 @@ impl<'a, T> NdSpline<'a, T>
 
         // Returns NxM array of coeffs values for given 1xM indices array
         // where N is ndim and M is the size of xi
-        let get_endexed_coeffs = |inds: &Array1<usize>| {
+        let get_indexed_coeffs = |inds: &Array1<usize>| {
             // Returns Nx1 2-d array of coeffs by given index
             let coeffs_by_index = |&index| {
                 self.coeffs.slice(s![.., index]).insert_axis(Axis(1))
@@ -48,11 +48,11 @@ impl<'a, T> NdSpline<'a, T>
             stack(Axis(1), &indexed_coeffs).unwrap()
         };
 
-        let mut values = get_endexed_coeffs(&indices);
+        let mut values = get_indexed_coeffs(&indices);
 
         for _ in 1..self.order {
             indices += self.pieces;
-            values = values * &xi + get_endexed_coeffs(&indices);
+            values = values * &xi + get_indexed_coeffs(&indices);
         }
 
         values
