@@ -63,12 +63,12 @@
 //! The output evaluated data is always `ndarray::Array`.
 //!
 
-use std::result;
-
 mod errors;
 mod ndarrayext;
 mod sprsext;
 mod sspumv;
+
+use std::result;
 
 /// Provides result type for `make` and `evaluate` methods
 pub type Result<T> = result::Result<T, errors::CsapsError>;
