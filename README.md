@@ -3,6 +3,7 @@
 </p>
 
 [![Build Status](https://travis-ci.org/espdev/csaps-rs.svg?branch=master)](https://travis-ci.org/espdev/csaps-rs)
+[![Coverage Status](https://coveralls.io/repos/github/espdev/csaps-rs/badge.svg?branch=master)](https://coveralls.io/github/espdev/csaps-rs?branch=master)
 
 :warning: :construction: **experimental**, **work-in-progress** :construction: :warning:
 
