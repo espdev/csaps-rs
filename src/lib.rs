@@ -7,10 +7,25 @@
 //! It does not contain any spline analysis functions. Therefore, the package can be useful in
 //! practical engineering tasks for data approximation and smoothing.
 //!
+//! # Algorithm and Implementation
+//!
 //! The crate implements cubic smooting spline algorithm proposed by Carl de Boor in his book
 //! ["A Practical Guide to Splines"](https://www.springer.com/gp/book/9780387953663) and inspired by
 //! code from MATLAB [CSAPS](https://www.mathworks.com/help/curvefit/csaps.html) function and Fortran
 //! routine SMOOTH from [PGS](http://pages.cs.wisc.edu/~deboor/pgs/) (originally written by Carl de Boor).
+//!
+//! The algorithm implementation based on [ndarray](https://docs.rs/ndarray) and [sprs](https://docs.rs/sprs) crates.
+//!
+//! # Features
+//!
+//! The crate provides the following features:
+//!
+//! - univariate data smoothing (X and Y are 1-d arrays/vectors)
+//! - multivariate data smoothing (X is a 1-d array and Y is n-d array)
+//! - n-dimensional grid data (a surface or volume for example) smoothing. Currently, the feature is not implemented yet
+//! - weighted smoothing
+//! - automatic smoothing (automatic computing the smoothing parameter)
+//! - computing natural cubic spline interpolant when smoothing parameter is equal to one
 //!
 //! # Quick Examples
 //!
