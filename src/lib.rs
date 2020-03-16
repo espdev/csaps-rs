@@ -3,7 +3,7 @@
 //! csaps is a crate for univariate, multivariate and n-d grid data interpolation and approximation
 //! using cubic smoothing splines.
 //!
-//! The crate provides functionality for computing and evaluating smoothing splines.
+//! The crate provides functionality for computing and evaluating cubic smoothing splines.
 //! It does not contain any spline analysis functions. Therefore, the package can be useful in
 //! practical engineering tasks for data approximation and smoothing.
 //!
