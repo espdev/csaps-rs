@@ -83,6 +83,7 @@ mod ndarrayext;
 mod sprsext;
 mod validate;
 mod umv;
+mod ndg;
 
 use std::result;
 
