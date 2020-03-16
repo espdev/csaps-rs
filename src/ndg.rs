@@ -1,3 +1,5 @@
+mod validate;
+
 use std::convert::AsRef;
 
 use ndarray::{
@@ -13,11 +15,14 @@ use almost::AlmostEqual;
 use itertools::Itertools;
 
 use crate::Result;
+use crate::ndg::validate::validate_xy;
 
 
 /// N-d grid spline PP-form representation
 ///
-/// `NdGridSpline` represents n-dimensional splines for n-d grid data
+/// `NdGridSpline` represents n-dimensional splines for n-d grid data. In n-d grid case
+/// the spline is represented as tensor-product of univariate spline coefficients along every
+/// diemnsion.
 ///
 /// Also `evaluate` method is implemented for `NdGridSpline` for evaluating the values
 /// for given data sites.
@@ -65,6 +70,13 @@ impl<'a, T, D> NdGridSpline<'a, T, D>
 }
 
 
+/// N-dimensional grid cubic smoothing spline calculator/evaluator
+///
+/// The struct represents n-d grid smoothing cubic spline and allows you to make and evaluate the
+/// splines for given n-d grid data.
+///
+/// `CubicSmoothingSpline` struct is parametrized by data type (`f64` or `f32`)
+/// and data dimension.
 ///
 pub struct NdGridCubicSmoothingSpline<'a, T, D>
     where T: NdFloat, D: Dimension
@@ -90,6 +102,7 @@ impl<'a, T, D> NdGridCubicSmoothingSpline<'a, T, D>
     where T: NdFloat + AlmostEqual + Default,
           D: Dimension
 {
+    /// Creates `NdGridCubicSmoothingSpline` struct from the given `X` data sites and `Y` data values
     pub fn new<X, Y>(x: &'a [X], y: Y) -> Self
         where X: AsArray<'a, T> + AsRef<[T]>,
               Y: AsArray<'a, T, D>
@@ -101,5 +114,69 @@ impl<'a, T, D> NdGridCubicSmoothingSpline<'a, T, D>
             smooth: None,
             spline: None,
         }
+    }
+
+    /// Sets the data weights
+    ///
+    /// `weights.len()` must be equal to `x.len()`
+    ///
+    pub fn with_weights<W>(mut self, weights: &'a [Option<W>]) -> Self
+        where W: AsArray<'a, T> + AsRef <[T]>
+    {
+        let weights = weights.iter().map(|w| {
+            match w {
+                Some(w) => Some(w.into()),
+                None => None,
+            }
+        }).collect();
+
+        self.invalidate();
+        self.weights = Some(weights);
+        self
+    }
+
+    /// Sets the smoothing parameters for each axis
+    ///
+    /// The smoothing parameters should be in range `[0, 1]`,
+    /// where bounds are:
+    ///
+    ///  - 0: The smoothing spline is the least-squares straight line fit to the data
+    ///  - 1: The cubic spline interpolant with natural boundary condition
+    ///
+    /// If the smoothing parameter value is None, it will be computed automatically.
+    ///
+    pub fn with_smooth(mut self, smooth: &[Option<T>]) -> Self {
+        self.invalidate();
+        self.smooth = Some(smooth.to_vec());
+        self
+    }
+
+    /// Makes (computes) the n-d grid spline for given data and parameters
+    ///
+    /// # Errors
+    ///
+    /// - If the data or parameters are invalid
+    ///
+    pub fn make(mut self) -> Result<Self> {
+        unimplemented!();
+        Ok(self)
+    }
+
+    /// Evaluates the computed n-d grid spline on the given data sites
+    ///
+    /// # Errors
+    ///
+    /// - If the `xi` data is invalid
+    /// - If the spline yet has not been computed
+    ///
+    pub fn evaluate<X>(&self, xi: &'a [X]) -> Result<Array<T, D>>
+        where X: AsArray<'a, T> + AsRef<[T]>
+    {
+        unimplemented!();
+    }
+
+    /// Invalidate computed spline
+    fn invalidate(&mut self) {
+        self.spline = None;
     }
 }
