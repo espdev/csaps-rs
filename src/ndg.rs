@@ -121,7 +121,7 @@ impl<'a, T, D> NdGridCubicSmoothingSpline<'a, T, D>
     /// `weights.len()` must be equal to `x.len()`
     ///
     pub fn with_weights<W>(mut self, weights: &'a [Option<W>]) -> Self
-        where W: AsArray<'a, T> + AsRef <[T]>
+        where W: AsArray<'a, T> + AsRef<[T]>
     {
         let weights = weights.iter().map(|w| {
             match w {
