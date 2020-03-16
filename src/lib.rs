@@ -81,6 +81,7 @@
 mod errors;
 mod ndarrayext;
 mod sprsext;
+mod validate;
 mod sspumv;
 
 use std::result;

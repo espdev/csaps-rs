@@ -1,6 +1,6 @@
-mod validate_data;
-mod make_spline;
-mod evaluate_spline;
+mod validate_impl;
+mod make_impl;
+mod evaluate_impl;
 
 use ndarray::{
     NdFloat,

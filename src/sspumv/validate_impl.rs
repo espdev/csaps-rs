@@ -12,6 +12,7 @@ use crate::{
     CubicSmoothingSpline,
     CsapsError::InvalidInputData,
     Result,
+    validate::validate_data_sites,
 };
 
 
@@ -57,7 +58,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
             )
         }
 
-        validate_sites_increase(self.x)?;
+        validate_data_sites(self.x)?;
 
         if let Some(weights) = self.weights {
             let w_size = weights.len();
@@ -101,23 +102,4 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
 
         Ok(())
     }
-}
-
-
-pub(super) fn validate_sites_increase<T>(x: ArrayView1<T>) -> Result<()>
-    where T: NdFloat + AlmostEqual
-{
-    for w in x.windows(2) {
-        let e1 = w[0];
-        let e2 = w[1];
-        if e2 < e1 || e2.almost_equals(e1) {
-            return Err(
-                InvalidInputData(
-                    "Data site values must satisfy the condition: x1 < x2 < ... < xN".to_string()
-                )
-            )
-        }
-    }
-
-    Ok(())
 }
