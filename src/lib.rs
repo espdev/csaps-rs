@@ -82,7 +82,7 @@ mod errors;
 mod ndarrayext;
 mod sprsext;
 mod validate;
-mod sspumv;
+mod umv;
 
 use std::result;
 
@@ -90,4 +90,4 @@ use std::result;
 pub type Result<T> = result::Result<T, errors::CsapsError>;
 
 pub use errors::CsapsError;
-pub use sspumv::{NdSpline, CubicSmoothingSpline};
+pub use umv::{NdSpline, CubicSmoothingSpline};
