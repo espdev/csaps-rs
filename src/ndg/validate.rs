@@ -23,7 +23,7 @@ pub(super) fn validate_xy<'a, T, D>(x: &'a [ArrayView1<'a, T>], y: ArrayView<'a,
         )
     }
 
-    for (ax, (xi, &ys)) in x
+    for (ax, (&xi, &ys)) in x
         .iter()
         .zip(y.shape().iter())
         .enumerate()
