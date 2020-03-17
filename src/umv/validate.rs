@@ -86,12 +86,6 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     }
 
     pub(super) fn evaluate_validate_data(&self, xi: ArrayView1<'a, T>) -> Result<()> {
-        if xi.len() < 2 {
-            return Err(
-                InvalidInputData("The size of `xi` must be greater or equal to 2".to_string())
-            )
-        }
-
         if self.spline.is_none() {
             return Err(
                 InvalidInputData(
