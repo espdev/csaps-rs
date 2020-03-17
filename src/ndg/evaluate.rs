@@ -2,7 +2,7 @@ use ndarray::{NdFloat, Dimension, Array, ArrayView1};
 use almost::AlmostEqual;
 
 use crate::Result;
-use super::{NdGridSpline, NdGridCubicSmoothingSpline};
+use super::{NdGridSpline, GridCubicSmoothingSpline};
 
 
 impl<'a, T, D> NdGridSpline<'a, T, D>
@@ -17,7 +17,7 @@ impl<'a, T, D> NdGridSpline<'a, T, D>
 }
 
 
-impl<'a, T, D> NdGridCubicSmoothingSpline<'a, T, D>
+impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
     where
         T: NdFloat + AlmostEqual + Default,
         D: Dimension

@@ -92,3 +92,4 @@ pub type Result<T> = result::Result<T, errors::CsapsError>;
 
 pub use errors::CsapsError;
 pub use umv::{NdSpline, CubicSmoothingSpline};
+pub use ndg::{NdGridSpline, GridCubicSmoothingSpline};

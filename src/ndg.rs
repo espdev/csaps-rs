@@ -102,7 +102,7 @@ impl<'a, T, D> NdGridSpline<'a, T, D>
 /// `CubicSmoothingSpline` struct is parametrized by data type (`f64` or `f32`)
 /// and data dimension.
 ///
-pub struct NdGridCubicSmoothingSpline<'a, T, D>
+pub struct GridCubicSmoothingSpline<'a, T, D>
     where
         T: NdFloat,
         D: Dimension
@@ -124,7 +124,7 @@ pub struct NdGridCubicSmoothingSpline<'a, T, D>
 }
 
 
-impl<'a, T, D> NdGridCubicSmoothingSpline<'a, T, D>
+impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
     where
         T: NdFloat + AlmostEqual + Default,
         D: Dimension
@@ -134,7 +134,7 @@ impl<'a, T, D> NdGridCubicSmoothingSpline<'a, T, D>
         where X: AsArray<'a, T> + AsRef<[T]>,
               Y: AsArray<'a, T, D>
     {
-        NdGridCubicSmoothingSpline {
+        GridCubicSmoothingSpline {
             x: x.iter().map_into().collect(),
             y: y.into(),
             weights: None,

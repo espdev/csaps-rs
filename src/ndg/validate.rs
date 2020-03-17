@@ -10,10 +10,10 @@ use almost::AlmostEqual;
 use crate::{Result, CsapsError::InvalidInputData};
 use crate::validate::{validate_data_sites, validate_smooth_value};
 
-use super::NdGridCubicSmoothingSpline;
+use super::GridCubicSmoothingSpline;
 
 
-impl<'a, T, D> NdGridCubicSmoothingSpline<'a, T, D>
+impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
     where
         T: NdFloat + AlmostEqual + Default,
         D: Dimension
