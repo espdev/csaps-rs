@@ -16,7 +16,7 @@ fn test_without_weights_auto_smooth_1() {
         .make()
         .unwrap();
 
-    assert_abs_diff_eq!(s.smooth(), 0.8999999999999999);
+    assert_abs_diff_eq!(s.smooth().unwrap(), 0.8999999999999999);
 
     let coeffs_expected = array![[
         -0.41780962939499505,  0.39429046563192893,
@@ -30,7 +30,7 @@ fn test_without_weights_auto_smooth_1() {
 
      ]];
 
-    assert_abs_diff_eq!(s.spline().coeffs(), coeffs_expected, epsilon = EPS);
+    assert_abs_diff_eq!(s.spline().unwrap().coeffs(), coeffs_expected, epsilon = EPS);
 
     let ys = s.evaluate(&x).unwrap();
 
@@ -70,7 +70,7 @@ fn test_without_weights_auto_smooth_2() {
          2.87797144570959,        6.6215506411899465,
     ]).insert_axis(Axis(0));
 
-    assert_abs_diff_eq!(s.spline().coeffs(), coeffs_expected, epsilon = EPS);
+    assert_abs_diff_eq!(s.spline().unwrap().coeffs(), coeffs_expected, epsilon = EPS);
 
     let ys = s.evaluate(&x).unwrap();
 
@@ -103,7 +103,7 @@ fn test_with_weights_and_smooth() {
          1.7816259351620949,  2.3935461346633415,   2.247780548628429,     2.226284289276808
      ]];
 
-    assert_abs_diff_eq!(s.spline().coeffs(), coeffs_expected, epsilon = EPS);
+    assert_abs_diff_eq!(s.spline().unwrap().coeffs(), coeffs_expected, epsilon = EPS);
 
     let ys = s.evaluate(&x).unwrap();
 

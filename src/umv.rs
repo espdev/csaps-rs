@@ -281,24 +281,14 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         Ok(yi)
     }
 
-    /// Returns the smoothing parameter
-    ///
-    /// # Panics
-    ///
-    /// - If the smoothing parameter has not been set or computed
-    ///
-    pub fn smooth(&self) -> T {
-        self.smooth.expect("The smoothing parameter yet has not been set or computed.")
+    /// Returns the smoothing parameter or None
+    pub fn smooth(&self) -> Option<T> {
+        self.smooth
     }
 
-    /// Returns `NdSpline` struct with data of computed spline
-    ///
-    /// # Panics
-    ///
-    /// - If the spline has not been computed
-    ///
-    pub fn spline(&self) -> &NdSpline<'a, T> {
-        self.spline.as_ref().expect("The spline yet has not been computed.")
+    /// Returns the ref to `NdSpline` struct with data of computed spline or None
+    pub fn spline(&self) -> Option<&NdSpline<'a, T>> {
+        self.spline.as_ref()
     }
 
     /// Invalidate computed spline
