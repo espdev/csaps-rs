@@ -12,7 +12,7 @@ use crate::{
     CubicSmoothingSpline,
     CsapsError::InvalidInputData,
     Result,
-    validate::validate_data_sites,
+    validate::{validate_data_sites, validate_smooth_value},
 };
 
 
@@ -20,6 +20,18 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     where T: NdFloat + Default + AlmostEqual, D: Dimension
 {
     pub(super) fn make_validate_data(&self) -> Result<()> {
+        let x_size = self.x.len();
+
+        if x_size < 2 {
+            return Err(
+                InvalidInputData(
+                    "The size of data vectors must be greater or equal to 2".to_string()
+                )
+            )
+        }
+
+        validate_data_sites(self.x)?;
+
         if self.y.ndim() == 0 {
             return Err(
                 InvalidInputData("`y` has zero dimensionality".to_string())
@@ -38,7 +50,6 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
             )
         }
 
-        let x_size = self.x.len();
         let y_size = self.y.len_of(axis);
 
         if x_size != y_size {
@@ -49,16 +60,6 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
                 )
             )
         }
-
-        if x_size < 2 {
-            return Err(
-                InvalidInputData(
-                    "The size of data vectors must be greater or equal to 2".to_string()
-                )
-            )
-        }
-
-        validate_data_sites(self.x)?;
 
         if let Some(weights) = self.weights {
             let w_size = weights.len();
@@ -73,13 +74,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         }
 
         if let Some(smooth) = self.smooth {
-            if smooth < T::zero() || smooth > T::one() {
-                return Err(
-                    InvalidInputData(
-                        format!("`smooth` value must be in range 0..1, given {:?}", smooth)
-                    )
-                )
-            }
+            validate_smooth_value(smooth)?;
         }
 
         Ok(())

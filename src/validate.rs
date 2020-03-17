@@ -21,3 +21,19 @@ pub(crate) fn validate_data_sites<T>(x: ArrayView1<T>) -> Result<()>
 
     Ok(())
 }
+
+
+pub(crate) fn validate_smooth_value<T>(smooth: T) -> Result<()>
+    where
+        T: NdFloat
+{
+    if smooth < T::zero() || smooth > T::one() {
+        return Err(
+            InvalidInputData(
+                format!("`smooth` value must be in range 0..1, given {:?}", smooth)
+            )
+        )
+    }
+
+    Ok(())
+}
