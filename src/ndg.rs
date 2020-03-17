@@ -15,7 +15,6 @@ use almost::AlmostEqual;
 use itertools::Itertools;
 
 use crate::Result;
-use crate::ndg::validate::validate_xy;
 
 
 /// N-d grid spline PP-form representation
@@ -66,6 +65,28 @@ impl<'a, T, D> NdGridSpline<'a, T, D>
             breaks,
             coeffs,
         }
+    }
+
+    /// Returns the spline dimensionality
+    pub fn ndim(&self) -> usize { self.ndim }
+
+    /// Returns the vector of the spline order for each dimension
+    pub fn order(&self) -> &Vec<usize> { &self.order }
+
+    /// Returns the vector of the number of pieces of the spline for each dimension
+    pub fn pieces(&self) -> &Vec<usize> { &self.pieces }
+
+    /// Returns the vector of views to the breaks for each dimension
+    pub fn breaks(&self) -> &Vec<ArrayView1<'a, T>> { &self.breaks }
+
+    /// Returns the view to the spline coefficients array
+    pub fn coeffs(&self) -> ArrayView<'_, T, D> { self.coeffs.view() }
+
+    /// Evaluates the spline on the given data sites
+    pub fn evaluate<X>(&self, xi: &'a [X]) -> Array<T, D>
+        where X: AsArray<'a, T> + AsRef<[T]>
+    {
+        unimplemented!();
     }
 }
 
