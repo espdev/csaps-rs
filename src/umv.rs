@@ -93,10 +93,8 @@ impl<'a, T> NdSpline<'a, T>
     pub fn coeffs(&self) -> ArrayView2<'_, T> { self.coeffs.view() }
 
     /// Evaluates the spline on the given data sites
-    pub fn evaluate<X>(&self, xi: X) -> Array2<T>
-        where X: AsArray<'a, T>
-    {
-        self.evaluate_spline(xi.into())
+    pub fn evaluate(&self, xi: ArrayView1<'a, T>) -> Array2<T> {
+        self.evaluate_spline(xi)
     }
 }
 

@@ -75,7 +75,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
             shape[i] = s
         }
 
-        let yi_2d = self.spline.as_ref().unwrap().evaluate(xi);
+        let yi_2d = self.spline.as_ref().unwrap().evaluate_spline(xi);
         let yi = ndarrayext::from_2d(&yi_2d, shape, axis)?.to_owned();
 
         Ok(yi)
