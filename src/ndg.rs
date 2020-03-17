@@ -1,4 +1,6 @@
 mod validate;
+mod make;
+mod evaluate;
 
 use std::convert::AsRef;
 
@@ -27,7 +29,10 @@ use crate::Result;
 /// for given data sites.
 ///
 #[derive(Debug)]
-pub struct NdGridSpline<'a, T: NdFloat, D: Dimension>
+pub struct NdGridSpline<'a, T, D>
+    where
+        T: NdFloat,
+        D: Dimension
 {
     /// The grid dimensionality
     ndim: usize,
@@ -83,10 +88,8 @@ impl<'a, T, D> NdGridSpline<'a, T, D>
     pub fn coeffs(&self) -> ArrayView<'_, T, D> { self.coeffs.view() }
 
     /// Evaluates the spline on the given data sites
-    pub fn evaluate<X>(&self, xi: &'a [X]) -> Array<T, D>
-        where X: AsArray<'a, T> + AsRef<[T]>
-    {
-        unimplemented!();
+    pub fn evaluate(&self, xi: &'a [ArrayView1<'a, T>]) -> Array<T, D> {
+        self.evaluate_spline(xi)
     }
 }
 
@@ -100,7 +103,9 @@ impl<'a, T, D> NdGridSpline<'a, T, D>
 /// and data dimension.
 ///
 pub struct NdGridCubicSmoothingSpline<'a, T, D>
-    where T: NdFloat, D: Dimension
+    where
+        T: NdFloat,
+        D: Dimension
 {
     /// X data sites (also breaks)
     x: Vec<ArrayView1<'a, T>>,
@@ -120,8 +125,9 @@ pub struct NdGridCubicSmoothingSpline<'a, T, D>
 
 
 impl<'a, T, D> NdGridCubicSmoothingSpline<'a, T, D>
-    where T: NdFloat + AlmostEqual + Default,
-          D: Dimension
+    where
+        T: NdFloat + AlmostEqual + Default,
+        D: Dimension
 {
     /// Creates `NdGridCubicSmoothingSpline` struct from the given `X` data sites and `Y` data values
     pub fn new<X, Y>(x: &'a [X], y: Y) -> Self
@@ -179,7 +185,7 @@ impl<'a, T, D> NdGridCubicSmoothingSpline<'a, T, D>
     /// - If the data or parameters are invalid
     ///
     pub fn make(mut self) -> Result<Self> {
-        unimplemented!();
+        self.make_spline()?;
         Ok(self)
     }
 
@@ -193,7 +199,8 @@ impl<'a, T, D> NdGridCubicSmoothingSpline<'a, T, D>
     pub fn evaluate<X>(&self, xi: &'a [X]) -> Result<Array<T, D>>
         where X: AsArray<'a, T> + AsRef<[T]>
     {
-        unimplemented!();
+        let xi: Vec<ArrayView1<'a, T>> = xi.iter().map_into().collect();
+        self.evaluate_spline(&xi)
     }
 
     /// Invalidate computed spline
