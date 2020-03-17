@@ -2,7 +2,7 @@ use ndarray::{NdFloat, Dimension};
 use almost::AlmostEqual;
 
 use crate::Result;
-use super::{NdGridSpline, NdGridCubicSmoothingSpline};
+use super::{NdGridCubicSmoothingSpline, NdGridSpline};
 
 
 impl<'a, T, D> NdGridCubicSmoothingSpline<'a, T, D>

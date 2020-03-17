@@ -185,8 +185,10 @@ impl<'a, T, D> NdGridCubicSmoothingSpline<'a, T, D>
     /// - If the data or parameters are invalid
     ///
     pub fn make(mut self) -> Result<Self> {
+        self.invalidate();
         self.make_validate()?;
         self.make_spline()?;
+
         Ok(self)
     }
 
