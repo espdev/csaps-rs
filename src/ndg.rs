@@ -130,12 +130,12 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
         D: Dimension
 {
     /// Creates `NdGridCubicSmoothingSpline` struct from the given `X` data sites and `Y` data values
-    pub fn new<X, Y>(x: &'a [X], y: Y) -> Self
-        where X: AsArray<'a, T> + AsRef<[T]>,
-              Y: AsArray<'a, T, D>
+    pub fn new<Y>(x: &[ArrayView1<'a, T>], y: Y) -> Self
+        where
+            Y: AsArray<'a, T, D>
     {
         GridCubicSmoothingSpline {
-            x: x.iter().map_into().collect(),
+            x: x.to_vec(),
             y: y.into(),
             weights: None,
             smooth: None,
@@ -147,18 +147,9 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
     ///
     /// `weights.len()` must be equal to `x.len()`
     ///
-    pub fn with_weights<W>(mut self, weights: &'a [Option<W>]) -> Self
-        where W: AsArray<'a, T> + AsRef<[T]>
-    {
-        let weights = weights.iter().map(|w| {
-            match w {
-                Some(w) => Some(w.into()),
-                None => None,
-            }
-        }).collect();
-
+    pub fn with_weights(mut self, weights: &[Option<ArrayView1<'a, T>>]) -> Self {
         self.invalidate();
-        self.weights = Some(weights);
+        self.weights = Some(weights.to_vec());
         self
     }
 
@@ -199,11 +190,19 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
     /// - If the `xi` data is invalid
     /// - If the spline yet has not been computed
     ///
-    pub fn evaluate<X>(&self, xi: &'a [X]) -> Result<Array<T, D>>
-        where X: AsArray<'a, T> + AsRef<[T]>
-    {
-        let xi: Vec<ArrayView1<'a, T>> = xi.iter().map_into().collect();
+    pub fn evaluate(&self, xi: &[ArrayView1<'a, T>]) -> Result<Array<T, D>> {
+        let xi = xi.to_vec();
         self.evaluate_spline(&xi)
+    }
+
+    /// Returns the ref to smoothing parameters vector or None
+    pub fn smooth(&self) -> Option<&Vec<Option<T>>> {
+        self.smooth.as_ref()
+    }
+
+    /// Returns ref to `NdGridSpline` struct with data of computed spline or None
+    pub fn spline(&self) -> Option<&NdGridSpline<'a, T, D>> {
+        self.spline.as_ref()
     }
 
     /// Invalidate computed spline

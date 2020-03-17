@@ -42,7 +42,7 @@ pub(super) fn validate_xy<T, D>(x: &[ArrayView1<'_, T>], y: ArrayView<'_, T, D>)
     if x.len() != y.ndim() {
         return Err(
             InvalidInputData(
-                format!("The number of `x` data sites ({}) is not equal to `y` data dimensionality ({})",
+                format!("The number of `x` data site vectors ({}) is not equal to `y` data dimensionality ({})",
                         x.len(), y.ndim())
             )
         )
