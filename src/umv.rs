@@ -1,6 +1,6 @@
-mod validate_impl;
-mod make_impl;
-mod evaluate_impl;
+mod validate;
+mod make;
+mod evaluate;
 
 use ndarray::{
     NdFloat,
