@@ -35,12 +35,6 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
             let weights = self.weights[ax].map(|v| v.reborrow());
             let s = self.smooth[ax];
 
-            println!("\nx shape: {:?}", x.shape());
-            println!("y shape: {:?}", y.shape());
-
-            println!("\nx: {:?}", x);
-            println!("y: {:?}", y);
-
             let sp = CubicSmoothingSpline::new(x, y)
                 .with_optional_weights(weights)
                 .with_optional_smooth(s)
@@ -64,9 +58,6 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
             };
 
             coeffs_shape = coeffs.shape().to_vec();
-
-            println!("\ncoeffs shape: {:?}", coeffs.shape());
-            println!("coeffs: {:?}", coeffs);
         }
 
         self.smooth = smooth;
