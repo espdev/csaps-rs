@@ -225,7 +225,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         self
     }
 
-    /// Sets the data weights
+    /// Sets the weights data vector
     ///
     /// `weights.len()` must be equal to `x.len()`
     ///
@@ -237,13 +237,15 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         self
     }
 
-    pub(crate) fn with_optional_weights<W>(mut self, weights: Option<W>) -> Self
+    /// Sets the weights data vector in `Option` wrap
+    ///
+    /// `weights.len()` must be equal to `x.len()`
+    ///
+    pub fn with_optional_weights<W>(mut self, weights: Option<W>) -> Self
         where W: AsArray<'a, T>
     {
-        let weights = weights.map(|w| w.into());
-
         self.invalidate();
-        self.weights = weights;
+        self.weights = weights.map(|w| w.into());
         self
     }
 
@@ -261,7 +263,8 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         self
     }
 
-    pub(crate) fn with_optional_smooth(mut self, smooth: Option<T>) -> Self {
+    /// Sets the smoothing parameter in `Option` wrap
+    pub fn with_optional_smooth(mut self, smooth: Option<T>) -> Self {
         self.invalidate();
         self.smooth = smooth;
         self
