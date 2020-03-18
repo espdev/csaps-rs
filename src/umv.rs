@@ -237,7 +237,11 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         self
     }
 
-    pub(crate) fn with_optional_weights(mut self, weights: Option<ArrayView1<'a, T>>) -> Self {
+    pub(crate) fn with_optional_weights<W>(mut self, weights: Option<W>) -> Self
+        where W: AsArray<'a, T>
+    {
+        let weights = weights.map(|w| w.into());
+
         self.invalidate();
         self.weights = weights;
         self
