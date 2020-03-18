@@ -69,7 +69,30 @@ pub fn to_2d<'a, T: 'a, D, I>(data: I, axis: Axis) -> Result<ArrayView2<'a, T>>
                 format!("Cannot reshape {}-d array with shape {:?} by axis {} \
                     to 2-d array with shape {:?}. Error: {}",
                     ndim, shape, axis.0, new_shape, error)
-            ))
+            )
+        )
+    }
+}
+
+
+pub fn to_2d_simple<'a, T: 'a, D>(data: ArrayView<'a, T, D>) -> Result<ArrayView2<'a, T>>
+    where
+        D: Dimension
+{
+    let ndim = data.ndim();
+    let shape = data.shape().to_vec();
+    let new_shape = [shape[0..(ndim - 1)].iter().product(), shape[ndim - 1]];
+
+    match data.into_shape(new_shape) {
+        Ok(data_2d) => Ok(data_2d),
+        Err(err) => {
+            return Err(
+                ReshapeError(
+                    format!("Cannot reshape data array with shape {:?} to 2-d array with \
+                        shape {:?}. Error: {}", shape, new_shape, err)
+                )
+            )
+        }
     }
 }
 
@@ -229,6 +252,24 @@ mod tests {
         // assert_eq!(to_2d(&a, Axis(0)).unwrap(), array![[1, 7], [2, 8], [3, 9], [4, 10], [5, 11], [6, 12]]);
         // assert_eq!(to_2d(&a, Axis(1)).unwrap(), array![[1, 4], [2, 5], [3, 6], [7, 10], [8, 11], [9, 12]]);
         assert_eq!(to_2d(&a, Axis(2)).unwrap(), array![[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]]);
+    }
+
+    #[test]
+    fn test_to_2d_simple_from_1d() {
+        let a = array![1, 2, 3, 4];
+        assert_eq!(to_2d_simple(a.view()).unwrap(), array![[1, 2, 3, 4]]);
+    }
+
+    #[test]
+    fn test_to_2d_simple_from_2d() {
+        let a = array![[1, 2, 3, 4], [5, 6, 7, 8]];
+        assert_eq!(to_2d_simple(a.view()).unwrap(), array![[1, 2, 3, 4], [5, 6, 7, 8]]);
+    }
+
+    #[test]
+    fn test_to_2d_simple_from_3d() {
+        let a = array![[[1, 2, 3], [4, 5, 6]], [[7, 8, 9], [10, 11, 12]]];
+        assert_eq!(to_2d_simple(a.view()).unwrap(), array![[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]]);
     }
 
     #[test]
