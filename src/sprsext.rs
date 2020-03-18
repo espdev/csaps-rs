@@ -140,9 +140,14 @@ pub fn solve<T>(a: &CsMat<T>, b: &Array2<T>) -> Array2<T>
 
     for (b_col, mut x_col) in b_col_iter.zip(x_col_iter) {
         let xi = {
-            let ldl = LdlNumeric::new(a.view()).unwrap();
-            let b_vec = Vec::from_iter(b_col.iter().cloned());
-            let x_vec = ldl.solve(&b_vec);
+            let x_vec = if b_col.len() > 1 {
+                let ldl = LdlNumeric::new(a.view()).unwrap();
+                let b_vec = Vec::from_iter(b_col.iter().cloned());
+                ldl.solve(&b_vec)
+            } else {
+                // In this corner case we have 1x1 sparse matrix and `b` vector with 1 element
+                vec![b_col[0] / a.to_dense()[[0, 0]]]
+            };
 
             Array1::from(x_vec)
         };
