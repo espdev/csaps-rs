@@ -237,6 +237,12 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         self
     }
 
+    pub(crate) fn with_optional_weights(mut self, weights: Option<ArrayView1<'a, T>>) -> Self {
+        self.invalidate();
+        self.weights = weights;
+        self
+    }
+
     /// Sets the smoothing parameter
     ///
     /// The smoothing parameter should be in range `[0, 1]`,
@@ -248,6 +254,12 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     pub fn with_smooth(mut self, smooth: T) -> Self {
         self.invalidate();
         self.smooth = Some(smooth);
+        self
+    }
+
+    pub(crate) fn with_optional_smooth(mut self, smooth: Option<T>) -> Self {
+        self.invalidate();
+        self.smooth = smooth;
         self
     }
 

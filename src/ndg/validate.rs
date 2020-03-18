@@ -20,14 +20,8 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
 {
     pub(super) fn make_validate(&self) -> Result<()> {
         validate_xy(&self.x, self.y.view())?;
-
-        if let Some(weights) = self.weights.as_ref() {
-            validate_weights(&self.x, weights)?;
-        }
-
-        if let Some(smooth) = self.smooth.as_ref() {
-            validate_smooth(smooth)?;
-        }
+        validate_weights(&self.x, &self.weights)?;
+        validate_smooth(&self.x, &self.smooth)?;
 
         Ok(())
     }
@@ -89,7 +83,7 @@ pub(super) fn validate_weights<T>(x: &[ArrayView1<'_, T>], w: &[Option<ArrayView
     if w_len != x_len {
         return Err(
             InvalidInputData(
-                format!("The number of `weights` vectors ({}) is not equal to the number of `x` vectors ({})",
+                format!("The number of `weights` vectors ({}) is not equal to the number of dimensions ({})",
                         w_len, x_len)
             )
         )
@@ -115,17 +109,26 @@ pub(super) fn validate_weights<T>(x: &[ArrayView1<'_, T>], w: &[Option<ArrayView
 }
 
 
-pub(super) fn validate_smooth<T>(smooth: &[Option<T>]) -> Result<()>
+pub(super) fn validate_smooth<T>(x: &[ArrayView1<'_, T>], smooth: &[Option<T>]) -> Result<()>
     where
         T: NdFloat
 {
+    let x_len = x.len();
+    let s_len = smooth.len();
+
+    if s_len != x_len {
+        return Err(
+            InvalidInputData(
+                format!("The number of `smooth` values ({}) is not equal to the number of dimensions ({})",
+                        s_len, x_len)
+            )
+        )
+    }
+
     for (ax, s_opt) in smooth.iter().enumerate() {
         if let Some(s) = s_opt {
-            match validate_smooth_value(*s) {
-                Ok(res) => (),
-                Err(err) => {
-                    return Err(InvalidInputData(format!("{} for axis {}", err, ax)))
-                }
+            if let Err(err) = validate_smooth_value(*s) {
+                return Err(InvalidInputData(format!("{} for axis {}", err, ax)))
             };
         }
     }

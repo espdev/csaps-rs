@@ -111,10 +111,10 @@ pub struct GridCubicSmoothingSpline<'a, T, D>
     y: ArrayView<'a, T, D>,
 
     /// The optional data weights
-    weights: Option<Vec<Option<ArrayView1<'a, T>>>>,
+    weights: Vec<Option<ArrayView1<'a, T>>>,
 
     /// The optional smoothing parameter
-    smooth: Option<Vec<Option<T>>>,
+    smooth: Vec<Option<T>>,
 
     /// `NdSpline` struct with computed spline
     spline: Option<NdGridSpline<'a, T, D>>
@@ -131,11 +131,13 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
         where
             Y: AsArray<'a, T, D>
     {
+        let ndim = x.len();
+
         GridCubicSmoothingSpline {
             x: x.to_vec(),
             y: y.into(),
-            weights: None,
-            smooth: None,
+            weights: vec![None; ndim],
+            smooth: vec![None; ndim],
             spline: None,
         }
     }
@@ -146,7 +148,7 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
     ///
     pub fn with_weights(mut self, weights: &[Option<ArrayView1<'a, T>>]) -> Self {
         self.invalidate();
-        self.weights = Some(weights.to_vec());
+        self.weights = weights.to_vec();
         self
     }
 
@@ -162,7 +164,7 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
     ///
     pub fn with_smooth(mut self, smooth: &[Option<T>]) -> Self {
         self.invalidate();
-        self.smooth = Some(smooth.to_vec());
+        self.smooth = smooth.to_vec();
         self
     }
 
@@ -193,8 +195,8 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
     }
 
     /// Returns the ref to smoothing parameters vector or None
-    pub fn smooth(&self) -> Option<&Vec<Option<T>>> {
-        self.smooth.as_ref()
+    pub fn smooth(&self) -> &Vec<Option<T>> {
+        &self.smooth
     }
 
     /// Returns ref to `NdGridSpline` struct with data of computed spline or None

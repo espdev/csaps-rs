@@ -1,7 +1,9 @@
 use ndarray::{NdFloat, Dimension};
 use almost::AlmostEqual;
 
-use crate::{Result, CsapsError::ReshapeError, CubicSmoothingSpline};
+use crate::{Result, CubicSmoothingSpline};
+use crate::ndarrayext::to_2d_simple;
+
 use super::{GridCubicSmoothingSpline, NdGridSpline};
 
 
@@ -15,10 +17,10 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
         let ndim_m1 = ndim - 1;
 
         let breaks = self.x.to_vec();
-        let mut coeffs = self.y.view();
+        let mut coeffs = self.y.to_owned();
         let mut coeffs_shape = coeffs.shape().to_vec();
 
-        let mut smooth: Vec<Option<T>> = Vec::new();
+        let mut smooth: Vec<Option<T>> = vec![None; ndim];
 
         let mut permute_axes = D::zeros(ndim);
         permute_axes[0] = ndim_m1;
@@ -28,41 +30,47 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
 
         for ax in (0..ndim).rev() {
             let x = breaks[ax].view();
+            let y = to_2d_simple(coeffs.view())?;
 
-            if ndim > 2 {
-                let coeffs_2d = {
-                    let shape = coeffs.shape().to_vec();
-                    let new_shape = [shape[0..ndim_m1].iter().product(), shape[ndim_m1]];
+            let weights = self.weights[ax].map(|v| v.reborrow());
+            let s = self.smooth[ax];
 
-                    match coeffs.view().into_shape(new_shape) {
-                        Ok(coeffs_2d) => coeffs_2d,
-                        Err(err) => {
-                            return Err(
-                                ReshapeError(
-                                    format!("Cannot reshape data array with shape {:?} to 2-d array with shape {:?}\n{}",
-                                            shape, new_shape, err)
-                                )
-                            )
-                        }
-                    }
-                };
+            println!("\nx shape: {:?}", x.shape());
+            println!("y shape: {:?}", y.shape());
 
-            //     CubicSmoothingSpline::new(x, coeffs_2d.view())
-            //         .make()?
-            //         .spline().unwrap()
-            //         .coeffs().to_owned()
-            //
-            // } else {
-            //
-            //     CubicSmoothingSpline::new(x, coeffs.view())
-            //         .make()?
-            //         .spline().unwrap()
-            //         .coeffs().to_owned()
-            }
+            println!("\nx: {:?}", x);
+            println!("y: {:?}", y);
+
+            let sp = CubicSmoothingSpline::new(x, y)
+                .with_optional_weights(weights)
+                .with_optional_smooth(s)
+                .make()?;
+
+            smooth[ax] = sp.smooth();
+
+            coeffs = {
+                let spline = sp.spline().unwrap();
+
+                coeffs_shape[ndim_m1] = spline.pieces() * spline.order();
+                let mut new_shape = D::zeros(ndim);
+                for (ax, &sz) in coeffs_shape.iter().enumerate() {
+                    new_shape[ax] = sz
+                }
+
+                spline.coeffs()
+                    .into_shape(new_shape).unwrap()
+                    .permuted_axes(permute_axes.clone())
+                    .to_owned()
+            };
+
+            coeffs_shape = coeffs.shape().to_vec();
+
+            println!("\ncoeffs shape: {:?}", coeffs.shape());
+            println!("coeffs: {:?}", coeffs);
         }
 
-        self.smooth = Some(smooth);
-        self.spline = Some(NdGridSpline::new(breaks, coeffs.to_owned()));
+        self.smooth = smooth;
+        self.spline = Some(NdGridSpline::new(breaks, coeffs));
 
         Ok(())
     }
