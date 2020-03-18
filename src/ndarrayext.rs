@@ -88,8 +88,8 @@ pub fn to_2d_simple<'a, T: 'a, D>(data: ArrayView<'a, T, D>) -> Result<ArrayView
         Err(err) => {
             return Err(
                 ReshapeError(
-                    format!("Cannot reshape data array with shape {:?} to 2-d array with \
-                        shape {:?}. Error: {}", shape, new_shape, err)
+                    format!("Cannot reshape {}-d array with shape {:?} to 2-d array with \
+                        shape {:?}. Error: {}", ndim, shape, new_shape, err)
                 )
             )
         }
