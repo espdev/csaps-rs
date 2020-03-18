@@ -2,8 +2,6 @@ mod validate;
 mod make;
 mod evaluate;
 
-use std::convert::AsRef;
-
 use ndarray::{
     NdFloat,
     Dimension,
@@ -14,7 +12,6 @@ use ndarray::{
 };
 
 use almost::AlmostEqual;
-use itertools::Itertools;
 
 use crate::Result;
 
