@@ -67,8 +67,7 @@ pub fn to_2d<'a, T: 'a, D, I>(data: I, axis: Axis) -> Result<ArrayView2<'a, T>>
         Err(error) => Err(
             ReshapeError(
                 format!("Cannot reshape {}-d array with shape {:?} by axis {} \
-                    to 2-d array with shape {:?}. Error: {}",
-                    ndim, shape, axis.0, new_shape, error)
+                        to 2-d array with shape {:?}. Error: {}", ndim, shape, axis.0, new_shape, error)
             )
         )
     }
@@ -85,14 +84,12 @@ pub fn to_2d_simple<'a, T: 'a, D>(data: ArrayView<'a, T, D>) -> Result<ArrayView
 
     match data.into_shape(new_shape) {
         Ok(data_2d) => Ok(data_2d),
-        Err(err) => {
-            return Err(
-                ReshapeError(
-                    format!("Cannot reshape {}-d array with shape {:?} to 2-d array with \
+        Err(err) => Err(
+            ReshapeError(
+                format!("Cannot reshape {}-d array with shape {:?} to 2-d array with \
                         shape {:?}. Error: {}", ndim, shape, new_shape, err)
-                )
             )
-        }
+        )
     }
 }
 
