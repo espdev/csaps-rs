@@ -53,12 +53,12 @@ impl<'a, T> NdSpline<'a, T>
 {
     /// Creates `NdSpline` struct from given `breaks` and `coeffs`
     ///
-    /// Arguments:
+    /// # Arguments
     ///
     /// - `breaks` -- The breaks (data sites) which have been used for computing spline
     /// - `coeffs` -- The NxM array of spline coefficients where N is `ndim` and M is row of pieces of coefficients
     ///
-    /// Note:
+    /// # Notes
     ///
     /// - `NdSpline` struct should not be created directly by a user in most cases.
     ///
@@ -113,7 +113,7 @@ impl<'a, T> NdSpline<'a, T>
 /// `CubicSmoothingSpline` struct is parametrized by data type (`f64` or `f32`)
 /// and data dimension.
 ///
-/// The methods API of `CubicSmoothingSpline` is implemented as "builder" pattern or in other
+/// The methods API of `CubicSmoothingSpline` is implemented as builder-loke pattern or in other
 /// words as chained API:
 ///
 /// ```
@@ -173,7 +173,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
 {
     /// Creates `CubicSmoothingSpline` struct from the given `X` data sites and `Y` data values
     ///
-    /// Arguments:
+    /// # Arguments
     ///
     /// - `x` -- the X-data sites 1-d array-like. Must strictly increasing: x1 < x2 < x3 < ... < xN
     /// - `y` -- The Y-data values n-d array-like. `ndim` can be from 1 to N. The splines will be computed for
