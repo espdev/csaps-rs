@@ -22,7 +22,7 @@
 //!
 //! - univariate data smoothing (X and Y are 1-d arrays/vectors)
 //! - multivariate data smoothing (X is a 1-d array and Y is n-d array)
-//! - n-dimensional grid data (a surface or volume for example) smoothing. Currently, the feature is not implemented yet
+//! - n-dimensional grid data (a surface or volume for example) smoothing
 //! - weighted smoothing
 //! - automatic smoothing (automatic computing the smoothing parameter)
 //! - computing natural cubic spline interpolant when smoothing parameter is equal to one
