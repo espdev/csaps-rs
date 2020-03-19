@@ -51,7 +51,7 @@ pub struct NdSpline<'a, T: NdFloat>
 impl<'a, T> NdSpline<'a, T>
     where T: NdFloat + AlmostEqual
 {
-    /// Creates `NdSpline` struct from given `order`, `breaks` and `coeffs`
+    /// Creates `NdSpline` struct from given `breaks` and `coeffs`
     ///
     /// Arguments:
     ///
