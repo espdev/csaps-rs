@@ -9,6 +9,7 @@ categories = ["science"]
 
 homepage = "https://github.com/espdev/csaps-rs"
 repository = "https://github.com/espdev/csaps-rs"
+documentation = "https://docs.rs/csaps"
 readme = "README.md"
 license = "MIT"
 
