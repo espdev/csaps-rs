@@ -12,7 +12,8 @@ use sprs_ldl::LdlNumeric;
 /// because sprs crate does not provide DIA matrices currently.
 ///
 pub fn diags<T>(diags: Array2<T>, offsets: &[isize], shape: Shape) -> CsMat<T>
-    where T: NdFloat
+    where
+        T: NdFloat
 {
     let (rows, cols) = shape;
 
@@ -73,7 +74,8 @@ pub fn diags<T>(diags: Array2<T>, offsets: &[isize], shape: Shape) -> CsMat<T>
 ///
 ///
 pub fn diagonal<T>(m: &CsMat<T>, k: isize) -> Array1<T>
-    where T: NdFloat
+    where
+        T: NdFloat
 {
     let (rows, cols) = m.shape();
 
@@ -90,7 +92,8 @@ fn diagonal_csr<T>(k: isize,
                 indptr: &[usize],
                 indices: &[usize],
                 data: &[T]) -> Array1<T>
-    where T: NdFloat
+    where
+        T: NdFloat
 {
     let (rows, cols) = shape;
 
@@ -131,7 +134,8 @@ fn diagonal_csr<T>(k: isize,
 /// b: MxN stack of b-vectors where M is equal to A rows/cols and N is the data dimensional
 ///
 pub fn solve<T>(a: &CsMat<T>, b: &Array2<T>) -> Array2<T>
-    where T: NdFloat
+    where
+        T: NdFloat
 {
     let mut x = Array2::<T>::zeros(b.raw_dim());
 

@@ -7,7 +7,9 @@ use super::{NdSpline, CubicSmoothingSpline};
 
 
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
-    where T: NdFloat + Default + AlmostEqual, D: Dimension
+    where
+        T: NdFloat + Default + AlmostEqual,
+        D: Dimension
 {
     pub(super) fn make_spline(&mut self) -> Result<()> {
         let one = T::one();

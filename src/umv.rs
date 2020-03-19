@@ -49,7 +49,8 @@ pub struct NdSpline<'a, T: NdFloat>
 
 
 impl<'a, T> NdSpline<'a, T>
-    where T: NdFloat + AlmostEqual
+    where
+        T: NdFloat + AlmostEqual
 {
     /// Creates `NdSpline` struct from given `breaks` and `coeffs`
     ///
@@ -114,7 +115,9 @@ impl<'a, T> NdSpline<'a, T>
 /// and data dimension.
 ///
 /// The methods API of `CubicSmoothingSpline` is implemented as builder-loke pattern or in other
-/// words as chained API:
+/// words as chained API.
+///
+/// # Examples
 ///
 /// ```
 /// use csaps::CubicSmoothingSpline;
@@ -146,7 +149,9 @@ impl<'a, T> NdSpline<'a, T>
 /// ```
 ///
 pub struct CubicSmoothingSpline<'a, T, D>
-    where T: NdFloat, D: Dimension
+    where
+        T: NdFloat,
+        D: Dimension
 {
     /// X data sites (also breaks)
     x: ArrayView1<'a, T>,
@@ -169,7 +174,9 @@ pub struct CubicSmoothingSpline<'a, T, D>
 
 
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
-    where T: NdFloat + Default + AlmostEqual, D: Dimension
+    where
+        T: NdFloat + Default + AlmostEqual,
+        D: Dimension
 {
     /// Creates `CubicSmoothingSpline` struct from the given `X` data sites and `Y` data values
     ///
@@ -182,8 +189,9 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     ///   equal to 2 and etc.
     ///
     pub fn new<X, Y>(x: X, y: Y) -> Self
-        where X: AsArray<'a, T>,
-              Y: AsArray<'a, T, D>
+        where
+            X: AsArray<'a, T>,
+            Y: AsArray<'a, T, D>
     {
         CubicSmoothingSpline {
             x: x.into(),
@@ -236,7 +244,8 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     /// `weights.len()` must be equal to `x.len()`
     ///
     pub fn with_weights<W>(mut self, weights: W) -> Self
-        where W: AsArray<'a, T>
+        where
+            W: AsArray<'a, T>
     {
         self.invalidate();
         self.weights = Some(weights.into());
@@ -248,7 +257,8 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     /// `weights.len()` must be equal to `x.len()`
     ///
     pub fn with_optional_weights<W>(mut self, weights: Option<W>) -> Self
-        where W: AsArray<'a, T>
+        where
+            W: AsArray<'a, T>
     {
         self.invalidate();
         self.weights = weights.map(|w| w.into());
@@ -297,7 +307,8 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     /// - If the spline yet has not been computed
     ///
     pub fn evaluate<X>(&self, xi: X) -> Result<Array<T, D>>
-        where X: AsArray<'a, T>
+        where
+            X: AsArray<'a, T>
     {
         let xi = xi.into();
         self.evaluate_validate(xi)?;

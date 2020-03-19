@@ -26,7 +26,10 @@ use crate::{CsapsError::ReshapeError, Result};
 
 
 pub fn diff<'a, T: 'a, D, V>(data: V, axis: Option<Axis>) -> Array<T, D>
-    where T: NumOps + ScalarOperand, D: Dimension, V: AsArray<'a, T, D>
+    where
+        T: NumOps + ScalarOperand,
+        D: Dimension,
+        V: AsArray<'a, T, D>
 {
     let data_view = data.into();
     let axis = axis.unwrap_or(Axis(data_view.ndim() - 1));
@@ -39,8 +42,9 @@ pub fn diff<'a, T: 'a, D, V>(data: V, axis: Option<Axis>) -> Array<T, D>
 
 
 pub fn to_2d<'a, T: 'a, D, I>(data: I, axis: Axis) -> Result<ArrayView2<'a, T>>
-    where D: Dimension,
-          I: AsArray<'a, T, D>,
+    where
+        D: Dimension,
+        I: AsArray<'a, T, D>,
 {
     let data_view = data.into();
     let ndim = data_view.ndim();
@@ -95,9 +99,10 @@ pub fn to_2d_simple<'a, T: 'a, D>(data: ArrayView<'a, T, D>) -> Result<ArrayView
 
 
 pub fn from_2d<'a, T: 'a, D, S, I>(data: I, shape: S, axis: Axis) -> Result<ArrayView<'a, T, S::Dim>>
-    where D: Dimension,
-          S: IntoDimension<Dim = D>,
-          I: AsArray<'a, T, Ix2>,
+    where
+        D: Dimension,
+        S: IntoDimension<Dim = D>,
+        I: AsArray<'a, T, Ix2>,
 {
     let shape = shape.into_dimension();
     let ndim = shape.ndim();
@@ -145,9 +150,10 @@ pub fn from_2d<'a, T: 'a, D, S, I>(data: I, shape: S, axis: Axis) -> Result<Arra
 ///
 /// This code works if `bins` is increasing
 pub fn digitize<'a, T: 'a, A, B>(arr: A, bins: B) -> Array1<usize>
-    where T: NdFloat + AlmostEqual,
-          A: AsArray<'a, T, Ix1>,
-          B: AsArray<'a, T, Ix1>,
+    where
+        T: NdFloat + AlmostEqual,
+        A: AsArray<'a, T, Ix1>,
+        B: AsArray<'a, T, Ix1>,
 {
     let arr_view = arr.into();
     let bins_view = bins.into();

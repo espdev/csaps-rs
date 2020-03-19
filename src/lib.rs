@@ -119,7 +119,6 @@
 //! See [issue](https://github.com/vbarrielle/sprs/issues/184) for details.
 //!
 
-
 mod errors;
 mod ndarrayext;
 mod sprsext;

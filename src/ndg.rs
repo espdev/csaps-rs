@@ -111,7 +111,9 @@ impl<'a, T, D> NdGridSpline<'a, T, D>
 /// and data dimension.
 ///
 /// The methods API of `GridCubicSmoothingSpline` is implemented as builder-like pattern or in other
-/// words as chained API (also as `CubicSmoothingSpline` struct):
+/// words as chained API (also as `CubicSmoothingSpline` struct).
+///
+/// # Examples
 ///
 /// ```
 /// use ndarray::array;
@@ -263,7 +265,6 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
     /// - If the spline yet has not been computed
     ///
     pub fn evaluate(&self, xi: &[ArrayView1<'a, T>]) -> Result<Array<T, D>> {
-        let xi = xi.to_vec();
         self.evaluate_validate(&xi)?;
         let yi = self.evaluate_spline(&xi);
 

@@ -1,4 +1,16 @@
-use ndarray::{NdFloat, Dimension, Array, Array1, Array2, ArrayView1, Axis, s, stack, ArrayView2};
+use ndarray::{
+    NdFloat,
+    Dimension,
+    Array,
+    Array1,
+    Array2,
+    ArrayView1,
+    ArrayView2,
+    Axis,
+    s,
+    stack,
+};
+
 use almost::AlmostEqual;
 
 use crate::{Result, ndarrayext};
@@ -6,7 +18,8 @@ use super::{CubicSmoothingSpline, NdSpline};
 
 
 impl<'a, T> NdSpline<'a, T>
-    where T: NdFloat + AlmostEqual
+    where
+        T: NdFloat + AlmostEqual
 {
     /// Implements evaluating the spline on the given mesh of Xi-sites
     ///

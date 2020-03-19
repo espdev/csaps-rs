@@ -5,7 +5,8 @@ use crate::{Result, CsapsError::InvalidInputData};
 
 
 pub(crate) fn validate_data_sites<T>(x: ArrayView1<T>) -> Result<()>
-    where T: NdFloat + AlmostEqual
+    where
+        T: NdFloat + AlmostEqual
 {
     for w in x.windows(2) {
         let e1 = w[0];

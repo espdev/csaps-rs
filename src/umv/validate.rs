@@ -17,7 +17,9 @@ use crate::{
 
 
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
-    where T: NdFloat + Default + AlmostEqual, D: Dimension
+    where
+        T: NdFloat + Default + AlmostEqual,
+        D: Dimension
 {
     pub(super) fn make_validate(&self) -> Result<()> {
         let x_size = self.x.len();
@@ -84,7 +86,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         if xi.len() < 1 {
             return Err(
                 InvalidInputData(
-                    "The size of data vectors must be greater or equal to 1".to_string()
+                    "The size of `xi` vector must be greater or equal to 1".to_string()
                 )
             )
         }
