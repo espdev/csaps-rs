@@ -55,7 +55,6 @@ impl<'a, T> NdSpline<'a, T>
     ///
     /// Arguments:
     ///
-    /// - `order` -- The spline order, 4 for cubic spline for example
     /// - `breaks` -- The breaks (data sites) which have been used for computing spline
     /// - `coeffs` -- The NxM array of spline coefficients where N is `ndim` and M is row of pieces of coefficients
     ///
