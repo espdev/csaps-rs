@@ -92,8 +92,8 @@ The crate implementation is based on [ndaray](https://github.com/rust-ndarray/nd
 
 The implementation of the algotithm in other languages:
  
-- [csaps in Python](https://github.com/espdev/csaps) Python NumPy/SciPy based implementation
-- [csaps in C++](https://github.com/espdev/csaps-cpp) C++11 Eigen based implementation
+- [Python NumPy/SciPy based implementation](https://github.com/espdev/csaps)
+- [C++11 Eigen based implementation](https://github.com/espdev/csaps-cpp)
 
 ## References
 
