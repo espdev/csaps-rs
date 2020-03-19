@@ -121,7 +121,7 @@ impl<'a, T, D> NdGridSpline<'a, T, D>
 /// let x1 = array![1.0, 2.0, 3.0, 4.0];
 /// let x = vec![x0.view(), x1.view()];
 ///
-/// let y = vec![
+/// let y = array![
 ///     [0.5, 1.2, 3.4, 2.5],
 ///     [1.5, 2.2, 4.4, 3.5],
 ///     [2.5, 3.2, 5.4, 4.5],
