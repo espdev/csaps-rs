@@ -93,7 +93,7 @@
 //!
 //! let yi = GridCubicSmoothingSpline::new(&x, &y)
 //!     .make().unwrap()
-//!     .evaluate(&x).unwrap();
+//!     .evaluate(&xi).unwrap();
 //!
 //! println!("xi: {:?}", xi);
 //! println!("yi: {}", yi);
