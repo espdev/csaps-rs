@@ -9,6 +9,8 @@ impl<'a, T> NdSpline<'a, T>
     where T: NdFloat + AlmostEqual
 {
     /// Implements evaluating the spline on the given mesh of Xi-sites
+    ///
+    /// The internal method to avoid copying coeffs array
     pub(crate) fn evaluate_spline(
         order: usize,
         pieces: usize,
@@ -16,7 +18,6 @@ impl<'a, T> NdSpline<'a, T>
         coeffs: ArrayView2<'_, T>,
         xi: ArrayView1<'a, T>) -> Array2<T>
     {
-
         let edges = {
             let mesh = breaks.slice(s![1..-1]);
             let one = Array1::<T>::ones((1, ));
