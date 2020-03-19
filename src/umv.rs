@@ -63,10 +63,11 @@ impl<'a, T> NdSpline<'a, T>
     ///
     /// - `NdSpline` struct should not be created directly by a user in most cases.
     ///
-    pub fn new(order: usize, breaks: ArrayView1<'a, T>, coeffs: Array2<T>) -> NdSpline<'a, T> {
+    pub fn new(breaks: ArrayView1<'a, T>, coeffs: Array2<T>) -> NdSpline<'a, T> {
         let c_shape = coeffs.shape();
         let ndim = c_shape[0];
-        let pieces = c_shape[1] / order;
+        let pieces = breaks.len() - 1;
+        let order = c_shape[1] / pieces;
 
         NdSpline {
             ndim,

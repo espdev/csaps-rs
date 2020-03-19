@@ -36,12 +36,10 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         if pcount == 2 {
             drop(dx);
             let yi = y.slice(s![.., 0]).insert_axis(Axis(1));
-
-            let order = 2;
             let coeffs = stack![Axis(1), dydx, yi];
 
             self.smooth = Some(one);
-            self.spline = Some(NdSpline::new(order, breaks, coeffs));
+            self.spline = Some(NdSpline::new(breaks, coeffs));
 
             return Ok(())
         }
@@ -152,10 +150,8 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
             stack![Axis(0), p1, p2, p3, p4].t().to_owned()
         };
 
-        let order = 4;
-
         self.smooth = Some(p);
-        self.spline = Some(NdSpline::new(order, breaks, coeffs));
+        self.spline = Some(NdSpline::new(breaks, coeffs));
 
         Ok(())
     }
