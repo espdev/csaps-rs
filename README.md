@@ -31,7 +31,7 @@ fn main() {
     
     let spline = CubicSmoothingSpline::new(&x, &y)
         .with_weights(&w)
-        .with_smooth(0.8)
+        .with_smoothing(0.8)
         .make()
         .unwrap();
     
@@ -55,18 +55,15 @@ fn main() {
     let x1 = array![1.0, 2.0, 3.0, 4.0];
     let x = vec![x0.view(), x1.view()];
     
-    let xi0 = array![1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0];
-    let xi1 = array![1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0];
-    let xi = vec![xi0.view(), xi1.view()];
-    
     let y = array![
-     [0.5, 1.2, 3.4, 2.5],
-     [1.5, 2.2, 4.4, 3.5],
-     [2.5, 3.2, 5.4, 4.5],
-     [3.5, 4.2, 6.4, 5.5],
+        [0.5, 1.2, 3.4, 2.5],
+        [1.5, 2.2, 4.4, 3.5],
+        [2.5, 3.2, 5.4, 4.5],
+        [3.5, 4.2, 6.4, 5.5],
     ];
     
     let yi = GridCubicSmoothingSpline::new(&x, &y)
+     .with_smoothing_fill(0.5)
      .make().unwrap()
      .evaluate(&x).unwrap();
     

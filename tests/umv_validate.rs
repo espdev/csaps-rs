@@ -85,7 +85,7 @@ fn test_smooth_less_than_error() {
     let s = -0.5;
 
     CubicSmoothingSpline::new(&x, &y)
-        .with_smooth(s)
+        .with_smoothing(s)
         .make()
         .unwrap();
 }
@@ -99,7 +99,7 @@ fn test_smooth_greater_than_error() {
     let s = 1.5;
 
     CubicSmoothingSpline::new(&x, &y)
-        .with_smooth(s)
+        .with_smoothing(s)
         .make()
         .unwrap();
 }

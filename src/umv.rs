@@ -138,7 +138,7 @@ impl<'a, T> NdSpline<'a, T>
 ///
 /// let s = CubicSmoothingSpline::new(&x, &y)
 ///     .with_weights(&w)
-///     .with_smooth(smooth)
+///     .with_smoothing(smooth)
 ///     .make().unwrap();
 ///
 /// let xi = array![1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0];
@@ -263,14 +263,14 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     ///  - 0: The smoothing spline is the least-squares straight line fit to the data
     ///  - 1: The cubic spline interpolant with natural boundary condition
     ///
-    pub fn with_smooth(mut self, smooth: T) -> Self {
+    pub fn with_smoothing(mut self, smooth: T) -> Self {
         self.invalidate();
         self.smooth = Some(smooth);
         self
     }
 
     /// Sets the smoothing parameter in `Option` wrap
-    pub fn with_optional_smooth(mut self, smooth: Option<T>) -> Self {
+    pub fn with_optional_smoothing(mut self, smooth: Option<T>) -> Self {
         self.invalidate();
         self.smooth = smooth;
         self

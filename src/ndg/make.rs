@@ -33,7 +33,7 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
 
             let sp = CubicSmoothingSpline::new(x, y)
                 .with_optional_weights(weights)
-                .with_optional_smooth(s)
+                .with_optional_smoothing(s)
                 .make()?;
 
             smooth[ax] = sp.smooth();
