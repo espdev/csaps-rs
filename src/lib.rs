@@ -1,6 +1,6 @@
 //! # Cubic spline approximation (smoothing)
 //!
-//! csaps is a crate for univariate, multivariate and n-d grid data interpolation and approximation
+//! csaps is a crate for univariate, multivariate and n-dimensional grid data interpolation and approximation
 //! using cubic smoothing splines.
 //!
 //! The crate provides functionality for computing and evaluating cubic smoothing splines.
