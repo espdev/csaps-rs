@@ -10,6 +10,7 @@ categories = ["science"]
 homepage = "https://github.com/espdev/csaps-rs"
 repository = "https://github.com/espdev/csaps-rs"
 readme = "README.md"
+license = "MIT"
 
 edition = "2018"
 
