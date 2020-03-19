@@ -5,6 +5,9 @@
 <p align="center">
 <a href="https://travis-ci.org/espdev/csaps-rs"><img src="https://travis-ci.org/espdev/csaps-rs.svg?branch=master" alt="Build status" /></a>
 <a href="https://coveralls.io/github/espdev/csaps-rs?branch=master"><img src="https://coveralls.io/repos/github/espdev/csaps-rs/badge.svg?branch=master" alt="Coverage status" /></a>
+<a href="https://crates.io/crates/csaps"><img src="https://img.shields.io/crates/v/csaps.svg" alt="crates.io" /></a>
+<a href="https://docs.rs/csaps"><img src="https://docs.rs/csaps/badge.svg" alt="Docs" /></a>
+<a href="https://choosealicense.com/licenses/mit/"><img src="http://img.shields.io/badge/license-MIT-blue.svg" alt="License" /></a>
 </p>
 
 <h4 align="center">
