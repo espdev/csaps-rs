@@ -16,6 +16,11 @@ license = "MIT"
 edition = "2018"
 
 
+[badges]
+travis-ci = { repository = "espdev/csaps-rs", branch = "master" }
+coveralls = { repository = "espdev/csaps-rs", branch = "master", service = "github" }
+
+
 [dependencies]
 num-traits = "0.2.11"
 ndarray = "0.13.0"
