@@ -94,7 +94,13 @@ impl<'a, T> NdSpline<'a, T>
 
     /// Evaluates the spline on the given data sites
     pub fn evaluate(&self, xi: ArrayView1<'a, T>) -> Array2<T> {
-        self.evaluate_spline(xi)
+        Self::evaluate_spline(
+            self.order,
+            self.pieces,
+            self.breaks.view(),
+            self.coeffs.view(),
+            xi,
+        )
     }
 }
 
@@ -278,7 +284,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     /// - If reshaping Y data to 2-d view has failed
     ///
     pub fn make(mut self) -> Result<Self> {
-        self.make_validate_data()?;
+        self.make_validate()?;
         self.make_spline()?;
         Ok(self)
     }
@@ -294,7 +300,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         where X: AsArray<'a, T>
     {
         let xi = xi.into();
-        self.evaluate_validate_data(xi)?;
+        self.evaluate_validate(xi)?;
 
         let yi = self.evaluate_spline(xi)?;
         Ok(yi)

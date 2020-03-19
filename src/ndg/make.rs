@@ -4,7 +4,7 @@ use almost::AlmostEqual;
 use crate::{Result, CubicSmoothingSpline};
 use crate::ndarrayext::to_2d_simple;
 
-use super::{GridCubicSmoothingSpline, NdGridSpline};
+use super::{GridCubicSmoothingSpline, NdGridSpline, util::permute_axes};
 
 
 impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
@@ -22,11 +22,7 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
 
         let mut smooth: Vec<Option<T>> = vec![None; ndim];
 
-        let mut permute_axes = D::zeros(ndim);
-        permute_axes[0] = ndim_m1;
-        for ax in 0..ndim_m1 {
-            permute_axes[ax+1] = ax;
-        }
+        let permuted_axes = permute_axes::<D>(ndim);
 
         for ax in (0..ndim).rev() {
             let x = breaks[ax].view();
@@ -53,7 +49,7 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
 
                 spline.coeffs()
                     .into_shape(new_shape).unwrap()
-                    .permuted_axes(permute_axes.clone())
+                    .permuted_axes(permuted_axes.clone())
                     .to_owned()
             };
 

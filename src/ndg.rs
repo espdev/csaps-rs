@@ -1,6 +1,7 @@
 mod validate;
 mod make;
 mod evaluate;
+mod util;
 
 use ndarray::{
     NdFloat,
@@ -191,7 +192,10 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
     ///
     pub fn evaluate(&self, xi: &[ArrayView1<'a, T>]) -> Result<Array<T, D>> {
         let xi = xi.to_vec();
-        self.evaluate_spline(&xi)
+        self.evaluate_validate(&xi)?;
+        let yi = self.evaluate_spline(&xi);
+
+        Ok(yi)
     }
 
     /// Returns the ref to smoothing parameters vector or None

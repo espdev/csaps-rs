@@ -25,6 +25,22 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
 
         Ok(())
     }
+
+    pub(super) fn evaluate_validate(&self, xi: &[ArrayView1<'a, T>]) -> Result<()> {
+        let x_len = self.x.len();
+        let xi_len = xi.len();
+
+        if xi_len != x_len {
+            return Err(
+                InvalidInputData(
+                    format!("The number of `xi` vectors ({}) is not equal to the number of dimensions ({})",
+                            xi_len, x_len)
+                )
+            )
+        }
+
+        Ok(())
+    }
 }
 
 

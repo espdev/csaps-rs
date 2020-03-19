@@ -19,7 +19,7 @@ use crate::{
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     where T: NdFloat + Default + AlmostEqual, D: Dimension
 {
-    pub(super) fn make_validate_data(&self) -> Result<()> {
+    pub(super) fn make_validate(&self) -> Result<()> {
         let x_size = self.x.len();
 
         if x_size < 2 {
@@ -80,7 +80,15 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         Ok(())
     }
 
-    pub(super) fn evaluate_validate_data(&self, xi: ArrayView1<'a, T>) -> Result<()> {
+    pub(super) fn evaluate_validate(&self, xi: ArrayView1<'a, T>) -> Result<()> {
+        if xi.len() < 1 {
+            return Err(
+                InvalidInputData(
+                    "The size of data vectors must be greater or equal to 1".to_string()
+                )
+            )
+        }
+
         if self.spline.is_none() {
             return Err(
                 InvalidInputData(
