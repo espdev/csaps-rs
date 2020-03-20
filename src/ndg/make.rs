@@ -1,5 +1,6 @@
 use ndarray::{NdFloat, Dimension};
 use almost::AlmostEqual;
+use itertools::Itertools;
 
 use crate::{Result, CubicSmoothingSpline};
 use crate::ndarrayext::to_2d_simple;
@@ -43,9 +44,7 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
 
                 coeffs_shape[ndim_m1] = spline.pieces() * spline.order();
                 let mut new_shape = D::zeros(ndim);
-                for (ax, &sz) in coeffs_shape.iter().enumerate() {
-                    new_shape[ax] = sz
-                }
+                new_shape.as_array_view_mut().iter_mut().set_from(coeffs_shape);
 
                 spline.coeffs()
                     .into_shape(new_shape).unwrap()
