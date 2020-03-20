@@ -1,5 +1,6 @@
 use ndarray::{NdFloat, Dimension, Array, ArrayView1};
 use almost::AlmostEqual;
+use itertools::Itertools;
 
 use crate::{NdSpline, ndarrayext::to_2d_simple};
 use super::{NdGridSpline, GridCubicSmoothingSpline, util::permute_axes};
@@ -33,16 +34,16 @@ impl<'a, T, D> NdGridSpline<'a, T, D>
                 )
             };
 
-            let mut shape = D::zeros(self.ndim);
-            shape[ndim_m1] = xi_ax.len();
-            for i in 0..ndim_m1 {
-                shape[i] = coeffs_shape[i];
-            }
+            coeffs = {
+                let mut shape = D::zeros(self.ndim);
+                shape[ndim_m1] = xi_ax.len();
+                shape.as_array_view_mut().iter_mut().take(ndim_m1).set_from(coeffs_shape);
 
-            coeffs = coeffs_2d
-                .into_shape(shape).unwrap()
-                .permuted_axes(permuted_axes.clone())
-                .to_owned();
+                coeffs_2d
+                    .into_shape(shape).unwrap()
+                    .permuted_axes(permuted_axes.clone())
+                    .to_owned()
+            };
 
             coeffs_shape = coeffs.shape().to_vec();
         }

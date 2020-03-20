@@ -51,15 +51,12 @@ pub fn to_2d<'a, T: 'a, D, I>(data: I, axis: Axis) -> Result<ArrayView2<'a, T>>
 
     // Firstly, we should permute ND array axes by given axis for getting
     // right NxM 2d array where N is the ndim and M is the data size
-    let mut axes_t: Vec<usize> = (0..ndim).collect();
-    axes_t.remove(axis.0);
-    axes_t.push(axis.0);
+    let mut axes_tmp: Vec<usize> = (0..ndim).collect();
+    axes_tmp.remove(axis.0);
+    axes_tmp.push(axis.0);
 
     let mut axes = D::zeros(ndim);
-
-    for (i, &ax) in axes_t.iter().enumerate() {
-        axes[i] = ax
-    }
+    axes.as_array_view_mut().iter_mut().set_from(axes_tmp);
 
     let shape = data_view.shape().to_vec();
     let numel: usize = shape.iter().product();
@@ -107,31 +104,23 @@ pub fn from_2d<'a, T: 'a, D, S, I>(data: I, shape: S, axis: Axis) -> Result<Arra
     let shape = shape.into_dimension();
     let ndim = shape.ndim();
 
-    let shape_slice = shape.slice();
-
-    let mut shape_t: Vec<usize> = shape_slice.to_owned();
-    shape_t.remove(axis.0);
-    shape_t.push(shape_slice[axis.0]);
+    let mut shape_tmp = shape.slice().to_vec();
+    shape_tmp.remove(axis.0);
+    shape_tmp.push(shape[axis.0]);
 
     let mut new_shape = D::zeros(ndim);
-
-    for (i, &s) in shape_t.iter().enumerate() {
-        new_shape[i] = s;
-    }
+    new_shape.as_array_view_mut().iter_mut().set_from(shape_tmp);
 
     let data_view = data.into();
 
-    match data_view.into_shape(new_shape) {
+    match data_view.into_shape(new_shape.clone()) {
         Ok(view_nd) => {
-            let mut axes_t: Vec<usize> = (0..ndim).collect();
-            let end_axis = axes_t.pop().unwrap();
-            axes_t.insert(axis.0, end_axis);
+            let mut axes_tmp: Vec<usize> = (0..ndim).collect();
+            let end_axis = axes_tmp.pop().unwrap();
+            axes_tmp.insert(axis.0, end_axis);
 
             let mut axes = D::zeros(ndim);
-
-            for (i, &ax) in axes_t.iter().enumerate() {
-                axes[i] = ax
-            }
+            axes.as_array_view_mut().iter_mut().set_from(axes_tmp);
 
             Ok(view_nd.permuted_axes(axes))
         },
@@ -139,7 +128,7 @@ pub fn from_2d<'a, T: 'a, D, S, I>(data: I, shape: S, axis: Axis) -> Result<Arra
             ReshapeError(
                 format!("Cannot reshape 2-d array with shape {:?} \
                     to {}-d array with shape {:?} by axis {}. Error: {}",
-                        data_view.shape(), ndim, shape_t, axis.0, error)
+                        data_view.shape(), ndim, new_shape, axis.0, error)
             )
         )
     }
