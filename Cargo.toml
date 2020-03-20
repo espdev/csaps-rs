@@ -1,6 +1,6 @@
 [package]
 name = "csaps"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Eugene Prilepin <esp.home@gmail.com>"]
 
 description = "Cubic spline approximation (smoothing)"
