@@ -25,8 +25,8 @@ use crate::Result;
 /// `NxM` array of picewise-polinomial coefficients for every dimension
 /// (`N` - the number of dimensions).
 ///
-/// Also `evaluate` method is implemented for `NdSpline` for evaluating the values
-/// for given data sites.
+/// Also `evaluate` method is implemented for `NdSpline` for evaluating the data values
+/// for the given data sites.
 ///
 #[derive(Debug)]
 pub struct NdSpline<'a, T: NdFloat>
@@ -141,7 +141,7 @@ impl<'a, T> NdSpline<'a, T>
 ///
 /// let s = CubicSmoothingSpline::new(&x, &y)
 ///     .with_weights(&w)
-///     .with_smoothing(smooth)
+///     .with_smooth(smooth)
 ///     .make().unwrap();
 ///
 /// let xi = array![1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0];
@@ -182,7 +182,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     ///
     /// # Arguments
     ///
-    /// - `x` -- the X-data sites 1-d array-like. Must strictly increasing: x1 < x2 < x3 < ... < xN
+    /// - `x` -- the X-data sites 1-d array-like. Must strictly increasing: `x1 < x2 < x3 < ... < xN`
     /// - `y` -- The Y-data values n-d array-like. `ndim` can be from 1 to N. The splines will be computed for
     ///   all data by given axis. By default the axis parameter is equal to the last axis of Y data.
     ///   For example, for 1-d axis is equal to 0, for 2-d axis is equal to 1, for 3-d axis is
@@ -273,14 +273,14 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     ///  - 0: The smoothing spline is the least-squares straight line fit to the data
     ///  - 1: The cubic spline interpolant with natural boundary condition
     ///
-    pub fn with_smoothing(mut self, smooth: T) -> Self {
+    pub fn with_smooth(mut self, smooth: T) -> Self {
         self.invalidate();
         self.smooth = Some(smooth);
         self
     }
 
     /// Sets the smoothing parameter in `Option` wrap
-    pub fn with_optional_smoothing(mut self, smooth: Option<T>) -> Self {
+    pub fn with_optional_smooth(mut self, smooth: Option<T>) -> Self {
         self.invalidate();
         self.smooth = smooth;
         self

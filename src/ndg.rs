@@ -21,7 +21,7 @@ use crate::Result;
 ///
 /// `NdGridSpline` represents n-dimensional splines for n-dimensional grid data. In n-d grid case
 /// the spline is represented as tensor-product of univariate spline coefficients along every
-/// diemnsion.
+/// diemension.
 ///
 /// Also `evaluate` method is implemented for `NdGridSpline` for evaluating the values
 /// for given data sites.
@@ -217,7 +217,7 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
     ///
     /// If the smoothing parameter value is None, it will be computed automatically.
     ///
-    pub fn with_smoothing(mut self, smooth: &[Option<T>]) -> Self {
+    pub fn with_smooth(mut self, smooth: &[Option<T>]) -> Self {
         self.invalidate();
         self.smooth = smooth.to_vec();
         self
@@ -237,7 +237,7 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
     ///  - 0: The smoothing spline is the least-squares straight line fit to the data
     ///  - 1: The cubic spline interpolant with natural boundary condition
     ///
-    pub fn with_smoothing_fill(mut self, smooth: T) -> Self {
+    pub fn with_smooth_fill(mut self, smooth: T) -> Self {
         self.invalidate();
         self.smooth = vec![Some(smooth); self.x.len()];
         self

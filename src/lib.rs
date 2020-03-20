@@ -62,7 +62,7 @@
 //!
 //! let yi = CubicSmoothingSpline::new(&x, &y)
 //!     .with_weights(&w)
-//!     .with_smoothing(0.8)
+//!     .with_smooth(0.8)
 //!     .make().unwrap()
 //!     .evaluate(&xi).unwrap();
 //!

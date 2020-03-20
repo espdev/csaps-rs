@@ -19,7 +19,30 @@ The package can be useful in practical engineering tasks for data approximation 
 
 ## Usage
 
-Multivariate data smoothing
+Univariate data auto-smoothing
+
+```rust
+use ndarray::{array, Array1};
+use csaps::CubicSmoothingSpline;
+
+
+fn main() {
+    let x = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0];
+    let y = vec![2.3, 3.5, 3.3, 1.2, 4.5, 6.2, 5.6, 7.2, 1.5];
+    
+    let spline = CubicSmoothingSpline::new(&x, &y)
+        .make()
+        .unwrap();
+    
+    let xi = Array1::linspace(1., 9., 30);
+    let yi = spline.evaluate(&xi).unwrap();
+    
+    println!("{}", xi);
+    println!("{}", yi);
+}
+```
+
+Multivariate data smoothing with weights and specified smoothing parameter
 
 ```rust
 use ndarray::{array, Array1};
@@ -34,7 +57,7 @@ fn main() {
     
     let spline = CubicSmoothingSpline::new(&x, &y)
         .with_weights(&w)
-        .with_smoothing(0.8)
+        .with_smooth(0.8)
         .make()
         .unwrap();
     
@@ -66,7 +89,7 @@ fn main() {
     ];
     
     let yi = GridCubicSmoothingSpline::new(&x, &y)
-     .with_smoothing_fill(0.5)
+     .with_smooth_fill(0.5)
      .make().unwrap()
      .evaluate(&x).unwrap();
     
