@@ -86,7 +86,7 @@ See [issue](https://github.com/vbarrielle/sprs/issues/184) for details.
 
 ## Algorithms and implementations
 
-The crate implementation is based on [ndaray](https://github.com/rust-ndarray/ndarray) and 
+The crate implementation is based on [ndarray](https://github.com/rust-ndarray/ndarray) and 
 [sprs](https://github.com/vbarrielle/sprs) crates and has been inspired by Fortran routine SMOOTH from [PGS](http://pages.cs.wisc.edu/~deboor/pgs/) 
 (originally written by Carl de Boor).
 
