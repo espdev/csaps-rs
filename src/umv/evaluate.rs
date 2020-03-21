@@ -12,9 +12,13 @@ use ndarray::{
 };
 
 use almost::AlmostEqual;
-use itertools::Itertools;
 
-use crate::{Result, ndarrayext};
+use crate::{
+    Result,
+    ndarrayext::{from_2d, digitize},
+    util::dim_from_vec
+};
+
 use super::{CubicSmoothingSpline, NdSpline};
 
 
@@ -41,7 +45,7 @@ impl<'a, T> NdSpline<'a, T>
             stack![Axis(0), left_bound, mesh, right_bound]
         };
 
-        let mut indices = ndarrayext::digitize(&xi, &edges);
+        let mut indices = digitize(&xi, &edges);
 
         // Go to local coordinates
         let xi = {
@@ -90,11 +94,10 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         let mut shape_tmp = self.y.shape().to_owned();
         shape_tmp[axis.0] = xi.len();
 
-        let mut shape = D::zeros(self.y.ndim());
-        shape.as_array_view_mut().iter_mut().set_from(shape_tmp);
+        let shape: D = dim_from_vec(self.y.ndim(), shape_tmp);
 
         let yi_2d = self.spline.as_ref().unwrap().evaluate(xi);
-        let yi = ndarrayext::from_2d(&yi_2d, shape, axis)?.to_owned();
+        let yi = from_2d(&yi_2d, shape, axis)?.to_owned();
 
         Ok(yi)
     }

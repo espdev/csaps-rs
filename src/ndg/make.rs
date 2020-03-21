@@ -1,11 +1,18 @@
 use ndarray::{NdFloat, Dimension};
 use almost::AlmostEqual;
-use itertools::Itertools;
 
-use crate::{Result, CubicSmoothingSpline};
-use crate::ndarrayext::to_2d_simple;
+use crate::{
+    Result,
+    CubicSmoothingSpline,
+    ndarrayext::to_2d_simple,
+    util::dim_from_vec,
+};
 
-use super::{GridCubicSmoothingSpline, NdGridSpline, util::permute_axes};
+use super::{
+    GridCubicSmoothingSpline,
+    NdGridSpline,
+    util::permute_axes
+};
 
 
 impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
@@ -23,7 +30,7 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
 
         let mut smooth: Vec<Option<T>> = vec![None; ndim];
 
-        let permuted_axes = permute_axes::<D>(ndim);
+        let permuted_axes: D = permute_axes(ndim);
 
         for ax in (0..ndim).rev() {
             let x = breaks[ax].view();
@@ -43,8 +50,7 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
                 let spline = sp.spline().unwrap();
 
                 coeffs_shape[ndim_m1] = spline.pieces() * spline.order();
-                let mut new_shape = D::zeros(ndim);
-                new_shape.as_array_view_mut().iter_mut().set_from(coeffs_shape);
+                let new_shape: D = dim_from_vec(ndim, coeffs_shape);
 
                 spline.coeffs()
                     .into_shape(new_shape).unwrap()

@@ -1,9 +1,17 @@
 use ndarray::{NdFloat, Dimension, Array, ArrayView1};
 use almost::AlmostEqual;
-use itertools::Itertools;
 
-use crate::{NdSpline, ndarrayext::to_2d_simple};
-use super::{NdGridSpline, GridCubicSmoothingSpline, util::permute_axes};
+use crate::{
+    NdSpline,
+    ndarrayext::to_2d_simple,
+    util::dim_from_vec
+};
+
+use super::{
+    NdGridSpline,
+    GridCubicSmoothingSpline,
+    util::permute_axes
+};
 
 
 impl<'a, T, D> NdGridSpline<'a, T, D>
@@ -17,7 +25,7 @@ impl<'a, T, D> NdGridSpline<'a, T, D>
         let mut coeffs_shape = coeffs.shape().to_vec();
 
         let ndim_m1 = self.ndim - 1;
-        let permuted_axes = permute_axes::<D>(self.ndim);
+        let permuted_axes: D = permute_axes(self.ndim);
 
         for ax in (0..self.ndim).rev() {
             let xi_ax = xi[ax];
@@ -35,9 +43,8 @@ impl<'a, T, D> NdGridSpline<'a, T, D>
             };
 
             coeffs = {
-                let mut shape = D::zeros(self.ndim);
-                shape[ndim_m1] = xi_ax.len();
-                shape.as_array_view_mut().iter_mut().take(ndim_m1).set_from(coeffs_shape);
+                coeffs_shape[ndim_m1] = xi_ax.len();
+                let shape: D = dim_from_vec(self.ndim, coeffs_shape);
 
                 coeffs_2d
                     .into_shape(shape).unwrap()

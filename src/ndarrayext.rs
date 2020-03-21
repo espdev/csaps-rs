@@ -22,7 +22,7 @@ use almost::AlmostEqual;
 
 use itertools::Itertools;
 
-use crate::{CsapsError::ReshapeError, Result};
+use crate::{CsapsError::ReshapeError, Result, util::dim_from_vec};
 
 
 pub fn diff<'a, T: 'a, D, V>(data: V, axis: Option<Axis>) -> Array<T, D>
@@ -55,8 +55,7 @@ pub fn to_2d<'a, T: 'a, D, I>(data: I, axis: Axis) -> Result<ArrayView2<'a, T>>
     axes_tmp.remove(axis.0);
     axes_tmp.push(axis.0);
 
-    let mut axes = D::zeros(ndim);
-    axes.as_array_view_mut().iter_mut().set_from(axes_tmp);
+    let axes: D = dim_from_vec(ndim, axes_tmp);
 
     let shape = data_view.shape().to_vec();
     let numel: usize = shape.iter().product();
@@ -108,9 +107,7 @@ pub fn from_2d<'a, T: 'a, D, S, I>(data: I, shape: S, axis: Axis) -> Result<Arra
     shape_tmp.remove(axis.0);
     shape_tmp.push(shape[axis.0]);
 
-    let mut new_shape = D::zeros(ndim);
-    new_shape.as_array_view_mut().iter_mut().set_from(shape_tmp);
-
+    let new_shape: D = dim_from_vec(ndim, shape_tmp);
     let data_view = data.into();
 
     match data_view.into_shape(new_shape.clone()) {
@@ -119,9 +116,7 @@ pub fn from_2d<'a, T: 'a, D, S, I>(data: I, shape: S, axis: Axis) -> Result<Arra
             let end_axis = axes_tmp.pop().unwrap();
             axes_tmp.insert(axis.0, end_axis);
 
-            let mut axes = D::zeros(ndim);
-            axes.as_array_view_mut().iter_mut().set_from(axes_tmp);
-
+            let axes: D = dim_from_vec(ndim, axes_tmp);
             Ok(view_nd.permuted_axes(axes))
         },
         Err(error) => Err(

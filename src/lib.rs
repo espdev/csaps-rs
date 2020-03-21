@@ -123,6 +123,7 @@ mod errors;
 mod ndarrayext;
 mod sprsext;
 mod validate;
+mod util;
 mod umv;
 mod ndg;
 

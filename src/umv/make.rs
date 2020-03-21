@@ -2,7 +2,12 @@ use ndarray::{NdFloat, Dimension, Array1, Axis, s, stack, Array2};
 use sprs::binop::scalar_mul_mat as sprs_mul_s;
 use almost::AlmostEqual;
 
-use crate::{Result, ndarrayext, sprsext};
+use crate::{
+    Result,
+    ndarrayext::{diff, to_2d},
+    sprsext
+};
+
 use super::{NdSpline, CubicSmoothingSpline};
 
 
@@ -24,13 +29,13 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
             .map(|v| v.reborrow()) // without it we will get an error: "[E0597] `weights_default` does not live long enough"
             .unwrap_or(weights_default.view());
 
-        let dx = ndarrayext::diff(breaks.view(), None);
+        let dx = diff(breaks.view(), None);
 
         let axis = self.axis.unwrap_or(Axis(self.y.ndim() - 1));
         self.axis = Some(axis);
 
-        let y = ndarrayext::to_2d(self.y.view(), axis)?;
-        let dydx = ndarrayext::diff(y.view(), Some(Axis(1))) / &dx;
+        let y = to_2d(self.y.view(), axis)?;
+        let dydx = diff(y.view(), Some(Axis(1))) / &dx;
 
         let pcount = breaks.len();
 
@@ -99,7 +104,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
                 &a1 + &a2
             };
 
-            let b = ndarrayext::diff(&dydx, Some(Axis(1))).t().to_owned();
+            let b = diff(&dydx, Some(Axis(1))).t().to_owned();
             drop(dydx);
 
             sprsext::solve(&a, &b)
@@ -116,9 +121,9 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
 
         let (d1, d2) = {
             let u_pad = vpad(&u);
-            let d1 = ndarrayext::diff(&u_pad, Some(Axis(0))) / &dx;
+            let d1 = diff(&u_pad, Some(Axis(0))) / &dx;
             let d1_pad = vpad(&d1);
-            let d2 = ndarrayext::diff(&d1_pad, Some(Axis(0)));
+            let d2 = diff(&d1_pad, Some(Axis(0)));
 
             (d1, d2)
         };
@@ -139,12 +144,12 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         let c3_tail = c3.slice(s![1.., ..]);
 
         let p3 = {
-            let dyi = ndarrayext::diff(&yi, Some(Axis(0)));
+            let dyi = diff(&yi, Some(Axis(0)));
             &dyi / &dx - ((&c3_head * two + c3_tail) * &dx)
         };
 
         let coeffs = {
-            let p1 = ndarrayext::diff(&c3, Some(Axis(0))) / &dx;
+            let p1 = diff(&c3, Some(Axis(0))) / &dx;
             drop(dx);
             let p2 = &c3_head * three;
             let p4 = yi.slice(s![..-1, ..]);
