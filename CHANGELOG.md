@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.1 (21.03.2020)
+
+* Refactoring
+* Fix typos in doc
+
+
 ## v0.2.0 (20.03.2020)
 
 * API changes: rename smoothing parameter setters: `with_smoothing` -> `with_smooth`
