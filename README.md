@@ -113,7 +113,7 @@ The crate implementation is based on [ndarray](https://github.com/rust-ndarray/n
 [sprs](https://github.com/vbarrielle/sprs) crates and has been inspired by Fortran routine SMOOTH from [PGS](http://pages.cs.wisc.edu/~deboor/pgs/) 
 (originally written by Carl de Boor).
 
-The implementation of the algotithm in other languages:
+The implementation of the algorithm in other languages:
  
 - [Python NumPy/SciPy based implementation](https://github.com/espdev/csaps)
 - [C++11 Eigen based implementation](https://github.com/espdev/csaps-cpp)
