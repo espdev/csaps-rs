@@ -130,7 +130,7 @@ fn diagonal_csr<T>(k: isize,
 }
 
 
-/// Solves linear system Ax = b for triangular CSR matrix A and dense vector(s) b
+/// Solves linear system Ax = b for symmetric CSR matrix A and dense vector(s) b
 ///
 /// A: ref to CSR symmetric sparse matrix
 /// b: MxN stack of b-vectors where M is equal to A rows/cols and N is the data dimensional
