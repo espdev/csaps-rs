@@ -1,19 +1,17 @@
 use ndarray::{
-    NdFloat,
     Dimension,
+    Axis,
     Array,
     Array1,
     Array2,
     ArrayView1,
     ArrayView2,
-    Axis,
     s,
     stack,
 };
 
-use almost::AlmostEqual;
-
 use crate::{
+    Real,
     Result,
     ndarrayext::{from_2d, digitize},
     util::dim_from_vec
@@ -24,7 +22,7 @@ use super::{CubicSmoothingSpline, NdSpline};
 
 impl<'a, T> NdSpline<'a, T>
     where
-        T: NdFloat + AlmostEqual
+        T: Real
 {
     /// Implements evaluating the spline on the given mesh of Xi-sites
     ///
@@ -87,7 +85,9 @@ impl<'a, T> NdSpline<'a, T>
 
 
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
-    where T: NdFloat + AlmostEqual, D: Dimension
+    where
+        T: Real,
+        D: Dimension
 {
     pub(super) fn evaluate_spline(&self, xi: ArrayView1<'a, T>) -> Result<Array<T, D>> {
         let axis = self.axis.unwrap();

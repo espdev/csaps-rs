@@ -1,7 +1,7 @@
-use ndarray::{NdFloat, Dimension, Array, ArrayView1};
-use almost::AlmostEqual;
+use ndarray::{Dimension, Array, ArrayView1};
 
 use crate::{
+    Real,
     NdSpline,
     ndarrayext::to_2d_simple,
     util::dim_from_vec
@@ -16,7 +16,7 @@ use super::{
 
 impl<'a, T, D> NdGridSpline<'a, T, D>
     where
-        T: NdFloat + AlmostEqual,
+        T: Real,
         D: Dimension
 {
     /// Implements evaluating the spline on the given mesh of Xi-sites
@@ -62,7 +62,7 @@ impl<'a, T, D> NdGridSpline<'a, T, D>
 
 impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
     where
-        T: NdFloat + AlmostEqual + Default,
+        T: Real,
         D: Dimension
 {
     pub(super) fn evaluate_spline(&self, xi: &[ArrayView1<'a, T>]) -> Array<T, D> {

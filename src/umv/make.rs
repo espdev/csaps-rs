@@ -1,8 +1,8 @@
-use ndarray::{NdFloat, Dimension, Axis, Array1, Array2, s, stack};
+use ndarray::{Dimension, Axis, Array1, Array2, s, stack};
 use sprs::binop::scalar_mul_mat as sprs_mul_s;
-use almost::AlmostEqual;
 
 use crate::{
+    Real,
     Result,
     ndarrayext::{diff, to_2d},
     sprsext
@@ -13,7 +13,7 @@ use super::{NdSpline, CubicSmoothingSpline};
 
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     where
-        T: NdFloat + Default + AlmostEqual,
+        T: Real,
         D: Dimension
 {
     pub(super) fn make_spline(&mut self) -> Result<()> {

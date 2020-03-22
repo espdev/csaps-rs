@@ -120,6 +120,7 @@
 //!
 
 mod errors;
+mod traits;
 mod ndarrayext;
 mod sprsext;
 mod validate;
@@ -133,5 +134,6 @@ use std::result;
 pub type Result<T> = result::Result<T, errors::CsapsError>;
 
 pub use errors::CsapsError;
+pub use traits::Real;
 pub use umv::{NdSpline, CubicSmoothingSpline};
 pub use ndg::{NdGridSpline, GridCubicSmoothingSpline};

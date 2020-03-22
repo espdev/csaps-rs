@@ -1,33 +1,32 @@
-use num_traits::NumOps;
-
 use ndarray::{
-    ScalarOperand,
     Dimension,
+    IntoDimension,
+    Axis,
+    Slice,
+    Ix1,
+    Ix2,
     AsArray,
     Array,
     Array1,
     ArrayView,
     ArrayView2,
-    Axis,
-    Slice,
-    Ix1,
-    Ix2,
-    IntoDimension,
-    NdFloat,
     s
 };
 
 use almost;
-use almost::AlmostEqual;
-
 use itertools::Itertools;
 
-use crate::{CsapsError::ReshapeError, Result, util::dim_from_vec};
+use crate::{
+    Real,
+    Result,
+    CsapsError::ReshapeError,
+    util::dim_from_vec
+};
 
 
 pub fn diff<'a, T: 'a, D, V>(data: V, axis: Option<Axis>) -> Array<T, D>
     where
-        T: NumOps + ScalarOperand,
+        T: Real,
         D: Dimension,
         V: AsArray<'a, T, D>
 {
@@ -135,7 +134,7 @@ pub fn from_2d<'a, T: 'a, D, S, I>(data: I, shape: S, axis: Axis) -> Result<Arra
 /// This code works if `bins` is increasing
 pub fn digitize<'a, T: 'a, A, B>(arr: A, bins: B) -> Array1<usize>
     where
-        T: NdFloat + AlmostEqual,
+        T: Real,
         A: AsArray<'a, T, Ix1>,
         B: AsArray<'a, T, Ix1>,
 {
@@ -176,13 +175,13 @@ mod tests {
 
     #[test]
     fn test_diff_1d() {
-        let a = array![1, 2, 3, 4, 5];
+        let a = array![1., 2., 3., 4., 5.];
 
         assert_eq!(diff(&a, None),
-                   array![1, 1, 1, 1]);
+                   array![1., 1., 1., 1.]);
 
         assert_eq!(diff(&a, Some(Axis(0))),
-                   array![1, 1, 1, 1]);
+                   array![1., 1., 1., 1.]);
     }
 
     #[test]

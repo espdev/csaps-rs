@@ -3,7 +3,6 @@ mod make;
 mod evaluate;
 
 use ndarray::{
-    NdFloat,
     Dimension,
     Axis,
     AsArray,
@@ -14,9 +13,7 @@ use ndarray::{
     ArrayView2,
 };
 
-use almost::AlmostEqual;
-
-use crate::Result;
+use crate::{Real, Result};
 
 
 /// N-dimensional (univariate/multivariate) spline PP-form representation
@@ -29,7 +26,7 @@ use crate::Result;
 /// for the given data sites.
 ///
 #[derive(Debug)]
-pub struct NdSpline<'a, T: NdFloat>
+pub struct NdSpline<'a, T: Real>
 {
     /// The spline dimensionality
     ndim: usize,
@@ -50,7 +47,7 @@ pub struct NdSpline<'a, T: NdFloat>
 
 impl<'a, T> NdSpline<'a, T>
     where
-        T: NdFloat + AlmostEqual
+        T: Real
 {
     /// Creates `NdSpline` struct from given `breaks` and `coeffs`
     ///
@@ -150,7 +147,7 @@ impl<'a, T> NdSpline<'a, T>
 ///
 pub struct CubicSmoothingSpline<'a, T, D>
     where
-        T: NdFloat,
+        T: Real,
         D: Dimension
 {
     /// X data sites (also breaks)
@@ -175,7 +172,7 @@ pub struct CubicSmoothingSpline<'a, T, D>
 
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     where
-        T: NdFloat + Default + AlmostEqual,
+        T: Real,
         D: Dimension
 {
     /// Creates `CubicSmoothingSpline` struct from the given `X` data sites and `Y` data values

@@ -1,7 +1,7 @@
-use ndarray::{NdFloat, Dimension};
-use almost::AlmostEqual;
+use ndarray::Dimension;
 
 use crate::{
+    Real,
     Result,
     CubicSmoothingSpline,
     ndarrayext::to_2d_simple,
@@ -17,7 +17,7 @@ use super::{
 
 impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
     where
-        T: NdFloat + AlmostEqual + Default,
+        T: Real,
         D: Dimension
 {
     pub(super) fn make_spline(&mut self) -> Result<()> {

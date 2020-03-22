@@ -4,7 +4,6 @@ mod evaluate;
 mod util;
 
 use ndarray::{
-    NdFloat,
     Dimension,
     AsArray,
     Array,
@@ -12,9 +11,7 @@ use ndarray::{
     ArrayView1,
 };
 
-use almost::AlmostEqual;
-
-use crate::Result;
+use crate::{Real, Result};
 
 
 /// N-d grid spline PP-form representation
@@ -29,7 +26,7 @@ use crate::Result;
 #[derive(Debug)]
 pub struct NdGridSpline<'a, T, D>
     where
-        T: NdFloat,
+        T: Real,
         D: Dimension
 {
     /// The grid dimensionality
@@ -52,7 +49,7 @@ pub struct NdGridSpline<'a, T, D>
 
 impl<'a, T, D> NdGridSpline<'a, T, D>
     where
-        T: NdFloat + AlmostEqual,
+        T: Real,
         D: Dimension
 {
     /// Creates `NdGridSpline` struct from given `breaks` and `coeffs`
@@ -137,7 +134,7 @@ impl<'a, T, D> NdGridSpline<'a, T, D>
 ///
 pub struct GridCubicSmoothingSpline<'a, T, D>
     where
-        T: NdFloat,
+        T: Real,
         D: Dimension
 {
     /// X data sites (also breaks)
@@ -159,7 +156,7 @@ pub struct GridCubicSmoothingSpline<'a, T, D>
 
 impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
     where
-        T: NdFloat + AlmostEqual + Default,
+        T: Real,
         D: Dimension
 {
     /// Creates `NdGridCubicSmoothingSpline` struct from the given `X` data sites and `Y` data values

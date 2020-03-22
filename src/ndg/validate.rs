@@ -1,13 +1,10 @@
 use ndarray::{
-    NdFloat,
     ArrayView,
     ArrayView1,
     Dimension,
 };
 
-use almost::AlmostEqual;
-
-use crate::{Result, CsapsError::InvalidInputData};
+use crate::{Real, Result, CsapsError::InvalidInputData};
 use crate::validate::{validate_data_sites, validate_smooth_value};
 
 use super::GridCubicSmoothingSpline;
@@ -15,7 +12,7 @@ use super::GridCubicSmoothingSpline;
 
 impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
     where
-        T: NdFloat + AlmostEqual + Default,
+        T: Real,
         D: Dimension
 {
     pub(super) fn make_validate(&self) -> Result<()> {
@@ -56,7 +53,7 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
 
 pub(super) fn validate_xy<T, D>(x: &[ArrayView1<'_, T>], y: ArrayView<'_, T, D>) -> Result<()>
     where
-        T: NdFloat + AlmostEqual,
+        T: Real,
         D: Dimension
 {
     if x.len() != y.ndim() {
@@ -101,7 +98,7 @@ pub(super) fn validate_xy<T, D>(x: &[ArrayView1<'_, T>], y: ArrayView<'_, T, D>)
 
 pub(super) fn validate_weights<T>(x: &[ArrayView1<'_, T>], w: &[Option<ArrayView1<'_, T>>]) -> Result<()>
     where
-        T: NdFloat + AlmostEqual
+        T: Real
 {
     let x_len = x.len();
     let w_len = w.len();
@@ -137,7 +134,7 @@ pub(super) fn validate_weights<T>(x: &[ArrayView1<'_, T>], w: &[Option<ArrayView
 
 pub(super) fn validate_smooth<T>(x: &[ArrayView1<'_, T>], smooth: &[Option<T>]) -> Result<()>
     where
-        T: NdFloat
+        T: Real
 {
     let x_len = x.len();
     let s_len = smooth.len();

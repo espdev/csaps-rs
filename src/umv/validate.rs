@@ -1,14 +1,11 @@
 use ndarray::{
-    NdFloat,
     Dimension,
     Axis,
     ArrayView1,
 };
 
-use almost;
-use almost::AlmostEqual;
-
 use crate::{
+    Real,
     CubicSmoothingSpline,
     CsapsError::InvalidInputData,
     Result,
@@ -18,7 +15,7 @@ use crate::{
 
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     where
-        T: NdFloat + Default + AlmostEqual,
+        T: Real,
         D: Dimension
 {
     pub(super) fn make_validate(&self) -> Result<()> {

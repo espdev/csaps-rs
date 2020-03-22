@@ -1,9 +1,11 @@
 use std::iter::FromIterator;
 
-use ndarray::{NdFloat, Array1, Array2, Axis, s};
+use ndarray::{Array1, Array2, Axis, s};
 
 use sprs::{TriMat, CsMat, Shape};
 use sprs_ldl::LdlNumeric;
+
+use crate::Real;
 
 
 /// Creates CSR matrix from given diagonals
@@ -13,7 +15,7 @@ use sprs_ldl::LdlNumeric;
 ///
 pub fn diags<T>(diags: Array2<T>, offsets: &[isize], shape: Shape) -> CsMat<T>
     where
-        T: NdFloat
+        T: Real
 {
     let (rows, cols) = shape;
 
@@ -75,7 +77,7 @@ pub fn diags<T>(diags: Array2<T>, offsets: &[isize], shape: Shape) -> CsMat<T>
 ///
 pub fn diagonal<T>(m: &CsMat<T>, k: isize) -> Array1<T>
     where
-        T: NdFloat
+        T: Real
 {
     let (rows, cols) = m.shape();
 
@@ -93,7 +95,7 @@ fn diagonal_csr<T>(k: isize,
                 indices: &[usize],
                 data: &[T]) -> Array1<T>
     where
-        T: NdFloat
+        T: Real
 {
     let (rows, cols) = shape;
 
@@ -135,7 +137,7 @@ fn diagonal_csr<T>(k: isize,
 ///
 pub fn solve<T>(a: &CsMat<T>, b: &Array2<T>) -> Array2<T>
     where
-        T: NdFloat
+        T: Real
 {
     let mut x = Array2::<T>::zeros(b.raw_dim());
 
