@@ -129,7 +129,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         };
 
         let yi = {
-            let diags_w = (ones(pcount) / &weights).insert_axis(Axis(0));
+            let diags_w = (ones(pcount) / weights).insert_axis(Axis(0));
             let w = sprsext::diags(diags_w, &[0], (pcount, pcount));
             let wd2 = &sprs_mul_s(&w, p1) * &d2;
 
