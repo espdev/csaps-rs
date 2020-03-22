@@ -19,7 +19,7 @@ use itertools::Itertools;
 use crate::{
     Real,
     Result,
-    CsapsError::ReshapeError,
+    CsapsError::{ReshapeFrom2d, ReshapeTo2d},
     util::dim_from_vec
 };
 
@@ -64,10 +64,12 @@ pub fn to_2d<'a, T: 'a, D, I>(data: I, axis: Axis) -> Result<ArrayView2<'a, T>>
     match data_view.permuted_axes(axes).into_shape(new_shape) {
         Ok(view_2d) => Ok(view_2d),
         Err(error) => Err(
-            ReshapeError(
-                format!("Cannot reshape {}-d array with shape {:?} by axis {} \
-                        to 2-d array with shape {:?}. Error: {}", ndim, shape, axis.0, new_shape, error)
-            )
+            ReshapeTo2d {
+                input_shape: shape,
+                output_shape: new_shape.to_vec(),
+                axis: axis.0,
+                source: error,
+            }
         )
     }
 }
@@ -83,11 +85,13 @@ pub fn to_2d_simple<'a, T: 'a, D>(data: ArrayView<'a, T, D>) -> Result<ArrayView
 
     match data.into_shape(new_shape) {
         Ok(data_2d) => Ok(data_2d),
-        Err(err) => Err(
-            ReshapeError(
-                format!("Cannot reshape {}-d array with shape {:?} to 2-d array with \
-                        shape {:?}. Error: {}", ndim, shape, new_shape, err)
-            )
+        Err(error) => Err(
+            ReshapeTo2d {
+                input_shape: shape,
+                output_shape: new_shape.to_vec(),
+                axis: ndim - 1,
+                source: error,
+            }
         )
     }
 }
@@ -102,14 +106,14 @@ pub fn from_2d<'a, T: 'a, D, S, I>(data: I, shape: S, axis: Axis) -> Result<Arra
     let shape = shape.into_dimension();
     let ndim = shape.ndim();
 
-    let mut shape_tmp = shape.slice().to_vec();
-    shape_tmp.remove(axis.0);
-    shape_tmp.push(shape[axis.0]);
+    let mut new_shape_vec = shape.slice().to_vec();
+    new_shape_vec.remove(axis.0);
+    new_shape_vec.push(shape[axis.0]);
 
-    let new_shape: D = dim_from_vec(ndim, shape_tmp);
+    let new_shape: D = dim_from_vec(ndim, new_shape_vec.clone());
     let data_view = data.into();
 
-    match data_view.into_shape(new_shape.clone()) {
+    match data_view.into_shape(new_shape) {
         Ok(view_nd) => {
             let mut axes_tmp: Vec<usize> = (0..ndim).collect();
             let end_axis = axes_tmp.pop().unwrap();
@@ -119,11 +123,12 @@ pub fn from_2d<'a, T: 'a, D, S, I>(data: I, shape: S, axis: Axis) -> Result<Arra
             Ok(view_nd.permuted_axes(axes))
         },
         Err(error) => Err(
-            ReshapeError(
-                format!("Cannot reshape 2-d array with shape {:?} \
-                    to {}-d array with shape {:?} by axis {}. Error: {}",
-                        data_view.shape(), ndim, new_shape, axis.0, error)
-            )
+            ReshapeFrom2d {
+                input_shape: data_view.shape().to_vec(),
+                output_shape: new_shape_vec,
+                axis: axis.0,
+                source: error,
+            }
         )
     }
 }

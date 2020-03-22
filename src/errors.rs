@@ -1,24 +1,35 @@
-use std::fmt;
+use thiserror::Error;
+use ndarray::ShapeError;
+
 
 /// Enum provides error types
-#[derive(PartialEq, Debug)]
+#[derive(Error, Debug)]
 pub enum CsapsError {
     /// Any errors when the given input data is invalid
+    #[error("Invalid input: {0}")]
     InvalidInputData(String),
 
-    /// Error occurs when reshape to/from 2-d representation for Y-data has failed
-    ReshapeError(String),
-}
+    /// Error occurs when reshape from 2-d representation for n-d data has failed
+    #[error("Cannot reshape 2-d array with shape {input_shape:?} \
+             to {}-d array with shape {output_shape:?} by axis {axis}. Error: {source}",
+            output_shape.len())]
+    ReshapeFrom2d {
+        input_shape: Vec<usize>,
+        output_shape: Vec<usize>,
+        axis: usize,
+        #[source]
+        source: ShapeError,
+    },
 
-use self::CsapsError::*;
-
-impl fmt::Display for CsapsError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let s = match self {
-            InvalidInputData(s) => format!("Invalid input: {}", s),
-            ReshapeError(s) => s.to_string(),
-        };
-
-        s.as_str().fmt(f)
-    }
+    /// Error occurs when reshape to 2-d representation for n-d data has failed
+    #[error("Cannot reshape {}-d array with shape {input_shape:?} by axis {axis} \
+             to 2-d array with shape {output_shape:?}. Error: {source}",
+            input_shape.len())]
+    ReshapeTo2d {
+        input_shape: Vec<usize>,
+        output_shape: Vec<usize>,
+        axis: usize,
+        #[source]
+        source: ShapeError,
+    },
 }
