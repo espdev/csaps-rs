@@ -40,7 +40,7 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
         }
 
         for xi_ax in xi.iter() {
-            if xi_ax.len() < 1 {
+            if xi_ax.is_empty() {
                 return Err(
                     InvalidInputData(
                         "The sizes of `xi` vectors must be greater or equal to 1".to_string()

@@ -83,7 +83,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     }
 
     pub(super) fn evaluate_validate(&self, xi: ArrayView1<'a, T>) -> Result<()> {
-        if xi.len() < 1 {
+        if xi.is_empty() {
             return Err(
                 InvalidInputData(
                     "The size of `xi` vector must be greater or equal to 1".to_string()
