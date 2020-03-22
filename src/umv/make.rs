@@ -27,11 +27,11 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         let weights_default = Array1::ones(breaks.raw_dim());
         let weights = self.weights
             .map(|v| v.reborrow()) // without it we will get an error: "[E0597] `weights_default` does not live long enough"
-            .unwrap_or(weights_default.view());
+            .unwrap_or_else(|| weights_default.view());
 
         let dx = diff(breaks.view(), None);
 
-        let axis = self.axis.unwrap_or(Axis(self.y.ndim() - 1));
+        let axis = self.axis.unwrap_or_else(|| Axis(self.y.ndim() - 1));
         self.axis = Some(axis);
 
         let y = to_2d(self.y.view(), axis)?;
@@ -142,7 +142,6 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
             let p3 = diff(&yi, Some(Axis(0))) / &dx - (&c3_head * two + c3_tail) * dx;
             let p4 = yi.slice(s![..-1, ..]);
 
-            drop(c3_head);
             drop(c3);
 
             stack![Axis(0), p1, p2, p3, p4].t().to_owned()

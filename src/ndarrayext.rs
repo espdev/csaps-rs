@@ -31,7 +31,7 @@ pub fn diff<'a, T: 'a, D, V>(data: V, axis: Option<Axis>) -> Array<T, D>
         V: AsArray<'a, T, D>
 {
     let data_view = data.into();
-    let axis = axis.unwrap_or(Axis(data_view.ndim() - 1));
+    let axis = axis.unwrap_or_else(|| Axis(data_view.ndim() - 1));
 
     let head = data_view.slice_axis(axis, Slice::from(..-1));
     let tail = data_view.slice_axis(axis, Slice::from(1..));
