@@ -49,17 +49,17 @@ pub fn diags<T>(diags: Array2<T>, offsets: &[isize], shape: Shape) -> CsMat<T>
         let row_head = || diag_row.slice(s![..n]);
         let row_tail = || diag_row.slice(s![-(n as isize)..]);
 
-        let diag = if offset < 0 {
+        let diag = if offset >= 0 {
             if rows >= cols {
-                row_head()
-            } else {
                 row_tail()
+            } else {
+                row_head()
             }
         } else {
             if rows >= cols {
-                row_tail()
-            } else {
                 row_head()
+            } else {
+                row_tail()
             }
         };
 
