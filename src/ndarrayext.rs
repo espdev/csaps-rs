@@ -1,19 +1,7 @@
-use ndarray::{
-    Dimension,
-    IntoDimension,
-    Axis,
-    Slice,
-    Ix1,
-    Ix2,
-    AsArray,
-    Array,
-    Array1,
-    ArrayView,
-    ArrayView2,
-    s
-};
 
-use almost;
+
+// use almost;
+use ndarray::{prelude::*, IntoDimension, Slice};
 use itertools::Itertools;
 
 use crate::{

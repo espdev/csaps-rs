@@ -1,8 +1,8 @@
 use std::iter::FromIterator;
 
-use ndarray::{Array1, Array2, Axis, s};
+use ndarray::{prelude::*};
 
-use sprs::{TriMat, CsMat, Shape};
+use sprs::{CsMat, TriMat, Shape, IndPtrBase};
 use sprs_ldl::LdlNumeric;
 
 use crate::Real;
@@ -91,7 +91,7 @@ pub fn diagonal<T>(m: &CsMat<T>, k: isize) -> Array1<T>
 
 fn diagonal_csr<T>(k: isize,
                 shape: Shape,
-                indptr: &[usize],
+                indptr: IndPtrBase<usize, &[usize]>,
                 indices: &[usize],
                 data: &[T]) -> Array1<T>
     where
@@ -100,7 +100,7 @@ fn diagonal_csr<T>(k: isize,
     let (rows, cols) = shape;
 
     if k <= -(rows as isize) || k >= cols as isize {
-        panic!(format!("k ({}) exceeds matrix dimensions {:?}", k, shape));
+        panic!("k ({}) exceeds matrix dimensions {:?}", k, shape);
     }
 
     let first_row = if k >= 0 { 0 } else { (-k) as usize };
@@ -112,12 +112,11 @@ fn diagonal_csr<T>(k: isize,
     for i in 0..diag_size {
         let row = first_row + i;
         let col = first_col + i;
-        let row_begin = indptr[row];
-        let row_end = indptr[row + 1];
+        let row = indptr.outer_inds_sz(row);
 
         let mut diag_value = T::zero();
 
-        for j in row_begin..row_end {
+        for j in row.start..row.end {
             if indices[j] == col {
                 diag_value += data[j];
             }

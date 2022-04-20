@@ -1,5 +1,4 @@
-use ndarray::{Dimension, Axis, Array1, Array2, s, stack};
-use sprs::binop::scalar_mul_mat as sprs_mul_s;
+use ndarray::{prelude::*, stack};
 
 use crate::{
     Real,
@@ -96,8 +95,8 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         // Solve linear system Ax = b for the 2nd derivatives
         let usol = {
             let a = {
-                let a1 = sprs_mul_s(&qtwq, s1);
-                let a2 = sprs_mul_s(&r, smooth);
+                let a1 = &qtwq * s1;
+                let a2 = &r * smooth;
                 drop(qtwq);
                 drop(r);
 
@@ -125,7 +124,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
 
                 let diags_w = (ones(pcount) / weights).insert_axis(Axis(0));
                 let w = sprsext::diags(diags_w, &[0], (pcount, pcount));
-                let wd2 = &sprs_mul_s(&w, s1) * &d2;
+                let wd2 = &w * &d2;
 
                 drop(d1);
                 drop(d2);

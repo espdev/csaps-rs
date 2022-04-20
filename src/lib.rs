@@ -32,7 +32,7 @@
 //! Univariate data auto smoothing
 //!
 //! ```rust
-//! use ndarray::{array, Array1};
+//! use ndarray::prelude::*;
 //! use csaps::CubicSmoothingSpline;
 //!
 //! let x = array![1., 2., 3., 4.];
