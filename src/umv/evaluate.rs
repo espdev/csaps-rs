@@ -1,14 +1,5 @@
-use ndarray::{
-    Dimension,
-    Axis,
-    Array,
-    Array1,
-    Array2,
-    ArrayView1,
-    ArrayView2,
-    s,
-    stack,
-};
+use ndarray::{prelude::*, s, concatenate};
+    
 
 use crate::{
     Real,
@@ -35,12 +26,12 @@ impl<'a, T> NdSpline<'a, T>
         xi: ArrayView1<'a, T>) -> Array2<T>
     {
         let edges = {
-            let mesh = breaks.slice(s![1..-1]);
+            let mesh = breaks.slice(s![1 as i32..-1]);
             let one = Array1::<T>::ones((1, ));
             let left_bound = &one * T::neg_infinity();
             let right_bound = &one * T::infinity();
 
-            stack![Axis(0), left_bound, mesh, right_bound]
+            concatenate![Axis(0), left_bound, mesh, right_bound]
         };
 
         let mut indices = digitize(&xi, &edges);
@@ -68,7 +59,7 @@ impl<'a, T> NdSpline<'a, T>
                 .map(coeffs_by_index)
                 .collect();
 
-            stack(Axis(1), &indexed_coeffs).unwrap()
+            concatenate(Axis(1), &indexed_coeffs).unwrap()
         };
 
         // Vectorized computing the spline pieces (polynoms) on the given data sites
