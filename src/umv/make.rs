@@ -1,4 +1,6 @@
-use ndarray::{prelude::*, stack, concatenate};
+use ndarray::{prelude::*, concatenate, s};
+
+
 
 use crate::{
     Real,
@@ -12,7 +14,7 @@ use super::{NdSpline, CubicSmoothingSpline};
 
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     where
-        T: Real,
+        T: Real<T>,
         D: Dimension
 {
     pub(super) fn make_spline(&mut self) -> Result<()> {
@@ -41,7 +43,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         // The corner case for Nx2 data (2 data points)
         if pcount == 2 {
             drop(dx);
-            let yi = y.slice(s![.., 0 as usize]).insert_axis(Axis(1));
+            let yi = y.slice(s![.., 0 as i32]).insert_axis(Axis(1));
             let coeffs = concatenate![Axis(1), dydx, yi];
 
             self.smooth = Some(one);
@@ -64,6 +66,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
 
                 sprsext::diags(diags_qt, &[0, 1, 2], (pcount - 2, pcount))
             };
+
 
             let diags_sqrw = (ones(pcount) / weights.mapv(T::sqrt)).insert_axis(Axis(0));
             let sqrw = sprsext::diags(diags_sqrw, &[0], (pcount, pcount));
@@ -95,6 +98,11 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         // Solve linear system Ax = b for the 2nd derivatives
         let usol = {
             let a = {
+
+
+                // cannot multiply `&CsMatBase<T, usize, Vec<usize>, Vec<usize>, Vec<T>>` by `T`
+                // the trait `Mul<T>` is not implemented for `&CsMatBase<T, usize, Vec<usize>, Vec<usize>, Vec<T>>`
+
                 let a1 = &qtwq * s1;
                 let a2 = &r * smooth;
                 drop(qtwq);

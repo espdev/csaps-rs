@@ -14,7 +14,7 @@ use crate::{
 
 pub fn diff<'a, T: 'a, D, V>(data: V, axis: Option<Axis>) -> Array<T, D>
     where
-        T: Real,
+        T: Real<T>,
         D: Dimension,
         V: AsArray<'a, T, D>
 {
@@ -127,7 +127,7 @@ pub fn from_2d<'a, T: 'a, D, S, I>(data: I, shape: S, axis: Axis) -> Result<Arra
 /// This code works if `bins` is increasing
 pub fn digitize<'a, T: 'a, A, B>(arr: A, bins: B) -> Array1<usize>
     where
-        T: Real,
+        T: Real<T>,
         A: AsArray<'a, T, Ix1>,
         B: AsArray<'a, T, Ix1>,
 {

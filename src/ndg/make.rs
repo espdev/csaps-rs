@@ -17,7 +17,7 @@ use super::{
 
 impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
     where
-        T: Real,
+        T: Real<T>,
         D: Dimension
 {
     pub(super) fn make_spline(&mut self) -> Result<()> {

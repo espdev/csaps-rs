@@ -13,7 +13,7 @@ use super::{CubicSmoothingSpline, NdSpline};
 
 impl<'a, T> NdSpline<'a, T>
     where
-        T: Real
+        T: Real<T>
 {
     /// Implements evaluating the spline on the given mesh of Xi-sites
     ///
@@ -77,7 +77,7 @@ impl<'a, T> NdSpline<'a, T>
 
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     where
-        T: Real,
+        T: Real<T>,
         D: Dimension
 {
     pub(super) fn evaluate_spline(&self, xi: ArrayView1<'a, T>) -> Result<Array<T, D>> {

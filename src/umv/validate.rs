@@ -15,7 +15,7 @@ use crate::{
 
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     where
-        T: Real,
+        T: Real<T>,
         D: Dimension
 {
     pub(super) fn make_validate(&self) -> Result<()> {

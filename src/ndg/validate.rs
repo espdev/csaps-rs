@@ -12,7 +12,7 @@ use super::GridCubicSmoothingSpline;
 
 impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
     where
-        T: Real,
+        T: Real<T>,
         D: Dimension
 {
     pub(super) fn make_validate(&self) -> Result<()> {
@@ -53,7 +53,7 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
 
 pub(super) fn validate_xy<T, D>(x: &[ArrayView1<'_, T>], y: ArrayView<'_, T, D>) -> Result<()>
     where
-        T: Real,
+        T: Real<T>,
         D: Dimension
 {
     if x.len() != y.ndim() {
@@ -98,7 +98,7 @@ pub(super) fn validate_xy<T, D>(x: &[ArrayView1<'_, T>], y: ArrayView<'_, T, D>)
 
 pub(super) fn validate_weights<T>(x: &[ArrayView1<'_, T>], w: &[Option<ArrayView1<'_, T>>]) -> Result<()>
     where
-        T: Real
+        T: Real<T>
 {
     let x_len = x.len();
     let w_len = w.len();
@@ -134,7 +134,7 @@ pub(super) fn validate_weights<T>(x: &[ArrayView1<'_, T>], w: &[Option<ArrayView
 
 pub(super) fn validate_smooth<T>(x: &[ArrayView1<'_, T>], smooth: &[Option<T>]) -> Result<()>
     where
-        T: Real
+        T: Real<T>
 {
     let x_len = x.len();
     let s_len = smooth.len();

@@ -1,5 +1,8 @@
 use ndarray::NdFloat;
 use almost::AlmostEqual;
+use sprs::{MulAcc};
+
+use std::ops::{Mul, DivAssign};
 
 
 /// Floating-point element types `f32` and `f64`.
@@ -9,7 +12,9 @@ use almost::AlmostEqual;
 /// checking almost equality.
 ///
 /// This trait can only be implemented by `f32` and `f64`.
-pub trait Real: NdFloat + AlmostEqual + Default {}
+pub trait Real<T>: NdFloat + AlmostEqual + Default + MulAcc + for<'r> DivAssign<&'r T> + Mul<T> {}
 
-impl Real for f32 {}
-impl Real for f64 {}
+impl Real<f32> for f32 {}
+impl Real<f64> for f64 {}
+
+ 

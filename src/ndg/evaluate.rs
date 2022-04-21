@@ -16,7 +16,7 @@ use super::{
 
 impl<'a, T, D> NdGridSpline<'a, T, D>
     where
-        T: Real,
+        T: Real<T>,
         D: Dimension
 {
     /// Implements evaluating the spline on the given mesh of Xi-sites
@@ -62,7 +62,7 @@ impl<'a, T, D> NdGridSpline<'a, T, D>
 
 impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
     where
-        T: Real,
+        T: Real<T>,
         D: Dimension
 {
     pub(super) fn evaluate_spline(&self, xi: &[ArrayView1<'a, T>]) -> Array<T, D> {

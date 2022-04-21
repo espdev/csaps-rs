@@ -2,10 +2,12 @@ use std::iter::FromIterator;
 
 use ndarray::{prelude::*};
 
-use sprs::{CsMat, TriMat, Shape, IndPtrBase};
+use sprs::{CsMat, TriMat, Shape, IndPtrBase, SpIndex, CsMatBase, CsMatI};
 use sprs_ldl::LdlNumeric;
 
 use crate::Real;
+
+
 
 
 /// Creates CSR matrix from given diagonals
@@ -15,7 +17,7 @@ use crate::Real;
 ///
 pub fn diags<T>(diags: Array2<T>, offsets: &[isize], shape: Shape) -> CsMat<T>
     where
-        T: Real
+        T: Real<T>
 {
     let (rows, cols) = shape;
 
@@ -77,7 +79,7 @@ pub fn diags<T>(diags: Array2<T>, offsets: &[isize], shape: Shape) -> CsMat<T>
 ///
 pub fn diagonal<T>(m: &CsMat<T>, k: isize) -> Array1<T>
     where
-        T: Real
+        T: Real<T>
 {
     let (rows, cols) = m.shape();
 
@@ -95,7 +97,7 @@ fn diagonal_csr<T>(k: isize,
                 indices: &[usize],
                 data: &[T]) -> Array1<T>
     where
-        T: Real
+        T: Real<T>
 {
     let (rows, cols) = shape;
 
@@ -136,7 +138,7 @@ fn diagonal_csr<T>(k: isize,
 ///
 pub fn solve<T>(a: &CsMat<T>, b: &Array2<T>) -> Array2<T>
     where
-        T: Real
+        T: Real<T> 
 {
     let mut x = Array2::<T>::zeros(b.raw_dim());
 
@@ -369,3 +371,16 @@ mod tests {
         assert_eq!(sprsext::diagonal(&m_csc, k), array![1., 2.]);
     }
 }
+
+// use std::ops::{Mul, Deref};
+
+// impl<'a, I, Iptr, IpStorage, IStorage, DStorage, T> Mul<T> for &'a CsMatBase<T, I, IpStorage, IStorage, DStorage, Iptr> where
+//     I: 'a + SpIndex,
+//     Iptr: 'a + SpIndex,
+//     IpStorage: 'a + Deref<Target = [Iptr]>,
+//     IStorage: 'a + Deref<Target = [I]>,
+//     DStorage: 'a + Deref<Target = [T]>,
+//     T: Real<T> {
+
+//         type Output = CsMatI<f32, I, Iptr>;
+//     } 
