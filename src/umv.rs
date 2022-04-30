@@ -13,6 +13,8 @@ use ndarray::{
     ArrayView2,
 };
 
+use std::ops::Add;
+
 use crate::{Real, Result};
 
 
@@ -26,7 +28,11 @@ use crate::{Real, Result};
 /// for the given data sites.
 ///
 #[derive(Debug)]
-pub struct NdSpline<'a, T: Real<T>>
+pub struct NdSpline<'a, T>
+where
+
+    T: Real<T>,
+
 {
     /// The spline dimensionality
     ndim: usize,
@@ -46,8 +52,9 @@ pub struct NdSpline<'a, T: Real<T>>
 
 
 impl<'a, T> NdSpline<'a, T>
-    where
-        T: Real<T>
+where
+
+    T: Real<T>,
 {
     /// Creates `NdSpline` struct from given `breaks` and `coeffs`
     ///
@@ -148,6 +155,8 @@ impl<'a, T> NdSpline<'a, T>
 pub struct CubicSmoothingSpline<'a, T, D>
     where
         T: Real<T>,
+    
+
         D: Dimension
 {
     /// X data sites (also breaks)
@@ -173,6 +182,8 @@ pub struct CubicSmoothingSpline<'a, T, D>
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     where
         T: Real<T>,
+        for<'r> &'r T: Add<&'r T, Output = T>,
+
         D: Dimension
 {
     /// Creates `CubicSmoothingSpline` struct from the given `X` data sites and `Y` data values

@@ -1,5 +1,6 @@
-use ndarray::{prelude::*, concatenate, s};
+use std::ops::Add;
 
+use ndarray::{prelude::*, concatenate, s};
 
 
 use crate::{
@@ -14,8 +15,9 @@ use super::{NdSpline, CubicSmoothingSpline};
 
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     where
-        T: Real<T>,
-        D: Dimension
+    T: Real<T>,
+    for<'r> &'r T: Add<&'r T, Output = T>,
+    D: Dimension
 {
     pub(super) fn make_spline(&mut self) -> Result<()> {
         let one = T::one();
@@ -102,13 +104,18 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
 
                 // cannot multiply `&CsMatBase<T, usize, Vec<usize>, Vec<usize>, Vec<T>>` by `T`
                 // the trait `Mul<T>` is not implemented for `&CsMatBase<T, usize, Vec<usize>, Vec<usize>, Vec<T>>`
+                
+                let a1 = qtwq.map(|el| s1 * *el );
+                let a2 = r.map(|el| *el * smooth);
 
-                let a1 = &qtwq * s1;
-                let a2 = &r * smooth;
+
+                // let a1 = &qtwq * s1;
+                // let a2 = &r * smooth;
                 drop(qtwq);
                 drop(r);
 
-                &a1 + &a2
+
+                &a1 + &a2 
             };
 
             let b = diff(&dydx, Some(Axis(1))).t().to_owned();
@@ -147,7 +154,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
             let p1 = diff(&c3, Some(Axis(0))) / &dx;
             let p2 = &c3_head * three;
             let p3 = diff(&yi, Some(Axis(0))) / &dx - (&c3_head * two + c3_tail) * dx;
-            let p4 = yi.view().slice(s![..-1 as i32, ..]);
+            let p4 = yi.slice(s![..-1 as i32, ..]); // was yi.view()
 
             drop(c3);
 
