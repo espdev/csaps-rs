@@ -1,13 +1,15 @@
-use std::ops::Add;
+
+use std::ops::{Add, Mul};
 
 use ndarray::{prelude::*, concatenate, s};
+use sprs::MulAcc;
 
 
 use crate::{
     Real,
     Result,
     ndarrayext::{diff, to_2d},
-    sprsext
+    sprsext, RealRef
 };
 
 use super::{NdSpline, CubicSmoothingSpline};
@@ -16,10 +18,16 @@ use super::{NdSpline, CubicSmoothingSpline};
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     where
     T: Real<T>,
-    for<'r> &'r T: Add<&'r T, Output = T>,
+    for<'r> &'r T: RealRef<&'r T, T>,
+
+    // T: MulAcc,
+    // for<'r> &'r T: Add<&'r T, Output = T>,
+    // for<'r> &'r T: Mul<&'r T, Output = T>,
+
     D: Dimension
 {
     pub(super) fn make_spline(&mut self) -> Result<()> {
+        // todo!();
         let one = T::one();
         let two = T::from::<f64>(2.0).unwrap();
         let three = T::from::<f64>(3.0).unwrap();
@@ -115,7 +123,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
                 drop(r);
 
 
-                &a1 + &a2 
+                &a1 + &a2 // was &a1 + &a2
             };
 
             let b = diff(&dydx, Some(Axis(1))).t().to_owned();

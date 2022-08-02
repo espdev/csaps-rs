@@ -1,11 +1,19 @@
+use std::ops::{Add, Mul};
+
 use ndarray::{array, Array, Array2, Dimension, Array1};
-use csaps::{Real, CubicSmoothingSpline};
+use csaps::{Real, CubicSmoothingSpline, RealRef};
+use sprs::MulAcc;
 
 
 fn test_driver_make_nd_npt<T, D>(x: Array1<T>, y: Array<T, D>,
                                  order: usize, pieces: usize, coeffs: Array2<T>)
     where
-        T: Real,
+        T: Real<T>,
+        for<'r> &'r T: RealRef<&'r T, T>,
+
+        // for<'r> &'r T: Add<&'r T, Output = T>,
+        // T: MulAcc,
+        // for<'r> &'r T: Mul<&'r T, Output = T>,
         D: Dimension
 {
     let s = CubicSmoothingSpline::new(&x, &y)
@@ -22,7 +30,12 @@ fn test_driver_make_nd_npt<T, D>(x: Array1<T>, y: Array<T, D>,
 
 fn test_driver_make_nd_2pt<T, D>(x: Array1<T>, y: Array<T, D>, coeffs: Array2<T>)
     where
-        T: Real,
+        T: Real<T>,
+    for<'r> &'r T: RealRef<&'r T, T>,
+
+        // for<'r> &'r T: Add<&'r T, Output = T>,
+        // T: MulAcc,
+        // for<'r> &'r T: Mul<&'r T, Output = T>,
         D: Dimension
 {
     test_driver_make_nd_npt(x, y, 2, 1, coeffs);
@@ -30,8 +43,10 @@ fn test_driver_make_nd_2pt<T, D>(x: Array1<T>, y: Array<T, D>, coeffs: Array2<T>
 
 fn test_driver_make_nd_4pt<T, D>(x: Array1<T>, y: Array<T, D>, coeffs: Array2<T>)
     where
-        T: Real,
-        D: Dimension
+        T: Real<T>,
+        D: Dimension,
+    for<'r> &'r T: RealRef<&'r T, T>,
+
 {
     test_driver_make_nd_npt(x, y, 4, 3, coeffs);
 }

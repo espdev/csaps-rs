@@ -2,7 +2,7 @@ use std::iter::FromIterator;
 
 use ndarray::{prelude::*};
 
-use sprs::{CsMat, TriMat, Shape, IndPtrBase, SpIndex, CsMatBase, CsMatI};
+use sprs::{CsMat, TriMat, Shape, IndPtrBase};
 use sprs_ldl::LdlNumeric;
 
 use crate::Real;
@@ -18,6 +18,7 @@ use crate::Real;
 pub fn diags<T>(diags: Array2<T>, offsets: &[isize], shape: Shape) -> CsMat<T>
     where
         T: Real<T>
+        // T: Clone + NdFloat
 {
     let (rows, cols) = shape;
 
@@ -173,6 +174,7 @@ mod tests {
 
     use crate::sprsext;
 
+    
     #[test]
     fn test_diags_1() {
         /*

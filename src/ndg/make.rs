@@ -1,11 +1,13 @@
-use ndarray::{Dimension, ArrayView1, ArrayView2};
+use ndarray::Dimension;
+use ndarray::prelude::*;
 
+use crate::util::dim_from_vec;
 use crate::{
     Real,
+    RealRef,
     Result,
     CubicSmoothingSpline,
     ndarrayext::to_2d_simple,
-    util::dim_from_vec,
 };
 
 use super::{
@@ -14,12 +16,11 @@ use super::{
     util::permute_axes
 };
 
-use std::ops::Add;
 
 impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
     where
         T: Real<T>,
-    
+        for<'r> &'r T: RealRef<&'r T, T>,
 
         D: Dimension
 {
@@ -36,8 +37,8 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
         let permuted_axes: D = permute_axes(ndim);
 
         for ax in (0..ndim).rev() {
-            let x: ArrayView1<T> = breaks[ax].view();
-            let y: ArrayView2<T> = to_2d_simple(coeffs.view())?;
+            let x = breaks[ax].view();
+            let y = to_2d_simple(coeffs.view())?;
 
             let weights = self.weights[ax].map(|v| v.reborrow());
             let s = self.smooth[ax];
@@ -51,6 +52,8 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
             // <CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase
             // <CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase
             
+            // let x = Array1::<f64>::zeros(1).view();
+            // let y = Array2::<f64>::zeros((1,1)).view();
             let sp = CubicSmoothingSpline::new(x, y)
                 .with_optional_weights(weights)
                 .with_optional_smooth(s)
