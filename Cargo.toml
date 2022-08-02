@@ -1,6 +1,6 @@
 [package]
 name = "csaps"
-version = "0.3.0"
+version = "0.4.0"
 authors = ["Eugene Prilepin <esp.home@gmail.com>"]
 
 description = "Cubic spline approximation (smoothing)"
@@ -22,14 +22,14 @@ coveralls = { repository = "espdev/csaps-rs", branch = "master", service = "gith
 
 
 [dependencies]
-num-traits = "0.2.11"
-ndarray = "0.13.0"
-sprs = "0.7.1"
-sprs-ldl = "0.5.0"
+num-traits = "0.2.14"
+ndarray = "0.15.4"
+sprs-ldl = "0.10.0"
+sprs = "0.11.0"
 almost = "0.2.0"
-itertools = "0.9.0"
-thiserror = "1.0.12"
+itertools = "0.10.3"
+thiserror = "1.0.30" 
 
 [dev-dependencies]
-approx = "0.3.2"
-ndarray = {version = "0.13", features = ["approx"]}
+approx = "0.5.1"
+ndarray = {version = "0.15.4", features = ["approx-0_5"]}

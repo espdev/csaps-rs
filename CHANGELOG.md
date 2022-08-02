@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.4.0 (2022)
+* Update to ndarray 0.15 and sprs 0.11
+
 ## v0.3.0 (22.03.2020)
 
 * Add `Real` pub trait. Trait `Real` is only implemented for `f32` and `f64`, 

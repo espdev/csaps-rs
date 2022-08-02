@@ -1,28 +1,16 @@
-use ndarray::{
-    Dimension,
-    Axis,
-    Array,
-    Array1,
-    Array2,
-    ArrayView1,
-    ArrayView2,
-    s,
-    stack,
-};
+use ndarray::{concatenate, prelude::*, s};
 
 use crate::{
-    Real,
-    Result,
-    ndarrayext::{from_2d, digitize},
-    util::dim_from_vec
+    ndarrayext::{digitize, from_2d},
+    util::dim_from_vec,
+    Real, RealRef, Result,
 };
 
 use super::{CubicSmoothingSpline, NdSpline};
 
-
 impl<'a, T> NdSpline<'a, T>
-    where
-        T: Real
+where
+    T: Real<T>,
 {
     /// Implements evaluating the spline on the given mesh of Xi-sites
     ///
@@ -32,15 +20,15 @@ impl<'a, T> NdSpline<'a, T>
         pieces: usize,
         breaks: ArrayView1<'_, T>,
         coeffs: ArrayView2<'_, T>,
-        xi: ArrayView1<'a, T>) -> Array2<T>
-    {
+        xi: ArrayView1<'a, T>,
+    ) -> Array2<T> {
         let edges = {
-            let mesh = breaks.slice(s![1..-1]);
-            let one = Array1::<T>::ones((1, ));
+            let mesh = breaks.slice(s![1 as i32..-1]);
+            let one = Array1::<T>::ones((1,));
             let left_bound = &one * T::neg_infinity();
             let right_bound = &one * T::infinity();
 
-            stack![Axis(0), left_bound, mesh, right_bound]
+            concatenate![Axis(0), left_bound, mesh, right_bound]
         };
 
         let mut indices = digitize(&xi, &edges);
@@ -57,18 +45,13 @@ impl<'a, T> NdSpline<'a, T>
         // where N is ndim and M is the size of xi
         let get_indexed_coeffs = |inds: &Array1<usize>| {
             // Returns Nx1 2-d array of coeffs by given index
-            let coeffs_by_index = |&index| {
-                coeffs.slice(s![.., index]).insert_axis(Axis(1))
-            };
+            let coeffs_by_index = |&index| coeffs.slice(s![.., index]).insert_axis(Axis(1));
 
             // Get the M-sized vector of coeffs values Nx1 arrays
             // for all dimensions for 1xM indices array
-            let indexed_coeffs: Vec<_> = inds
-                .iter()
-                .map(coeffs_by_index)
-                .collect();
+            let indexed_coeffs: Vec<_> = inds.iter().map(coeffs_by_index).collect();
 
-            stack(Axis(1), &indexed_coeffs).unwrap()
+            concatenate(Axis(1), &indexed_coeffs).unwrap()
         };
 
         // Vectorized computing the spline pieces (polynoms) on the given data sites
@@ -83,11 +66,12 @@ impl<'a, T> NdSpline<'a, T>
     }
 }
 
-
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
-    where
-        T: Real,
-        D: Dimension
+where
+    T: Real<T>,
+    for<'r> &'r T: RealRef<&'r T, T>,
+
+    D: Dimension,
 {
     pub(super) fn evaluate_spline(&self, xi: ArrayView1<'a, T>) -> Result<Array<T, D>> {
         let axis = self.axis.unwrap();

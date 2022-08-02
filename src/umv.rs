@@ -1,20 +1,13 @@
-mod validate;
-mod make;
 mod evaluate;
+mod make;
+mod validate;
 
-use ndarray::{
-    Dimension,
-    Axis,
-    AsArray,
-    Array,
-    Array2,
-    ArrayView,
-    ArrayView1,
-    ArrayView2,
-};
+use std::ops::{Add, Mul};
 
-use crate::{Real, Result};
+use ndarray::{Array, Array2, ArrayView, ArrayView1, ArrayView2, AsArray, Axis, Dimension};
+use sprs::MulAcc;
 
+use crate::{Real, RealRef, Result};
 
 /// N-dimensional (univariate/multivariate) spline PP-form representation
 ///
@@ -26,7 +19,9 @@ use crate::{Real, Result};
 /// for the given data sites.
 ///
 #[derive(Debug)]
-pub struct NdSpline<'a, T: Real>
+pub struct NdSpline<'a, T>
+where
+    T: Real<T>,
 {
     /// The spline dimensionality
     ndim: usize,
@@ -44,10 +39,9 @@ pub struct NdSpline<'a, T: Real>
     coeffs: Array2<T>,
 }
 
-
 impl<'a, T> NdSpline<'a, T>
-    where
-        T: Real
+where
+    T: Real<T>,
 {
     /// Creates `NdSpline` struct from given `breaks` and `coeffs`
     ///
@@ -76,19 +70,29 @@ impl<'a, T> NdSpline<'a, T>
     }
 
     /// Returns the spline dimensionality
-    pub fn ndim(&self) -> usize { self.ndim }
+    pub fn ndim(&self) -> usize {
+        self.ndim
+    }
 
     /// Returns the spline order
-    pub fn order(&self) -> usize { self.order }
+    pub fn order(&self) -> usize {
+        self.order
+    }
 
     /// Returns the number of pieces of the spline
-    pub fn pieces(&self) -> usize { self.pieces }
+    pub fn pieces(&self) -> usize {
+        self.pieces
+    }
 
     /// Returns the view to the breaks array
-    pub fn breaks(&self) -> ArrayView1<'_, T> { self.breaks.view() }
+    pub fn breaks(&self) -> ArrayView1<'_, T> {
+        self.breaks.view()
+    }
 
     /// Returns the view to the spline coefficients array
-    pub fn coeffs(&self) -> ArrayView2<'_, T> { self.coeffs.view() }
+    pub fn coeffs(&self) -> ArrayView2<'_, T> {
+        self.coeffs.view()
+    }
 
     /// Evaluates the spline on the given data sites
     pub fn evaluate(&self, xi: ArrayView1<'a, T>) -> Array2<T> {
@@ -101,7 +105,6 @@ impl<'a, T> NdSpline<'a, T>
         )
     }
 }
-
 
 /// N-dimensional (univariate/multivariate) smoothing spline calculator/evaluator
 ///
@@ -146,9 +149,12 @@ impl<'a, T> NdSpline<'a, T>
 /// ```
 ///
 pub struct CubicSmoothingSpline<'a, T, D>
-    where
-        T: Real,
-        D: Dimension
+where
+    T: Real<T>,
+    for<'r> &'r T: RealRef<&'r T, T>,
+
+    // for<'r> &'r T: Add<&'r T, Output = T>, // This causes the recursion error
+    D: Dimension,
 {
     /// X data sites (also breaks)
     x: ArrayView1<'a, T>,
@@ -166,14 +172,16 @@ pub struct CubicSmoothingSpline<'a, T, D>
     smooth: Option<T>,
 
     /// `NdSpline` struct with computed spline
-    spline: Option<NdSpline<'a, T>>
+    spline: Option<NdSpline<'a, T>>,
 }
 
-
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
-    where
-        T: Real,
-        D: Dimension
+where
+    T: Real<T>,
+    for<'r> &'r T: RealRef<&'r T, T>,
+
+    // for<'r> &'r T: Add<&'r T, Output = T>,
+    D: Dimension,
 {
     /// Creates `CubicSmoothingSpline` struct from the given `X` data sites and `Y` data values
     ///
@@ -186,9 +194,9 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     ///   equal to 2 and etc.
     ///
     pub fn new<X, Y>(x: X, y: Y) -> Self
-        where
-            X: AsArray<'a, T>,
-            Y: AsArray<'a, T, D>
+    where
+        X: AsArray<'a, T>,
+        Y: AsArray<'a, T, D>,
     {
         CubicSmoothingSpline {
             x: x.into(),
@@ -241,8 +249,8 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     /// `weights.len()` must be equal to `x.len()`
     ///
     pub fn with_weights<W>(mut self, weights: W) -> Self
-        where
-            W: AsArray<'a, T>
+    where
+        W: AsArray<'a, T>,
     {
         self.invalidate();
         self.weights = Some(weights.into());
@@ -254,8 +262,8 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     /// `weights.len()` must be equal to `x.len()`
     ///
     pub fn with_optional_weights<W>(mut self, weights: Option<W>) -> Self
-        where
-            W: AsArray<'a, T>
+    where
+        W: AsArray<'a, T>,
     {
         self.invalidate();
         self.weights = weights.map(|w| w.into());
@@ -283,19 +291,6 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         self
     }
 
-    /// Makes (computes) the spline for given data and parameters
-    ///
-    /// # Errors
-    ///
-    /// - If the data or parameters are invalid
-    /// - If reshaping Y data to 2-d view has failed
-    ///
-    pub fn make(mut self) -> Result<Self> {
-        self.make_validate()?;
-        self.make_spline()?;
-        Ok(self)
-    }
-
     /// Evaluates the computed spline on the given data sites
     ///
     /// # Errors
@@ -304,8 +299,8 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     /// - If the spline yet has not been computed
     ///
     pub fn evaluate<X>(&self, xi: X) -> Result<Array<T, D>>
-        where
-            X: AsArray<'a, T>
+    where
+        X: AsArray<'a, T>,
     {
         let xi = xi.into();
         self.evaluate_validate(xi)?;
@@ -328,4 +323,28 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     fn invalidate(&mut self) {
         self.spline = None;
     }
+    /// Makes (computes) the spline for given data and parameters
+    ///
+    /// # Errors
+    ///
+    /// - If the data or parameters are invalid
+    /// - If reshaping Y data to 2-d view has failed
+    ///
+    pub fn make(mut self) -> Result<Self> {
+        self.make_validate()?;
+        self.make_spline()?;
+        Ok(self)
+    }
 }
+
+// // Moved outside to resolve the recursion error
+// impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
+// where
+//     T: Real<T>,
+//     for<'r> &'r T: Add<&'r T, Output = T>,
+//     T: MulAcc,
+//     for<'r> &'r T: Mul<&'r T, Output = T>,
+
+//     D: Dimension,
+// {
+// }
