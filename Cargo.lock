@@ -30,15 +30,6 @@ dependencies = [
 
 [[package]]
 name = "approx"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3f2a05fd1bd10b2527e20a2cd32d8873d115b8b39fe219ee25f42a8aca6ba278"
-dependencies = [
- "num-traits",
-]
-
-[[package]]
-name = "approx"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cab112f0a86d568ea0e627cc1d6be74a1e9cd55214684db5561995f6dad897c6"
@@ -183,7 +174,7 @@ version = "0.15.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dec23e6762830658d2b3d385a75aa212af2f67a4586d4442907144f3bb6a1ca8"
 dependencies = [
- "approx 0.4.0",
+ "approx 0.5.1",
  "matrixmultiply",
  "num-complex 0.4.0",
  "num-integer",
@@ -303,7 +294,8 @@ checksum = "f2dd574626839106c320a323308629dcb1acfc96e32a8cba364ddc61ac23ee83"
 [[package]]
 name = "sprs"
 version = "0.11.0"
-source = "git+https://github.com/vbarrielle/sprs?rev=3895313#38953136024e1814895b560951f41d0e10c42d16"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6ea71e48b3eab4c4b153e8e35dcaeac132720809ef68359097b8cb54a18edd70"
 dependencies = [
  "alga",
  "ndarray",
@@ -317,7 +309,8 @@ dependencies = [
 [[package]]
 name = "sprs-ldl"
 version = "0.10.0"
-source = "git+https://github.com/vbarrielle/sprs?rev=3895313#38953136024e1814895b560951f41d0e10c42d16"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bc152d7b3747cde0983b91da392c8a5448e8f82260726bf56064f6d475c69e82"
 dependencies = [
  "num-traits",
  "sprs",
