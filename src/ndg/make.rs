@@ -1,11 +1,13 @@
 use ndarray::Dimension;
+use ndarray::prelude::*;
 
+use crate::util::dim_from_vec;
 use crate::{
     Real,
+    RealRef,
     Result,
     CubicSmoothingSpline,
     ndarrayext::to_2d_simple,
-    util::dim_from_vec,
 };
 
 use super::{
@@ -17,7 +19,9 @@ use super::{
 
 impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
     where
-        T: Real,
+        T: Real<T>,
+        for<'r> &'r T: RealRef<&'r T, T>,
+
         D: Dimension
 {
     pub(super) fn make_spline(&mut self) -> Result<()> {
@@ -39,6 +43,17 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
             let weights = self.weights[ax].map(|v| v.reborrow());
             let s = self.smooth[ax];
 
+            // Cannot explain how this error happens
+            //
+            // = note: required because of the requirements on the impl of `for<'r> Add` for `&'r CsMatBase<Simd<_, {_: usize}>, _, _, _, _, _>`
+            // = note: 127 redundant requirements hidden
+            // = note: required because of the requirements on the impl of `for<'r> Add` for `&'r CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase
+            // <CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase
+            // <CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase
+            // <CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase
+            
+            // let x = Array1::<f64>::zeros(1).view();
+            // let y = Array2::<f64>::zeros((1,1)).view();
             let sp = CubicSmoothingSpline::new(x, y)
                 .with_optional_weights(weights)
                 .with_optional_smooth(s)

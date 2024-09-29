@@ -1,11 +1,13 @@
-use ndarray::ArrayView1;
+use almost::AlmostEqual;
+use ndarray::{ArrayView1, NdFloat};
 
 use crate::{Real, Result, CsapsError::InvalidInputData};
 
 
 pub(crate) fn validate_data_sites<T>(x: ArrayView1<T>) -> Result<()>
     where
-        T: Real
+        T: Real<T>
+        // T: AlmostEqual + NdFloat
 {
     for w in x.windows(2) {
         let e1 = w[0];
@@ -25,7 +27,8 @@ pub(crate) fn validate_data_sites<T>(x: ArrayView1<T>) -> Result<()>
 
 pub(crate) fn validate_smooth_value<T>(smooth: T) -> Result<()>
     where
-        T: Real
+        T: Real<T>
+        // T: NdFloat
 {
     if smooth < T::zero() || smooth > T::one() {
         return Err(

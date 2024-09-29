@@ -1,32 +1,22 @@
-use ndarray::{
-    Dimension,
-    IntoDimension,
-    Axis,
-    Slice,
-    Ix1,
-    Ix2,
-    AsArray,
-    Array,
-    Array1,
-    ArrayView,
-    ArrayView2,
-    s
-};
 
-use almost;
+
+use almost::AlmostEqual;
+// use almost;
+use ndarray::{prelude::*, IntoDimension, Slice};
 use itertools::Itertools;
 
+
 use crate::{
-    Real,
     Result,
     CsapsError::{ReshapeFrom2d, ReshapeTo2d},
-    util::dim_from_vec
+    util::dim_from_vec, Real
 };
 
 
 pub fn diff<'a, T: 'a, D, V>(data: V, axis: Option<Axis>) -> Array<T, D>
     where
-        T: Real,
+        T: Real<T>,
+        // T: Clone + NdFloat,
         D: Dimension,
         V: AsArray<'a, T, D>
 {
@@ -139,7 +129,9 @@ pub fn from_2d<'a, T: 'a, D, S, I>(data: I, shape: S, axis: Axis) -> Result<Arra
 /// This code works if `bins` is increasing
 pub fn digitize<'a, T: 'a, A, B>(arr: A, bins: B) -> Array1<usize>
     where
-        T: Real,
+        T: Real<T>,
+        // T: Clone  + NdFloat + AlmostEqual,
+
         A: AsArray<'a, T, Ix1>,
         B: AsArray<'a, T, Ix1>,
 {

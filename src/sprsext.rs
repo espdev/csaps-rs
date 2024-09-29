@@ -1,11 +1,13 @@
 use std::iter::FromIterator;
 
-use ndarray::{Array1, Array2, Axis, s};
+use ndarray::{prelude::*};
 
-use sprs::{TriMat, CsMat, Shape};
+use sprs::{CsMat, TriMat, Shape, IndPtrBase};
 use sprs_ldl::LdlNumeric;
 
 use crate::Real;
+
+
 
 
 /// Creates CSR matrix from given diagonals
@@ -15,7 +17,8 @@ use crate::Real;
 ///
 pub fn diags<T>(diags: Array2<T>, offsets: &[isize], shape: Shape) -> CsMat<T>
     where
-        T: Real
+        T: Real<T>
+        // T: Clone + NdFloat
 {
     let (rows, cols) = shape;
 
@@ -77,7 +80,7 @@ pub fn diags<T>(diags: Array2<T>, offsets: &[isize], shape: Shape) -> CsMat<T>
 ///
 pub fn diagonal<T>(m: &CsMat<T>, k: isize) -> Array1<T>
     where
-        T: Real
+        T: Real<T>
 {
     let (rows, cols) = m.shape();
 
@@ -91,16 +94,16 @@ pub fn diagonal<T>(m: &CsMat<T>, k: isize) -> Array1<T>
 
 fn diagonal_csr<T>(k: isize,
                 shape: Shape,
-                indptr: &[usize],
+                indptr: IndPtrBase<usize, &[usize]>,
                 indices: &[usize],
                 data: &[T]) -> Array1<T>
     where
-        T: Real
+        T: Real<T>
 {
     let (rows, cols) = shape;
 
     if k <= -(rows as isize) || k >= cols as isize {
-        panic!(format!("k ({}) exceeds matrix dimensions {:?}", k, shape));
+        panic!("k ({}) exceeds matrix dimensions {:?}", k, shape);
     }
 
     let first_row = if k >= 0 { 0 } else { (-k) as usize };
@@ -112,12 +115,11 @@ fn diagonal_csr<T>(k: isize,
     for i in 0..diag_size {
         let row = first_row + i;
         let col = first_col + i;
-        let row_begin = indptr[row];
-        let row_end = indptr[row + 1];
+        let row = indptr.outer_inds_sz(row);
 
         let mut diag_value = T::zero();
 
-        for j in row_begin..row_end {
+        for j in row.start..row.end {
             if indices[j] == col {
                 diag_value += data[j];
             }
@@ -137,7 +139,7 @@ fn diagonal_csr<T>(k: isize,
 ///
 pub fn solve<T>(a: &CsMat<T>, b: &Array2<T>) -> Array2<T>
     where
-        T: Real
+        T: Real<T> 
 {
     let mut x = Array2::<T>::zeros(b.raw_dim());
 
@@ -172,6 +174,7 @@ mod tests {
 
     use crate::sprsext;
 
+    
     #[test]
     fn test_diags_1() {
         /*
@@ -370,3 +373,16 @@ mod tests {
         assert_eq!(sprsext::diagonal(&m_csc, k), array![1., 2.]);
     }
 }
+
+// use std::ops::{Mul, Deref};
+
+// impl<'a, I, Iptr, IpStorage, IStorage, DStorage, T> Mul<T> for &'a CsMatBase<T, I, IpStorage, IStorage, DStorage, Iptr> where
+//     I: 'a + SpIndex,
+//     Iptr: 'a + SpIndex,
+//     IpStorage: 'a + Deref<Target = [Iptr]>,
+//     IStorage: 'a + Deref<Target = [I]>,
+//     DStorage: 'a + Deref<Target = [T]>,
+//     T: Real<T> {
+
+//         type Output = CsMatI<f32, I, Iptr>;
+//     } 

@@ -9,13 +9,15 @@ use crate::{
     CubicSmoothingSpline,
     CsapsError::InvalidInputData,
     Result,
-    validate::{validate_data_sites, validate_smooth_value},
+    validate::{validate_data_sites, validate_smooth_value}, RealRef,
 };
 
 
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
     where
-        T: Real,
+        T: Real<T>,
+    for<'r> &'r T: RealRef<&'r T, T>,
+
         D: Dimension
 {
     pub(super) fn make_validate(&self) -> Result<()> {
