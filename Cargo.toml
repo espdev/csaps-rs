@@ -13,7 +13,7 @@ documentation = "https://docs.rs/csaps"
 readme = "README.md"
 license = "MIT"
 
-edition = "2018"
+edition = "2021"
 
 
 [badges]
@@ -23,13 +23,13 @@ coveralls = { repository = "espdev/csaps-rs", branch = "master", service = "gith
 
 [dependencies]
 num-traits = "0.2.14"
-ndarray = "0.15.4"
+ndarray = "0.16.1"
 sprs-ldl = "0.10.0"
-sprs = "0.11.0"
+sprs = "0.11.2"
 almost = "0.2.0"
-itertools = "0.10.3"
+itertools = "0.13.0"
 thiserror = "1.0.30" 
 
 [dev-dependencies]
 approx = "0.5.1"
-ndarray = {version = "0.15.4", features = ["approx-0_5"]}
+ndarray = {version = "0.16.1", features = ["approx"]}

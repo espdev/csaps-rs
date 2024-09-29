@@ -2,10 +2,7 @@ mod evaluate;
 mod make;
 mod validate;
 
-use std::ops::{Add, Mul};
-
 use ndarray::{Array, Array2, ArrayView, ArrayView1, ArrayView2, AsArray, Axis, Dimension};
-use sprs::MulAcc;
 
 use crate::{Real, RealRef, Result};
 
@@ -152,8 +149,6 @@ pub struct CubicSmoothingSpline<'a, T, D>
 where
     T: Real<T>,
     for<'r> &'r T: RealRef<&'r T, T>,
-
-    // for<'r> &'r T: Add<&'r T, Output = T>, // This causes the recursion error
     D: Dimension,
 {
     /// X data sites (also breaks)
@@ -179,8 +174,6 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
 where
     T: Real<T>,
     for<'r> &'r T: RealRef<&'r T, T>,
-
-    // for<'r> &'r T: Add<&'r T, Output = T>,
     D: Dimension,
 {
     /// Creates `CubicSmoothingSpline` struct from the given `X` data sites and `Y` data values
@@ -336,15 +329,3 @@ where
         Ok(self)
     }
 }
-
-// // Moved outside to resolve the recursion error
-// impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
-// where
-//     T: Real<T>,
-//     for<'r> &'r T: Add<&'r T, Output = T>,
-//     T: MulAcc,
-//     for<'r> &'r T: Mul<&'r T, Output = T>,
-
-//     D: Dimension,
-// {
-// }

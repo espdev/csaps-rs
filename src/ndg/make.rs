@@ -1,5 +1,4 @@
 use ndarray::Dimension;
-use ndarray::prelude::*;
 
 use crate::util::dim_from_vec;
 use crate::{
@@ -21,7 +20,6 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
     where
         T: Real<T>,
         for<'r> &'r T: RealRef<&'r T, T>,
-
         D: Dimension
 {
     pub(super) fn make_spline(&mut self) -> Result<()> {
@@ -68,7 +66,7 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
                 let new_shape: D = dim_from_vec(ndim, coeffs_shape);
 
                 spline.coeffs()
-                    .into_shape(new_shape).unwrap()
+                    .into_shape_with_order(new_shape).unwrap()
                     .permuted_axes(permuted_axes.clone())
                     .to_owned()
             };

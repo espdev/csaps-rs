@@ -1,8 +1,5 @@
-use std::ops::{Add, Mul};
-
 use ndarray::{array, Array, Array2, Dimension, Array1};
 use csaps::{Real, CubicSmoothingSpline, RealRef};
-use sprs::MulAcc;
 
 
 fn test_driver_make_nd_npt<T, D>(x: Array1<T>, y: Array<T, D>,
@@ -10,10 +7,6 @@ fn test_driver_make_nd_npt<T, D>(x: Array1<T>, y: Array<T, D>,
     where
         T: Real<T>,
         for<'r> &'r T: RealRef<&'r T, T>,
-
-        // for<'r> &'r T: Add<&'r T, Output = T>,
-        // T: MulAcc,
-        // for<'r> &'r T: Mul<&'r T, Output = T>,
         D: Dimension
 {
     let s = CubicSmoothingSpline::new(&x, &y)
