@@ -47,7 +47,7 @@ impl<'a, T, D> NdGridSpline<'a, T, D>
                 let shape: D = dim_from_vec(self.ndim, coeffs_shape);
 
                 coeffs_2d
-                    .into_shape(shape).unwrap()
+                    .into_shape_with_order(shape).unwrap()
                     .permuted_axes(permuted_axes.clone())
                     .to_owned()
             };

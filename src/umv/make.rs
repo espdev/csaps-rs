@@ -1,9 +1,4 @@
-
-use std::ops::{Add, Mul};
-
 use ndarray::{prelude::*, concatenate, s};
-use sprs::MulAcc;
-
 
 use crate::{
     Real,
@@ -16,14 +11,9 @@ use super::{NdSpline, CubicSmoothingSpline};
 
 
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
-    where
+where
     T: Real<T>,
     for<'r> &'r T: RealRef<&'r T, T>,
-
-    // T: MulAcc,
-    // for<'r> &'r T: Add<&'r T, Output = T>,
-    // for<'r> &'r T: Mul<&'r T, Output = T>,
-
     D: Dimension
 {
     pub(super) fn make_spline(&mut self) -> Result<()> {
@@ -53,7 +43,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         // The corner case for Nx2 data (2 data points)
         if pcount == 2 {
             drop(dx);
-            let yi = y.slice(s![.., 0 as i32]).insert_axis(Axis(1));
+            let yi = y.slice(s![.., 0i32]).insert_axis(Axis(1));
             let coeffs = concatenate![Axis(1), dydx, yi];
 
             self.smooth = Some(one);
@@ -68,15 +58,14 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         let qtwq = {
             let qt = {
                 let odx = ones(pcount - 1) / &dx;
-                let odx_head = odx.slice(s![..-1 as i32]).insert_axis(Axis(0)).into_owned();
-                let odx_tail = odx.slice(s![1 as i32..]).insert_axis(Axis(0)).into_owned();
+                let odx_head = odx.slice(s![..-1]).insert_axis(Axis(0)).into_owned();
+                let odx_tail = odx.slice(s![1i32..]).insert_axis(Axis(0)).into_owned();
                 drop(odx);
                 let odx_body = -(&odx_tail + &odx_head);
                 let diags_qt = concatenate![Axis(0), odx_head, odx_body, odx_tail];
 
                 sprsext::diags(diags_qt, &[0, 1, 2], (pcount - 2, pcount))
             };
-
 
             let diags_sqrw = (ones(pcount) / weights.mapv(T::sqrt)).insert_axis(Axis(0));
             let sqrw = sprsext::diags(diags_sqrw, &[0], (pcount, pcount));
@@ -89,8 +78,8 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         };
 
         let r = {
-            let dx_head = dx.slice(s![..-1 as i32]).insert_axis(Axis(0)).into_owned();
-            let dx_tail = dx.slice(s![1 as i32..]).insert_axis(Axis(0)).into_owned();
+            let dx_head = dx.slice(s![..-1]).insert_axis(Axis(0)).into_owned();
+            let dx_tail = dx.slice(s![1i32..]).insert_axis(Axis(0)).into_owned();
             let dx_body = (&dx_tail + &dx_head) * two;
             let diags_r = concatenate![Axis(0), dx_tail, dx_body, dx_head];
 
@@ -108,22 +97,17 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
         // Solve linear system Ax = b for the 2nd derivatives
         let usol = {
             let a = {
-
-
                 // cannot multiply `&CsMatBase<T, usize, Vec<usize>, Vec<usize>, Vec<T>>` by `T`
                 // the trait `Mul<T>` is not implemented for `&CsMatBase<T, usize, Vec<usize>, Vec<usize>, Vec<T>>`
-                
-                let a1 = qtwq.map(|el| s1 * *el );
-                let a2 = r.map(|el| *el * smooth);
-
-
                 // let a1 = &qtwq * s1;
                 // let a2 = &r * smooth;
+                let a1 = qtwq.map(|el| *el * s1);
+                let a2 = r.map(|el| *el * smooth);
+
                 drop(qtwq);
                 drop(r);
 
-
-                &a1 + &a2 // was &a1 + &a2
+                &a1 + &a2
             };
 
             let b = diff(&dydx, Some(Axis(1))).t().to_owned();
@@ -147,7 +131,7 @@ impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
 
                 let diags_w = (ones(pcount) / weights).insert_axis(Axis(0));
                 let w = sprsext::diags(diags_w, &[0], (pcount, pcount));
-                let wd2 = &w * &d2;
+                let wd2 = &w.map(|el| *el * s1) * &d2;
 
                 drop(d1);
                 drop(d2);
