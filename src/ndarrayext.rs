@@ -46,7 +46,7 @@ pub fn to_2d<'a, T: 'a, D, I>(data: I, axis: Axis) -> Result<ArrayView2<'a, T>>
     let axis_size = shape[axis.0];
     let new_shape = [numel / axis_size, axis_size];
 
-    match data_view.permuted_axes(axes).into_shape_with_order(new_shape) {
+    match data_view.permuted_axes(axes).into_shape(new_shape) {
         Ok(view_2d) => Ok(view_2d),
         Err(error) => Err(
             ReshapeTo2d {
@@ -68,7 +68,7 @@ pub fn to_2d_simple<'a, T: 'a, D>(data: ArrayView<'a, T, D>) -> Result<ArrayView
     let shape = data.shape().to_vec();
     let new_shape = [shape[0..(ndim - 1)].iter().product(), shape[ndim - 1]];
 
-    match data.into_shape_with_order(new_shape) {
+    match data.into_shape(new_shape) {
         Ok(data_2d) => Ok(data_2d),
         Err(error) => Err(
             ReshapeTo2d {
@@ -98,7 +98,7 @@ pub fn from_2d<'a, T: 'a, D, S, I>(data: I, shape: S, axis: Axis) -> Result<Arra
     let new_shape: D = dim_from_vec(ndim, new_shape_vec.clone());
     let data_view = data.into();
 
-    match data_view.into_shape_with_order(new_shape) {
+    match data_view.into_shape(new_shape) {
         Ok(view_nd) => {
             let mut axes_tmp: Vec<usize> = (0..ndim).collect();
             let end_axis = axes_tmp.pop().unwrap();

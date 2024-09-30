@@ -66,7 +66,7 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
                 let new_shape: D = dim_from_vec(ndim, coeffs_shape);
 
                 spline.coeffs()
-                    .into_shape_with_order(new_shape).unwrap()
+                    .into_shape(new_shape).unwrap()
                     .permuted_axes(permuted_axes.clone())
                     .to_owned()
             };
