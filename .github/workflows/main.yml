@@ -1,0 +1,35 @@
+name: "Build and Tests"
+
+on:
+  push:
+    branches:
+      - master
+
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  main:
+    name: csaps-rs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          components: rustfmt, clippy
+          rustflags: "-A warnings"
+
+      - name: Check format
+        run: cargo fmt --check
+
+      - name: Check code
+        run: cargo clippy
+
+      - name: Run tests
+        run: cargo test
