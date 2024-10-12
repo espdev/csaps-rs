@@ -1,20 +1,17 @@
-use ndarray::{prelude::*, concatenate, s};
+use ndarray::{concatenate, prelude::*, s};
 
 use crate::{
-    Real,
-    Result,
     ndarrayext::{diff, to_2d},
-    sprsext, RealRef
+    sprsext, Real, RealRef, Result,
 };
 
-use super::{NdSpline, CubicSmoothingSpline};
-
+use super::{CubicSmoothingSpline, NdSpline};
 
 impl<'a, T, D> CubicSmoothingSpline<'a, T, D>
 where
     T: Real<T>,
     for<'r> &'r T: RealRef<&'r T, T>,
-    D: Dimension
+    D: Dimension,
 {
     pub(super) fn make_spline(&mut self) -> Result<()> {
         // todo!();
@@ -26,7 +23,8 @@ where
         let breaks = self.x;
 
         let weights_default = Array1::ones(breaks.raw_dim());
-        let weights = self.weights
+        let weights = self
+            .weights
             .map(|v| v.reborrow()) // without it we will get an error: "[E0597] `weights_default` does not live long enough"
             .unwrap_or_else(|| weights_default.view());
 
@@ -49,11 +47,11 @@ where
             self.smooth = Some(one);
             self.spline = Some(NdSpline::new(breaks, coeffs));
 
-            return Ok(())
+            return Ok(());
         }
 
         // General computing cubic smoothing spline for NxM data (3 and more data points)
-        let ones = |n| Array1::<T>::ones((n, ));
+        let ones = |n| Array1::<T>::ones((n,));
 
         let qtwq = {
             let qt = {
@@ -87,7 +85,7 @@ where
         };
 
         let auto_smooth = || {
-            let trace = |m| { sprsext::diagonal(m, 0).sum() };
+            let trace = |m| sprsext::diagonal(m, 0).sum();
             one / (one + trace(&r) / (six * trace(&qtwq)))
         };
 
@@ -150,7 +148,10 @@ where
 
             drop(c3);
 
-            concatenate(Axis(0), &[p1.view(), p2.view(), p3.view(), p4]).unwrap().t().to_owned()
+            concatenate(Axis(0), &[p1.view(), p2.view(), p3.view(), p4])
+                .unwrap()
+                .t()
+                .to_owned()
         };
 
         self.smooth = Some(smooth);

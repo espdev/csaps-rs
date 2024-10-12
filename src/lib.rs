@@ -120,13 +120,13 @@
 //!
 
 mod errors;
-mod traits;
 mod ndarrayext;
-mod sprsext;
-mod validate;
-mod util;
-mod umv;
 mod ndg;
+mod sprsext;
+mod traits;
+mod umv;
+mod util;
+mod validate;
 
 use std::result;
 
@@ -134,26 +134,24 @@ use std::result;
 pub type Result<T> = result::Result<T, errors::CsapsError>;
 
 pub use errors::CsapsError;
+pub use ndg::{GridCubicSmoothingSpline, NdGridSpline};
 pub use traits::{Real, RealRef};
-pub use umv::{NdSpline, CubicSmoothingSpline};
-pub use ndg::{NdGridSpline, GridCubicSmoothingSpline};
-
+pub use umv::{CubicSmoothingSpline, NdSpline};
 
 // #[cfg(test)]
 // mod tests {
-//     use crate::CubicSmoothingSpline;    
+//     use crate::CubicSmoothingSpline;
 //     use ndarray::prelude::*;
 
 //     #[test]
-//     fn test_new() { 
+//     fn test_new() {
 
-//         let zeros = Array1::<f64>::zeros(1); 
+//         let zeros = Array1::<f64>::zeros(1);
 
 //         let x = zeros.view();
 //         let zeros = Array2::<f64>::zeros((1,1));
 //         let y = zeros.view();
 
-        
 //         let sp = CubicSmoothingSpline::new(x.view(), y.view())
 //         // .with_optional_weights(weights)
 //         // .with_optional_smooth(s)

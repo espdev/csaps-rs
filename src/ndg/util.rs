@@ -1,9 +1,8 @@
 use ndarray::Dimension;
 
-
 pub(super) fn permute_axes<D>(ndim: usize) -> D
-    where
-        D: Dimension
+where
+    D: Dimension,
 {
     let mut permute_axes = D::zeros(ndim);
 

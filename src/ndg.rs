@@ -1,18 +1,11 @@
-mod validate;
-mod make;
 mod evaluate;
+mod make;
 mod util;
+mod validate;
 
-use ndarray::{
-    Dimension,
-    AsArray,
-    Array,
-    ArrayView,
-    ArrayView1,
-};
+use ndarray::{Array, ArrayView, ArrayView1, AsArray, Dimension};
 
-use crate::{Real, Result, RealRef};
-
+use crate::{Real, RealRef, Result};
 
 /// N-d grid spline PP-form representation
 ///
@@ -25,9 +18,9 @@ use crate::{Real, Result, RealRef};
 ///
 #[derive(Debug)]
 pub struct NdGridSpline<'a, T, D>
-    where
-        T: Real<T>,
-        D: Dimension
+where
+    T: Real<T>,
+    D: Dimension,
 {
     /// The grid dimensionality
     ndim: usize,
@@ -46,11 +39,10 @@ pub struct NdGridSpline<'a, T, D>
     coeffs: Array<T, D>,
 }
 
-
 impl<'a, T, D> NdGridSpline<'a, T, D>
-    where
-        T: Real<T>,
-        D: Dimension
+where
+    T: Real<T>,
+    D: Dimension,
 {
     /// Creates `NdGridSpline` struct from given `breaks` and `coeffs`
     ///
@@ -66,7 +58,11 @@ impl<'a, T, D> NdGridSpline<'a, T, D>
     pub fn new(breaks: Vec<ArrayView1<'a, T>>, coeffs: Array<T, D>) -> Self {
         let ndim = breaks.len();
         let pieces: Vec<usize> = breaks.iter().map(|x| x.len() - 1).collect();
-        let order: Vec<usize> = pieces.iter().zip(coeffs.shape().iter()).map(|(p, s)| s / p).collect();
+        let order: Vec<usize> = pieces
+            .iter()
+            .zip(coeffs.shape().iter())
+            .map(|(p, s)| s / p)
+            .collect();
 
         NdGridSpline {
             ndim,
@@ -78,26 +74,35 @@ impl<'a, T, D> NdGridSpline<'a, T, D>
     }
 
     /// Returns the n-d grid spline dimensionality
-    pub fn ndim(&self) -> usize { self.ndim }
+    pub fn ndim(&self) -> usize {
+        self.ndim
+    }
 
     /// Returns the vector of the spline order for each dimension
-    pub fn order(&self) -> &Vec<usize> { &self.order }
+    pub fn order(&self) -> &Vec<usize> {
+        &self.order
+    }
 
     /// Returns the vector of the number of pieces of the spline for each dimension
-    pub fn pieces(&self) -> &Vec<usize> { &self.pieces }
+    pub fn pieces(&self) -> &Vec<usize> {
+        &self.pieces
+    }
 
     /// Returns the vector of views to the breaks for each dimension
-    pub fn breaks(&self) -> &Vec<ArrayView1<'a, T>> { &self.breaks }
+    pub fn breaks(&self) -> &Vec<ArrayView1<'a, T>> {
+        &self.breaks
+    }
 
     /// Returns the view to the spline coefficients array
-    pub fn coeffs(&self) -> ArrayView<'_, T, D> { self.coeffs.view() }
+    pub fn coeffs(&self) -> ArrayView<'_, T, D> {
+        self.coeffs.view()
+    }
 
     /// Evaluates the spline on the given data sites
     pub fn evaluate(&self, xi: &'a [ArrayView1<'a, T>]) -> Array<T, D> {
         self.evaluate_spline(xi)
     }
 }
-
 
 /// N-dimensional grid cubic smoothing spline calculator/evaluator
 ///
@@ -133,9 +138,9 @@ impl<'a, T, D> NdGridSpline<'a, T, D>
 /// ```
 ///
 pub struct GridCubicSmoothingSpline<'a, T, D>
-    where
-        T: Real<T>,
-        D: Dimension
+where
+    T: Real<T>,
+    D: Dimension,
 {
     /// X data sites (also breaks)
     x: Vec<ArrayView1<'a, T>>,
@@ -150,16 +155,15 @@ pub struct GridCubicSmoothingSpline<'a, T, D>
     smooth: Vec<Option<T>>,
 
     /// `NdGridSpline` struct with computed spline
-    spline: Option<NdGridSpline<'a, T, D>>
+    spline: Option<NdGridSpline<'a, T, D>>,
 }
 
-
 impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
-    where
-        T: Real<T>,
-        for<'r> &'r T: RealRef<&'r T, T>,
-        
-        D: Dimension
+where
+    T: Real<T>,
+    for<'r> &'r T: RealRef<&'r T, T>,
+
+    D: Dimension,
 {
     /// Creates `NdGridCubicSmoothingSpline` struct from the given `X` data sites and `Y` data values
     ///
@@ -170,8 +174,8 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
     /// - `y` -- The Y-data n-d grid values array-like. `ndim` can be from 1 to N.
     ///
     pub fn new<Y>(x: &[ArrayView1<'a, T>], y: Y) -> Self
-        where
-            Y: AsArray<'a, T, D>
+    where
+        Y: AsArray<'a, T, D>,
     {
         let ndim = x.len();
 

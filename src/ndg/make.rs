@@ -1,26 +1,15 @@
 use ndarray::Dimension;
 
 use crate::util::dim_from_vec;
-use crate::{
-    Real,
-    RealRef,
-    Result,
-    CubicSmoothingSpline,
-    ndarrayext::to_2d_simple,
-};
+use crate::{ndarrayext::to_2d_simple, CubicSmoothingSpline, Real, RealRef, Result};
 
-use super::{
-    GridCubicSmoothingSpline,
-    NdGridSpline,
-    util::permute_axes
-};
-
+use super::{util::permute_axes, GridCubicSmoothingSpline, NdGridSpline};
 
 impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
-    where
-        T: Real<T>,
-        for<'r> &'r T: RealRef<&'r T, T>,
-        D: Dimension
+where
+    T: Real<T>,
+    for<'r> &'r T: RealRef<&'r T, T>,
+    D: Dimension,
 {
     pub(super) fn make_spline(&mut self) -> Result<()> {
         let ndim = self.x.len();
@@ -49,7 +38,7 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
             // <CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase
             // <CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase
             // <CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase<CsMatBase
-            
+
             // let x = Array1::<f64>::zeros(1).view();
             // let y = Array2::<f64>::zeros((1,1)).view();
             let sp = CubicSmoothingSpline::new(x, y)
@@ -65,8 +54,10 @@ impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
                 coeffs_shape[ndim_m1] = spline.pieces() * spline.order();
                 let new_shape: D = dim_from_vec(ndim, coeffs_shape);
 
-                spline.coeffs()
-                    .into_shape(new_shape).unwrap()
+                spline
+                    .coeffs()
+                    .into_shape(new_shape)
+                    .unwrap()
                     .permuted_axes(permuted_axes.clone())
                     .to_owned()
             };
