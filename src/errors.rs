@@ -1,6 +1,5 @@
-use thiserror::Error;
 use ndarray::ShapeError;
-
+use thiserror::Error;
 
 /// Enum provides error types
 #[derive(Error, Debug)]

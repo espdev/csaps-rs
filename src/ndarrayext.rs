@@ -1,19 +1,17 @@
-use ndarray::{prelude::*, IntoDimension, Slice};
 use itertools::Itertools;
-
+use ndarray::{prelude::*, IntoDimension, Slice};
 
 use crate::{
-    Result,
+    util::dim_from_vec,
     CsapsError::{ReshapeFrom2d, ReshapeTo2d},
-    util::dim_from_vec, Real
+    Real, Result,
 };
-
 
 pub fn diff<'a, T: 'a, D, V>(data: V, axis: Option<Axis>) -> Array<T, D>
 where
     T: Real<T>,
     D: Dimension,
-    V: AsArray<'a, T, D>
+    V: AsArray<'a, T, D>,
 {
     let data_view = data.into();
     let axis = axis.unwrap_or_else(|| Axis(data_view.ndim() - 1));
@@ -24,11 +22,10 @@ where
     &tail - &head
 }
 
-
 pub fn to_2d<'a, T: 'a, D, I>(data: I, axis: Axis) -> Result<ArrayView2<'a, T>>
-    where
-        D: Dimension,
-        I: AsArray<'a, T, D>,
+where
+    D: Dimension,
+    I: AsArray<'a, T, D>,
 {
     let data_view = data.into();
     let ndim = data_view.ndim();
@@ -48,21 +45,18 @@ pub fn to_2d<'a, T: 'a, D, I>(data: I, axis: Axis) -> Result<ArrayView2<'a, T>>
 
     match data_view.permuted_axes(axes).into_shape(new_shape) {
         Ok(view_2d) => Ok(view_2d),
-        Err(error) => Err(
-            ReshapeTo2d {
-                input_shape: shape,
-                output_shape: new_shape.to_vec(),
-                axis: axis.0,
-                source: error,
-            }
-        )
+        Err(error) => Err(ReshapeTo2d {
+            input_shape: shape,
+            output_shape: new_shape.to_vec(),
+            axis: axis.0,
+            source: error,
+        }),
     }
 }
 
-
 pub fn to_2d_simple<'a, T: 'a, D>(data: ArrayView<'a, T, D>) -> Result<ArrayView2<'a, T>>
-    where
-        D: Dimension
+where
+    D: Dimension,
 {
     let ndim = data.ndim();
     let shape = data.shape().to_vec();
@@ -70,23 +64,24 @@ pub fn to_2d_simple<'a, T: 'a, D>(data: ArrayView<'a, T, D>) -> Result<ArrayView
 
     match data.into_shape(new_shape) {
         Ok(data_2d) => Ok(data_2d),
-        Err(error) => Err(
-            ReshapeTo2d {
-                input_shape: shape,
-                output_shape: new_shape.to_vec(),
-                axis: ndim - 1,
-                source: error,
-            }
-        )
+        Err(error) => Err(ReshapeTo2d {
+            input_shape: shape,
+            output_shape: new_shape.to_vec(),
+            axis: ndim - 1,
+            source: error,
+        }),
     }
 }
 
-
-pub fn from_2d<'a, T: 'a, D, S, I>(data: I, shape: S, axis: Axis) -> Result<ArrayView<'a, T, S::Dim>>
-    where
-        D: Dimension,
-        S: IntoDimension<Dim = D>,
-        I: AsArray<'a, T, Ix2>,
+pub fn from_2d<'a, T: 'a, D, S, I>(
+    data: I,
+    shape: S,
+    axis: Axis,
+) -> Result<ArrayView<'a, T, S::Dim>>
+where
+    D: Dimension,
+    S: IntoDimension<Dim = D>,
+    I: AsArray<'a, T, Ix2>,
 {
     let shape = shape.into_dimension();
     let ndim = shape.ndim();
@@ -106,29 +101,25 @@ pub fn from_2d<'a, T: 'a, D, S, I>(data: I, shape: S, axis: Axis) -> Result<Arra
 
             let axes: D = dim_from_vec(ndim, axes_tmp);
             Ok(view_nd.permuted_axes(axes))
-        },
-        Err(error) => Err(
-            ReshapeFrom2d {
-                input_shape: data_view.shape().to_vec(),
-                output_shape: new_shape_vec,
-                axis: axis.0,
-                source: error,
-            }
-        )
+        }
+        Err(error) => Err(ReshapeFrom2d {
+            input_shape: data_view.shape().to_vec(),
+            output_shape: new_shape_vec,
+            axis: axis.0,
+            source: error,
+        }),
     }
 }
-
 
 /// Returns the indices of the bins to which each value in input array belongs
 ///
 /// This code works if `bins` is increasing
 pub fn digitize<'a, T: 'a, A, B>(arr: A, bins: B) -> Array1<usize>
-    where
-        T: Real<T>,
-        // T: Clone  + NdFloat + AlmostEqual,
-
-        A: AsArray<'a, T, Ix1>,
-        B: AsArray<'a, T, Ix1>,
+where
+    T: Real<T>,
+    // T: Clone  + NdFloat + AlmostEqual,
+    A: AsArray<'a, T, Ix1>,
+    B: AsArray<'a, T, Ix1>,
 {
     let arr_view = arr.into();
     let bins_view = bins.into();
@@ -136,9 +127,11 @@ pub fn digitize<'a, T: 'a, A, B>(arr: A, bins: B) -> Array1<usize>
     let mut indices = Array1::zeros((arr_view.len(),));
     let mut kstart: usize = 0;
 
-    for (i, &a) in arr_view.iter().enumerate()
-        .sorted_by(|e1, e2| e1.1.partial_cmp(e2.1).unwrap()) {
-
+    for (i, &a) in arr_view
+        .iter()
+        .enumerate()
+        .sorted_by(|e1, e2| e1.1.partial_cmp(e2.1).unwrap())
+    {
         let mut k = kstart;
 
         for bins_win in bins_view.slice(s![kstart..]).windows(2) {
@@ -158,53 +151,55 @@ pub fn digitize<'a, T: 'a, A, B>(arr: A, bins: B) -> Array1<usize>
     indices
 }
 
-
 #[cfg(test)]
 mod tests {
-    use std::f64;
-    use ndarray::{array, Array1, Axis, Ix1, Ix2, Ix3};
     use crate::ndarrayext::*;
+    use ndarray::{array, Array1, Axis, Ix1, Ix2, Ix3};
+    use std::f64;
 
     #[test]
     fn test_diff_1d() {
         let a = array![1., 2., 3., 4., 5.];
 
-        assert_eq!(diff(&a, None),
-                   array![1., 1., 1., 1.]);
+        assert_eq!(diff(&a, None), array![1., 1., 1., 1.]);
 
-        assert_eq!(diff(&a, Some(Axis(0))),
-                   array![1., 1., 1., 1.]);
+        assert_eq!(diff(&a, Some(Axis(0))), array![1., 1., 1., 1.]);
     }
 
     #[test]
     fn test_diff_2d() {
         let a = array![[1., 2., 3., 4.], [1., 2., 3., 4.]];
 
-        assert_eq!(diff(&a, None),
-                   array![[1., 1., 1.], [1., 1., 1.]]);
+        assert_eq!(diff(&a, None), array![[1., 1., 1.], [1., 1., 1.]]);
 
-        assert_eq!(diff(&a, Some(Axis(0))),
-                   array![[0., 0., 0., 0.]]);
+        assert_eq!(diff(&a, Some(Axis(0))), array![[0., 0., 0., 0.]]);
 
-        assert_eq!(diff(&a, Some(Axis(1))),
-                   array![[1., 1., 1.], [1., 1., 1.]]);
+        assert_eq!(diff(&a, Some(Axis(1))), array![[1., 1., 1.], [1., 1., 1.]]);
     }
 
     #[test]
     fn test_diff_3d() {
         let a = array![[[1., 2., 3.], [1., 2., 3.]], [[1., 2., 3.], [1., 2., 3.]]];
 
-        assert_eq!(diff(&a, None),
-                   array![[[1., 1.], [1., 1.]], [[1., 1.], [1., 1.]]]);
+        assert_eq!(
+            diff(&a, None),
+            array![[[1., 1.], [1., 1.]], [[1., 1.], [1., 1.]]]
+        );
 
-        assert_eq!(diff(&a, Some(Axis(0))),
-                   array![[[0., 0., 0.], [0., 0., 0.]]]);
+        assert_eq!(
+            diff(&a, Some(Axis(0))),
+            array![[[0., 0., 0.], [0., 0., 0.]]]
+        );
 
-        assert_eq!(diff(&a, Some(Axis(1))),
-                   array![[[0., 0., 0.]], [[0., 0., 0.]]]);
+        assert_eq!(
+            diff(&a, Some(Axis(1))),
+            array![[[0., 0., 0.]], [[0., 0., 0.]]]
+        );
 
-        assert_eq!(diff(&a, Some(Axis(2))),
-                   array![[[1., 1.], [1., 1.]], [[1., 1.], [1., 1.]]]);
+        assert_eq!(
+            diff(&a, Some(Axis(2))),
+            array![[[1., 1.], [1., 1.]], [[1., 1.], [1., 1.]]]
+        );
     }
 
     #[test]
@@ -218,8 +213,14 @@ mod tests {
     fn test_to_2d_from_2d() {
         let a = array![[1, 2, 3, 4], [5, 6, 7, 8]];
 
-        assert_eq!(to_2d(&a, Axis(0)).unwrap(), array![[1, 5], [2, 6], [3, 7], [4, 8]]);
-        assert_eq!(to_2d(&a, Axis(1)).unwrap(), array![[1, 2, 3, 4], [5, 6, 7, 8]]);
+        assert_eq!(
+            to_2d(&a, Axis(0)).unwrap(),
+            array![[1, 5], [2, 6], [3, 7], [4, 8]]
+        );
+        assert_eq!(
+            to_2d(&a, Axis(1)).unwrap(),
+            array![[1, 2, 3, 4], [5, 6, 7, 8]]
+        );
     }
 
     #[test]
@@ -229,7 +230,10 @@ mod tests {
         // FIXME: incompatible memory layout
         // assert_eq!(to_2d(&a, Axis(0)).unwrap(), array![[1, 7], [2, 8], [3, 9], [4, 10], [5, 11], [6, 12]]);
         // assert_eq!(to_2d(&a, Axis(1)).unwrap(), array![[1, 4], [2, 5], [3, 6], [7, 10], [8, 11], [9, 12]]);
-        assert_eq!(to_2d(&a, Axis(2)).unwrap(), array![[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]]);
+        assert_eq!(
+            to_2d(&a, Axis(2)).unwrap(),
+            array![[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]]
+        );
     }
 
     #[test]
@@ -241,13 +245,19 @@ mod tests {
     #[test]
     fn test_to_2d_simple_from_2d() {
         let a = array![[1, 2, 3, 4], [5, 6, 7, 8]];
-        assert_eq!(to_2d_simple(a.view()).unwrap(), array![[1, 2, 3, 4], [5, 6, 7, 8]]);
+        assert_eq!(
+            to_2d_simple(a.view()).unwrap(),
+            array![[1, 2, 3, 4], [5, 6, 7, 8]]
+        );
     }
 
     #[test]
     fn test_to_2d_simple_from_3d() {
         let a = array![[[1, 2, 3], [4, 5, 6]], [[7, 8, 9], [10, 11, 12]]];
-        assert_eq!(to_2d_simple(a.view()).unwrap(), array![[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]]);
+        assert_eq!(
+            to_2d_simple(a.view()).unwrap(),
+            array![[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]]
+        );
     }
 
     #[test]
@@ -258,7 +268,8 @@ mod tests {
 
         let r = from_2d(&a, s, Axis(2))
             .unwrap()
-            .into_dimensionality::<Ix3>().unwrap();
+            .into_dimensionality::<Ix3>()
+            .unwrap();
 
         assert_eq!(r, e);
     }
@@ -369,7 +380,10 @@ mod tests {
 
         let indices = digitize(&xi, &edges);
 
-        assert_eq!(indices, array![1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3])
+        assert_eq!(
+            indices,
+            array![1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3]
+        )
     }
 
     #[test]
@@ -389,6 +403,9 @@ mod tests {
 
         let indices = digitize(&xi, &edges);
 
-        assert_eq!(indices, array![0, 1, 0, 2, 2, 1, 0, 3, 4, 4, 3, 3, 2, 2, 1, 0])
+        assert_eq!(
+            indices,
+            array![0, 1, 0, 2, 2, 1, 0, 3, 4, 4, 3, 3, 2, 2, 1, 0]
+        )
     }
 }

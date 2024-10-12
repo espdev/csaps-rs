@@ -1,23 +1,13 @@
-use ndarray::{Dimension, Array, ArrayView1};
+use ndarray::{Array, ArrayView1, Dimension};
 
-use crate::{
-    Real,
-    NdSpline,
-    ndarrayext::to_2d_simple,
-    util::dim_from_vec
-};
+use crate::{ndarrayext::to_2d_simple, util::dim_from_vec, NdSpline, Real};
 
-use super::{
-    NdGridSpline,
-    GridCubicSmoothingSpline,
-    util::permute_axes
-};
-
+use super::{util::permute_axes, GridCubicSmoothingSpline, NdGridSpline};
 
 impl<'a, T, D> NdGridSpline<'a, T, D>
-    where
-        T: Real<T>,
-        D: Dimension
+where
+    T: Real<T>,
+    D: Dimension,
 {
     /// Implements evaluating the spline on the given mesh of Xi-sites
     pub(super) fn evaluate_spline(&self, xi: &[ArrayView1<'a, T>]) -> Array<T, D> {
@@ -47,7 +37,8 @@ impl<'a, T, D> NdGridSpline<'a, T, D>
                 let shape: D = dim_from_vec(self.ndim, coeffs_shape);
 
                 coeffs_2d
-                    .into_shape(shape).unwrap()
+                    .into_shape(shape)
+                    .unwrap()
                     .permuted_axes(permuted_axes.clone())
                     .to_owned()
             };
@@ -59,11 +50,10 @@ impl<'a, T, D> NdGridSpline<'a, T, D>
     }
 }
 
-
 impl<'a, T, D> GridCubicSmoothingSpline<'a, T, D>
-    where
-        T: Real<T>,
-        D: Dimension
+where
+    T: Real<T>,
+    D: Dimension,
 {
     pub(super) fn evaluate_spline(&self, xi: &[ArrayView1<'a, T>]) -> Array<T, D> {
         self.spline.as_ref().unwrap().evaluate_spline(&xi)

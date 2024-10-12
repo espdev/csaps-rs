@@ -1,14 +1,11 @@
 use std::iter::FromIterator;
 
-use ndarray::{prelude::*};
+use ndarray::prelude::*;
 
-use sprs::{CsMat, TriMat, Shape, IndPtrBase};
+use sprs::{CsMat, IndPtrBase, Shape, TriMat};
 use sprs_ldl::LdlNumeric;
 
 use crate::Real;
-
-
-
 
 /// Creates CSR matrix from given diagonals
 ///
@@ -16,9 +13,8 @@ use crate::Real;
 /// because sprs crate does not provide DIA matrices currently.
 ///
 pub fn diags<T>(diags: Array2<T>, offsets: &[isize], shape: Shape) -> CsMat<T>
-    where
-        T: Real<T>
-        // T: Clone + NdFloat
+where
+    T: Real<T>, // T: Clone + NdFloat
 {
     let (rows, cols) = shape;
 
@@ -74,13 +70,12 @@ pub fn diags<T>(diags: Array2<T>, offsets: &[isize], shape: Shape) -> CsMat<T>
     mat.to_csr()
 }
 
-
 /// Returns values on k-diagonal for given sparse matrix
 ///
 ///
 pub fn diagonal<T>(m: &CsMat<T>, k: isize) -> Array1<T>
-    where
-        T: Real<T>
+where
+    T: Real<T>,
 {
     let (rows, cols) = m.shape();
 
@@ -91,14 +86,15 @@ pub fn diagonal<T>(m: &CsMat<T>, k: isize) -> Array1<T>
     }
 }
 
-
-fn diagonal_csr<T>(k: isize,
-                shape: Shape,
-                indptr: IndPtrBase<usize, &[usize]>,
-                indices: &[usize],
-                data: &[T]) -> Array1<T>
-    where
-        T: Real<T>
+fn diagonal_csr<T>(
+    k: isize,
+    shape: Shape,
+    indptr: IndPtrBase<usize, &[usize]>,
+    indices: &[usize],
+    data: &[T],
+) -> Array1<T>
+where
+    T: Real<T>,
 {
     let (rows, cols) = shape;
 
@@ -110,7 +106,7 @@ fn diagonal_csr<T>(k: isize,
     let first_col = if k >= 0 { k as usize } else { 0 };
 
     let diag_size = (rows - first_row).min(cols - first_col) as usize;
-    let mut diag = Array1::<T>::zeros((diag_size, ));
+    let mut diag = Array1::<T>::zeros((diag_size,));
 
     for i in 0..diag_size {
         let row = first_row + i;
@@ -131,15 +127,14 @@ fn diagonal_csr<T>(k: isize,
     diag
 }
 
-
 /// Solves linear system Ax = b for symmetric CSR matrix A and dense vector(s) b
 ///
 /// A: ref to CSR symmetric sparse matrix
 /// b: MxN stack of b-vectors where M is equal to A rows/cols and N is the data dimensional
 ///
 pub fn solve<T>(a: &CsMat<T>, b: &Array2<T>) -> Array2<T>
-    where
-        T: Real<T> 
+where
+    T: Real<T>,
 {
     let mut x = Array2::<T>::zeros(b.raw_dim());
 
@@ -166,7 +161,6 @@ pub fn solve<T>(a: &CsMat<T>, b: &Array2<T>) -> Array2<T>
     x
 }
 
-
 #[cfg(test)]
 mod tests {
     use ndarray::array;
@@ -174,7 +168,6 @@ mod tests {
 
     use crate::sprsext;
 
-    
     #[test]
     fn test_diags_1() {
         /*
@@ -183,11 +176,7 @@ mod tests {
             0     2     6
         */
 
-        let diags = array![
-            [1., 2., 3.],
-            [4., 5., 6.],
-            [7., 8., 9.],
-        ];
+        let diags = array![[1., 2., 3.], [4., 5., 6.], [7., 8., 9.],];
 
         let shape = (3, 3);
 
@@ -198,7 +187,8 @@ mod tests {
             vec![0, 1, 0, 1, 2, 1, 2],
             vec![0, 0, 1, 1, 1, 2, 2],
             vec![4., 1., 8., 5., 2., 9., 6.],
-        ).to_csr();
+        )
+        .to_csr();
 
         assert_eq!(mat, mat_expected);
     }
@@ -211,11 +201,7 @@ mod tests {
             0     3     6     9     0
         */
 
-        let diags = array![
-            [1., 2., 3.],
-            [4., 5., 6.],
-            [7., 8., 9.],
-        ];
+        let diags = array![[1., 2., 3.], [4., 5., 6.], [7., 8., 9.],];
 
         let shape = (3, 5);
 
@@ -226,7 +212,8 @@ mod tests {
             vec![0, 1, 0, 1, 2, 1, 2, 2],
             vec![0, 0, 1, 1, 1, 2, 2, 3],
             vec![4., 2., 7., 5., 3., 8., 6., 9.],
-        ).to_csr();
+        )
+        .to_csr();
 
         assert_eq!(mat, mat_expected);
     }
@@ -241,11 +228,7 @@ mod tests {
             0     0     0
         */
 
-        let diags = array![
-            [1., 2., 3.],
-            [4., 5., 6.],
-            [7., 8., 9.],
-        ];
+        let diags = array![[1., 2., 3.], [4., 5., 6.], [7., 8., 9.],];
 
         let shape: Shape = (5, 3);
 
@@ -256,7 +239,8 @@ mod tests {
             vec![0, 1, 0, 1, 2, 1, 2, 3],
             vec![0, 0, 1, 1, 1, 2, 2, 2],
             vec![4., 1., 8., 5., 2., 9., 6., 3.],
-        ).to_csr();
+        )
+        .to_csr();
 
         assert_eq!(mat, mat_expected);
     }
@@ -271,11 +255,7 @@ mod tests {
             0     0     3
         */
 
-        let diags = array![
-            [1., 2., 3.],
-            [4., 5., 6.],
-            [7., 8., 9.],
-        ];
+        let diags = array![[1., 2., 3.], [4., 5., 6.], [7., 8., 9.],];
 
         let shape: Shape = (5, 3);
 
@@ -286,7 +266,8 @@ mod tests {
             vec![0, 1, 2, 1, 2, 3, 2, 3, 4],
             vec![0, 0, 0, 1, 1, 1, 2, 2, 2],
             vec![7., 4., 1., 8., 5., 2., 9., 6., 3.],
-        ).to_csr();
+        )
+        .to_csr();
 
         assert_eq!(mat, mat_expected);
     }
@@ -308,7 +289,8 @@ mod tests {
             vec![0, 1, 2],
             vec![0, 1, 2],
             vec![1., 2., 3.],
-        ).to_csr();
+        )
+        .to_csr();
 
         assert_eq!(mat, mat_expected);
     }
@@ -385,4 +367,4 @@ mod tests {
 //     T: Real<T> {
 
 //         type Output = CsMatI<f32, I, Iptr>;
-//     } 
+//     }

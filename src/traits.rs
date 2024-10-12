@@ -1,7 +1,7 @@
-use std::ops::{Add, Mul};
-use num_traits::{Num, MulAdd, Float};
 use almost::AlmostEqual;
 use ndarray::NdFloat;
+use num_traits::{Float, MulAdd, Num};
+use std::ops::{Add, Mul};
 
 /// Floating-point element types `f32` and `f64`.
 ///
@@ -11,19 +11,22 @@ use ndarray::NdFloat;
 ///
 /// This trait can only be implemented by `f32` and `f64`.
 pub trait Real<T>:
-    Num + NdFloat + Default +  AlmostEqual + Float
+    Num
+    + NdFloat
+    + Default
+    + AlmostEqual
+    + Float
     + for<'r> std::ops::DivAssign<&'r T>
-    + MulAdd<Output = T> 
+    + MulAdd<Output = T>
 {
 }
-pub trait RealRef<S, T>: Add<S, Output=T> + Mul<S, Output=T> {}
+pub trait RealRef<S, T>: Add<S, Output = T> + Mul<S, Output = T> {}
 
 impl Real<f32> for f32 {}
 impl Real<f64> for f64 {}
 
-impl RealRef<&f32,f32> for &f32 {}
-impl RealRef<&f64,f64> for &f64 {}
-
+impl RealRef<&f32, f32> for &f32 {}
+impl RealRef<&f64, f64> for &f64 {}
 
 // fn test<T>(
 //     a: &CsMatBase<T, usize, Vec<usize>, Vec<usize>, Vec<T>, usize>,
