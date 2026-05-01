@@ -268,8 +268,8 @@ where
     /// - If the spline yet has not been computed
     ///
     pub fn evaluate(&self, xi: &[ArrayView1<'a, T>]) -> Result<Array<T, D>> {
-        self.evaluate_validate(&xi)?;
-        let yi = self.evaluate_spline(&xi);
+        self.evaluate_validate(xi)?;
+        let yi = self.evaluate_spline(xi);
 
         Ok(yi)
     }

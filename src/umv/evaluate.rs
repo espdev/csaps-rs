@@ -23,7 +23,7 @@ where
         xi: ArrayView1<'a, T>,
     ) -> Array2<T> {
         let edges = {
-            let mesh = breaks.slice(s![1 as i32..-1]);
+            let mesh = breaks.slice(s![1..breaks.len() - 1]);
             let one = Array1::<T>::ones((1,));
             let left_bound = &one * T::neg_infinity();
             let right_bound = &one * T::infinity();
@@ -31,7 +31,7 @@ where
             concatenate![Axis(0), left_bound, mesh, right_bound]
         };
 
-        let mut indices = digitize(&xi, &edges);
+        let mut indices = digitize(xi, &edges);
 
         // Go to local coordinates
         let xi = {

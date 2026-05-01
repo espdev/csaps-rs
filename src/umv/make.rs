@@ -138,13 +138,13 @@ where
             };
 
             let c3 = vpad(&(usol * smooth));
-            let c3_head = c3.slice(s![..-1 as i32, ..]);
-            let c3_tail = c3.slice(s![1 as i32.., ..]);
+            let c3_head = c3.slice(s![..c3.nrows() - 1, ..]);
+            let c3_tail = c3.slice(s![1.., ..]);
 
             let p1 = diff(&c3, Some(Axis(0))) / &dx;
             let p2 = &c3_head * three;
             let p3 = diff(&yi, Some(Axis(0))) / &dx - (&c3_head * two + c3_tail) * dx;
-            let p4 = yi.slice(s![..-1 as i32, ..]); // was yi.view()
+            let p4 = yi.slice(s![..yi.nrows() - 1, ..]); // was yi.view()
 
             drop(c3);
 

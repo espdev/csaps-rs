@@ -23,7 +23,7 @@ where
         let mut j: usize = 0;
 
         if offset < 0 {
-            i = offset.abs() as usize;
+            i = offset.unsigned_abs();
         } else {
             j = offset as usize;
         }
@@ -54,12 +54,10 @@ where
             } else {
                 row_head()
             }
+        } else if rows >= cols {
+            row_head()
         } else {
-            if rows >= cols {
-                row_head()
-            } else {
-                row_tail()
-            }
+            row_tail()
         };
 
         for l in 0..n {
@@ -105,7 +103,7 @@ where
     let first_row = if k >= 0 { 0 } else { (-k) as usize };
     let first_col = if k >= 0 { k as usize } else { 0 };
 
-    let diag_size = (rows - first_row).min(cols - first_col) as usize;
+    let diag_size = (rows - first_row).min(cols - first_col);
     let mut diag = Array1::<T>::zeros((diag_size,));
 
     for i in 0..diag_size {

@@ -20,9 +20,9 @@ where
     }
 }
 
-pub fn diff<'a, T: 'a, D, V>(data: V, axis: Option<Axis>) -> Array<T, D>
+pub fn diff<'a, T, D, V>(data: V, axis: Option<Axis>) -> Array<T, D>
 where
-    T: Real<T>,
+    T: Real<T> + 'a,
     D: Dimension,
     V: AsArray<'a, T, D>,
 {
@@ -134,9 +134,9 @@ where
 /// Returns the indices of the bins to which each value in input array belongs
 ///
 /// This code works if `bins` is increasing
-pub fn digitize<'a, T: 'a, A, B>(arr: A, bins: B) -> Array1<usize>
+pub fn digitize<'a, T, A, B>(arr: A, bins: B) -> Array1<usize>
 where
-    T: Real<T>,
+    T: Real<T> + 'a,
     // T: Clone  + NdFloat + AlmostEqual,
     A: AsArray<'a, T, Ix1>,
     B: AsArray<'a, T, Ix1>,
@@ -152,9 +152,13 @@ where
         .enumerate()
         .sorted_by(|e1, e2| e1.1.partial_cmp(e2.1).unwrap())
     {
-        let mut k = kstart;
-
-        for bins_win in bins_view.slice(s![kstart..]).windows(2) {
+        for (offset, bins_win) in bins_view
+            .slice(s![kstart..])
+            .windows(2)
+            .into_iter()
+            .enumerate()
+        {
+            let k = kstart + offset;
             let bl = bins_win[0];
             let br = bins_win[1];
 
@@ -163,8 +167,6 @@ where
                 kstart = k;
                 break;
             }
-
-            k += 1;
         }
     }
 

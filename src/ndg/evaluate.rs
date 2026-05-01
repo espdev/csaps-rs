@@ -62,6 +62,6 @@ where
     D: Dimension,
 {
     pub(super) fn evaluate_spline(&self, xi: &[ArrayView1<'a, T>]) -> Array<T, D> {
-        self.spline.as_ref().unwrap().evaluate_spline(&xi)
+        self.spline.as_ref().unwrap().evaluate_spline(xi)
     }
 }
