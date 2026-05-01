@@ -17,7 +17,6 @@ edition = "2021"
 
 
 [badges]
-travis-ci = { repository = "espdev/csaps-rs", branch = "master" }
 coveralls = { repository = "espdev/csaps-rs", branch = "master", service = "github" }
 
 
