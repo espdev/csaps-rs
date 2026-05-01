@@ -113,6 +113,8 @@ jobs:
       - name: Extract release notes
         run: |
           tag="${{ needs.verify.outputs.tag }}"
+          notes_file="${RUNNER_TEMP}/release-notes.md"
+
           awk -v tag="${tag}" '
             $0 ~ "^## " tag "([[:space:]]|$)" {
               in_section = 1
@@ -124,12 +126,14 @@ jobs:
             in_section {
               print
             }
-          ' CHANGELOG.md | sed '/^[[:space:]]*$/d' > release-notes.md
+          ' CHANGELOG.md | sed '/^[[:space:]]*$/d' > "${notes_file}"
 
-          if [ ! -s release-notes.md ]; then
+          if [ ! -s "${notes_file}" ]; then
             echo "No release notes found for ${tag} in CHANGELOG.md."
             exit 1
           fi
+
+          echo "RELEASE_NOTES=${notes_file}" >> "${GITHUB_ENV}"
 
       - name: Publish crate
         if: ${{ !inputs.dry_run }}
@@ -145,7 +149,7 @@ jobs:
           gh release create "${{ needs.verify.outputs.tag }}" \
             --target "${GITHUB_SHA}" \
             --title "${{ needs.verify.outputs.tag }}" \
-            --notes-file release-notes.md
+            --notes-file "${RELEASE_NOTES}"
 
       - name: Dry run summary
         if: ${{ inputs.dry_run }}
