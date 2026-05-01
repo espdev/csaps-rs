@@ -44,14 +44,15 @@ where
         // Returns NxM array of coeffs values for given 1xM indices array
         // where N is ndim and M is the size of xi
         let get_indexed_coeffs = |inds: &Array1<usize>| {
-            // Returns Nx1 2-d array of coeffs by given index
-            let coeffs_by_index = |&index| coeffs.slice(s![.., index]).insert_axis(Axis(1));
+            let mut indexed_coeffs = Array2::<T>::zeros((coeffs.nrows(), inds.len()));
 
-            // Get the M-sized vector of coeffs values Nx1 arrays
-            // for all dimensions for 1xM indices array
-            let indexed_coeffs: Vec<_> = inds.iter().map(coeffs_by_index).collect();
+            for (col, &index) in inds.iter().enumerate() {
+                indexed_coeffs
+                    .column_mut(col)
+                    .assign(&coeffs.slice(s![.., index]));
+            }
 
-            concatenate(Axis(1), &indexed_coeffs).unwrap()
+            indexed_coeffs
         };
 
         // Vectorized computing the spline pieces (polynoms) on the given data sites
