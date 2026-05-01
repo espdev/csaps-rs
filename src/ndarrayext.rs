@@ -1,11 +1,24 @@
 use itertools::Itertools;
-use ndarray::{prelude::*, IntoDimension, Slice};
+use ndarray::{prelude::*, IntoDimension, Order, Slice};
 
 use crate::{
     util::dim_from_vec,
     CsapsError::{ReshapeFrom2d, ReshapeTo2d},
     Real, Result,
 };
+
+pub(crate) fn reshape_order<T, D>(data: &ArrayView<'_, T, D>) -> Order
+where
+    D: Dimension,
+{
+    if data.is_standard_layout() {
+        Order::RowMajor
+    } else if data.ndim() > 1 && data.raw_view().reversed_axes().is_standard_layout() {
+        Order::ColumnMajor
+    } else {
+        Order::RowMajor
+    }
+}
 
 pub fn diff<'a, T: 'a, D, V>(data: V, axis: Option<Axis>) -> Array<T, D>
 where
@@ -43,7 +56,10 @@ where
     let axis_size = shape[axis.0];
     let new_shape = [numel / axis_size, axis_size];
 
-    match data_view.permuted_axes(axes).into_shape(new_shape) {
+    let data_view = data_view.permuted_axes(axes);
+    let order = reshape_order(&data_view);
+
+    match data_view.into_shape_with_order((new_shape, order)) {
         Ok(view_2d) => Ok(view_2d),
         Err(error) => Err(ReshapeTo2d {
             input_shape: shape,
@@ -62,7 +78,9 @@ where
     let shape = data.shape().to_vec();
     let new_shape = [shape[0..(ndim - 1)].iter().product(), shape[ndim - 1]];
 
-    match data.into_shape(new_shape) {
+    let order = reshape_order(&data);
+
+    match data.into_shape_with_order((new_shape, order)) {
         Ok(data_2d) => Ok(data_2d),
         Err(error) => Err(ReshapeTo2d {
             input_shape: shape,
@@ -93,7 +111,9 @@ where
     let new_shape: D = dim_from_vec(ndim, new_shape_vec.clone());
     let data_view = data.into();
 
-    match data_view.into_shape(new_shape) {
+    let order = reshape_order(&data_view);
+
+    match data_view.into_shape_with_order((new_shape, order)) {
         Ok(view_nd) => {
             let mut axes_tmp: Vec<usize> = (0..ndim).collect();
             let end_axis = axes_tmp.pop().unwrap();

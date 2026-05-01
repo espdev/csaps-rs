@@ -23,13 +23,13 @@ coveralls = { repository = "espdev/csaps-rs", branch = "master", service = "gith
 
 [dependencies]
 num-traits = "0.2.14"
-ndarray = "0.16.1"
+ndarray = "0.17.2"
 sprs-ldl = "0.10.0"
-sprs = "0.11.2"
+sprs = "0.11.4"
 almost = "0.2.0"
-itertools = "0.13.0"
-thiserror = "1.0.30" 
+itertools = "0.14.0"
+thiserror = "2.0.18"
 
 [dev-dependencies]
 approx = "0.5.1"
-ndarray = {version = "0.16.1", features = ["approx"]}
+ndarray = {version = "0.17.2", features = ["approx"]}

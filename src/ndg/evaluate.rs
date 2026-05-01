@@ -1,6 +1,10 @@
 use ndarray::{Array, ArrayView1, Dimension};
 
-use crate::{ndarrayext::to_2d_simple, util::dim_from_vec, NdSpline, Real};
+use crate::{
+    ndarrayext::{reshape_order, to_2d_simple},
+    util::dim_from_vec,
+    NdSpline, Real,
+};
 
 use super::{util::permute_axes, GridCubicSmoothingSpline, NdGridSpline};
 
@@ -36,8 +40,10 @@ where
                 coeffs_shape[ndim_m1] = xi_ax.len();
                 let shape: D = dim_from_vec(self.ndim, coeffs_shape);
 
+                let order = reshape_order(&coeffs_2d.view());
+
                 coeffs_2d
-                    .into_shape(shape)
+                    .into_shape_with_order((shape, order))
                     .unwrap()
                     .permuted_axes(permuted_axes.clone())
                     .to_owned()

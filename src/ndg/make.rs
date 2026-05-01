@@ -1,7 +1,10 @@
 use ndarray::Dimension;
 
 use crate::util::dim_from_vec;
-use crate::{ndarrayext::to_2d_simple, CubicSmoothingSpline, Real, RealRef, Result};
+use crate::{
+    ndarrayext::{reshape_order, to_2d_simple},
+    CubicSmoothingSpline, Real, RealRef, Result,
+};
 
 use super::{util::permute_axes, GridCubicSmoothingSpline, NdGridSpline};
 
@@ -54,9 +57,11 @@ where
                 coeffs_shape[ndim_m1] = spline.pieces() * spline.order();
                 let new_shape: D = dim_from_vec(ndim, coeffs_shape);
 
-                spline
-                    .coeffs()
-                    .into_shape(new_shape)
+                let coeffs = spline.coeffs();
+                let order = reshape_order(&coeffs);
+
+                coeffs
+                    .into_shape_with_order((new_shape, order))
                     .unwrap()
                     .permuted_axes(permuted_axes.clone())
                     .to_owned()
