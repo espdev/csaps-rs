@@ -1,7 +1,14 @@
 # Changelog
 
-## v0.4.0 (2022)
+## v0.5.0 (01.05.2026)
+
+* Fix 3D spline evaluation layout handling for multivariate data.
+* Update dependencies for `ndarray` 0.17 and replace deprecated reshape calls with explicit layout-aware reshaping.
+
+
+## v0.4.0 (20.04.2022)
 * Update to ndarray 0.15 and sprs 0.11
+
 
 ## v0.3.0 (22.03.2020)
 
